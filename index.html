@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق مسجد حسين الخطاب</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'mosque-green': '#0f5132',
+                        'mosque-light': '#198754',
+                        'mosque-gold': '#d4af37',
+                        'mosque-gold-light': '#f9f1dc'
+                    },
+                    fontFamily: {
+                        sans: ['Tajawal', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .hide { display: none !important; }
+        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #0f5132; }
+
+        @keyframes slideIn {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .toast-animate { animation: slideIn 0.3s ease-out forwards; }
+        
+        /* تأثير النجوم */
+        .star-rating i { transition: color 0.2s, transform 0.1s; }
+        .star-rating i:active { transform: scale(0.8); }
+    </style>
+</head>
+<body class="text-gray-800 antialiased selection:bg-mosque-gold selection:text-white">
+
+    <div id="loginScreen" class="min-h-screen flex flex-col items-center justify-center bg-mosque-gold-light p-4 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-64 bg-mosque-green rounded-b-[50%] opacity-10"></div>
+        <div class="absolute -bottom-20 -right-20 text-mosque-green opacity-5 text-[20rem]">
+            <i class="fas fa-mosque"></i>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 relative z-10 border-t-4 border-mosque-gold">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-mosque-green text-mosque-gold rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <i class="fas fa-book-quran text-3xl"></i>
+                </div>
+                <h1 class="text-3xl font-extrabold text-mosque-green">مسجد حسين الخطاب</h1>
+                <p class="text-gray-500 mt-2 text-sm">نظام المتابعة للحلقات القرآنية</p>
+            </div>
+
+            <div id="loginOptions" class="space-y-4">
+                <button onclick="showTeacherLogin()" class="w-full flex items-center justify-center gap-3 bg-mosque-green hover:bg-green-900 text-white p-4 rounded-xl font-bold transition duration-300 shadow-md">
+                    <i class="fas fa-chalkboard-teacher text-xl text-mosque-gold"></i>
+                    دخول الإدارة والمعلمات
+                </button>
+                <button onclick="showParentLogin()" class="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-50 text-mosque-green border-2 border-mosque-gold p-4 rounded-xl font-bold transition duration-300 shadow-sm">
+                    <i class="fas fa-home text-xl"></i>
+                    دخول أولياء الأمور
+                </button>
+            </div>
+
+            <!-- تسجيل دخول المعلمة -->
+            <div id="teacherPinArea" class="hide mt-6 animate-fade-in">
+                <button onclick="backToLoginOptions()" class="text-gray-400 hover:text-gray-600 mb-4 text-sm flex items-center gap-1">
+                    <i class="fas fa-arrow-right"></i> رجوع
+                </button>
+                
+                <label class="block text-sm font-bold text-mosque-green mb-2">اسم المعلمة</label>
+                <div class="relative mb-4">
+                    <select id="teacherSelectName" class="w-full p-3 border border-gray-300 rounded-xl focus:border-mosque-gold outline-none bg-gray-50 text-gray-700 font-bold appearance-none">
+                        <option value="">-- اختاري اسمك --</option>
+                        <option value="آ.نهى">آ.نهى</option>
+                        <option value="آ.منال">آ.منال</option>
+                        <option value="آ.سدرة">آ.سدرة</option>
+                        <option value="آ.غنى">آ.غنى</option>
+                        <option value="آ.نور">آ.نور</option>
+                        <option value="آ.قيّمة">آ.قيّمة</option>
+                        <option value="آ.ميسون">آ.ميسون</option>
+                    </select>
+                    <i class="fas fa-chevron-down absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                </div>
+
+                <label class="block text-sm font-bold text-mosque-green mb-2">الرمز السري</label>
+                <div class="relative">
+                    <i class="fas fa-lock absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="password" id="teacherPin" placeholder="أدخل الرمز (1234)" class="w-full p-3 pr-10 border border-gray-300 rounded-xl focus:border-mosque-gold outline-none text-center text-xl tracking-widest bg-gray-50">
+                </div>
+                <button onclick="loginTeacher()" class="w-full mt-6 bg-mosque-gold hover:bg-yellow-600 text-mosque-green p-3 rounded-xl font-extrabold shadow-md transition">
+                    متابعة
+                </button>
+            </div>
+
+            <!-- تسجيل دخول ولي الأمر -->
+            <div id="parentLoginArea" class="hide mt-6 animate-fade-in">
+                <button onclick="backToLoginOptions()" class="text-gray-400 hover:text-gray-600 mb-4 text-sm flex items-center gap-1">
+                    <i class="fas fa-arrow-right"></i> رجوع
+                </button>
+                <label class="block text-sm font-bold text-mosque-green mb-2">اسم الطالبة الثلاثي</label>
+                <div class="relative">
+                    <i class="fas fa-search absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="parentStudentName" placeholder="ابحث عن اسم ابنتك..." class="w-full p-3 pr-10 border border-gray-300 rounded-xl focus:border-mosque-green outline-none bg-gray-50">
+                </div>
+                <button onclick="loginParent()" class="w-full mt-6 bg-mosque-green hover:bg-green-900 text-white p-3 rounded-xl font-bold shadow-md transition">
+                    متابعة السجل
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- شاشة الإعداد الأولية للمعلمة (تظهر مرة واحدة) -->
+    <div id="teacherSetupScreen" class="hide min-h-screen bg-gray-50 p-4 pb-20">
+        <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-6 mt-10 border-t-4 border-mosque-gold">
+            <h2 class="text-2xl font-bold text-mosque-green mb-2"><i class="fas fa-cog text-mosque-gold"></i> إعداد حلقة جديدة</h2>
+            <p class="text-gray-500 text-sm mb-6">مرحباً بكِ <span id="setupTeacherName" class="font-bold text-mosque-green"></span>. يبدو أن هذه أول مرة تدخلين فيها من هذا الجهاز، يرجى تحديد اسم حلقتك واختيار طالباتك لمرة واحدة.</p>
+            
+            <div class="mb-6">
+                <label class="block font-bold text-gray-700 mb-2">اسم الحلقة (مثال: حلقة عائشة رضي الله عنها)</label>
+                <input type="text" id="setupGroupName" class="w-full p-3 border border-gray-300 rounded-lg focus:border-mosque-green outline-none bg-gray-50">
+            </div>
+
+            <div class="mb-4">
+                <label class="block font-bold text-gray-700 mb-2">حددي طالباتك (يمكنك تغييرهن لاحقاً)</label>
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 h-64 overflow-y-auto" id="setupStudentList">
+                    <!-- سيتم توليد القائمة هنا -->
+                </div>
+            </div>
+
+            <button onclick="saveTeacherSetup()" class="w-full bg-mosque-green text-white font-bold p-4 rounded-xl shadow-md hover:bg-green-900 transition">
+                حفظ وبدء العمل
+            </button>
+        </div>
+    </div>
+
+    <!-- بوابة المعلمات (اللوحة الإدارية) -->
+    <div id="teacherDashboard" class="hide min-h-screen bg-gray-50 pb-24">
+        
+        <header class="bg-mosque-green text-white p-4 shadow-lg sticky top-0 z-50 rounded-b-2xl border-b-4 border-mosque-gold">
+            <div class="max-w-4xl mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-white text-mosque-green rounded-full flex items-center justify-center font-bold shadow-inner">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div>
+                        <h2 id="headerTeacherName" class="font-bold text-lg">بوابة المعلمات</h2>
+                        <p id="headerGroupName" class="text-xs text-mosque-gold-light opacity-80">اسم الحلقة</p>
+                    </div>
+                </div>
+                <button onclick="logout()" class="text-white hover:text-red-300 transition text-sm flex items-center gap-1 bg-white/10 px-3 py-1.5 rounded-lg">
+                    <i class="fas fa-sign-out-alt"></i> خروج
+                </button>
+            </div>
+        </header>
+
+        <main class="max-w-4xl mx-auto p-4 mt-4">
+            
+            <div class="flex bg-white rounded-xl shadow-sm border border-gray-100 p-1 mb-6">
+                <button id="tab-attendance" onclick="switchTab('attendance')" class="tab-btn flex-1 py-2 text-center font-bold text-mosque-green border-b-2 border-mosque-gold rounded-lg bg-mosque-green/5 transition">
+                    <i class="fas fa-tasks text-sm mr-1"></i> السجل
+                </button>
+                <button id="tab-leaderboard" onclick="switchTab('leaderboard')" class="tab-btn flex-1 py-2 text-center font-bold text-gray-500 border-b-2 border-transparent hover:bg-gray-50 rounded-lg transition">
+                    <i class="fas fa-trophy text-sm mr-1"></i> الشرف
+                </button>
+                <button id="tab-settings" onclick="switchTab('settings')" class="tab-btn flex-1 py-2 text-center font-bold text-gray-500 border-b-2 border-transparent hover:bg-gray-50 rounded-lg transition">
+                    <i class="fas fa-cog text-sm mr-1"></i> الإعدادات
+                </button>
+            </div>
+
+            <!-- 1. شاشة السجل اليومي -->
+            <div id="view-attendance" class="tab-content animate-fade-in">
+                
+                <!-- تبديل العرض -->
+                <div class="flex justify-center mb-6">
+                    <div class="bg-gray-200 p-1 rounded-full flex text-sm font-bold shadow-inner">
+                        <button id="filterMyGroupBtn" onclick="setStudentFilter('myGroup')" class="px-6 py-2 rounded-full bg-white text-mosque-green shadow-sm transition">طالبات حلقتي</button>
+                        <button id="filterAllBtn" onclick="setStudentFilter('all')" class="px-6 py-2 rounded-full text-gray-500 hover:text-gray-700 transition">الجميع</button>
+                    </div>
+                </div>
+
+                <!-- أداة الحفظ الجماعي -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-mosque-gold/30 mb-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-1 h-full bg-mosque-gold"></div>
+                    <h3 class="font-bold text-mosque-green mb-3 flex items-center gap-2"><i class="fas fa-bolt text-mosque-gold"></i> الإدخال السريع</h3>
+                    <div class="flex flex-col md:flex-row gap-3">
+                        <input type="text" id="bulkMemorization" placeholder="أدخلي مقدار الحفظ الموحد (مثال: سورة النبأ)" class="flex-1 p-3 border border-gray-300 rounded-lg focus:border-mosque-green outline-none bg-gray-50 text-sm">
+                        <button onclick="applyBulkMemorization()" class="bg-mosque-gold text-mosque-green hover:bg-yellow-600 font-bold p-3 rounded-lg shadow transition whitespace-nowrap">
+                            تطبيق على المحددات
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mb-4 px-2">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" class="w-5 h-5 accent-mosque-green rounded cursor-pointer">
+                        <label for="selectAll" class="font-bold text-gray-700 cursor-pointer select-none">تحديد المعروض</label>
+                    </div>
+                    <span class="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded-full"><span id="studentCount">0</span> طالبة</span>
+                </div>
+
+                <div id="studentListContainer" class="space-y-4 mb-6">
+                    <!-- التوليد بواسطة الجافاسكربت -->
+                </div>
+
+                <div class="sticky bottom-4 z-40 bg-white p-4 rounded-2xl shadow-[0_-4px_20px_rgba(0,0,0,0.1)] border-t-2 border-mosque-green">
+                    <button onclick="saveAllDailyRecords()" class="w-full bg-mosque-green hover:bg-green-900 text-white text-lg font-bold p-4 rounded-xl shadow-lg transition flex justify-center items-center gap-2">
+                        <i class="fas fa-save text-mosque-gold"></i>
+                        حفظ السجلات وإرسالها
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2. لوحة الشرف -->
+            <div id="view-leaderboard" class="tab-content hide animate-fade-in">
+                <div class="text-center mb-4 text-gray-500 text-sm italic">
+                    * يتم عرض طالبات حلقتك فقط في هذه اللوحة لتسهيل التكريم الأسبوعي.
+                </div>
+                <div class="bg-gradient-to-br from-mosque-green to-green-900 rounded-3xl p-6 shadow-xl mb-6 text-white relative overflow-hidden border-2 border-mosque-gold">
+                    <div class="absolute top-0 right-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] opacity-10"></div>
+                    <h2 class="text-center font-extrabold text-2xl text-mosque-gold mb-8 relative z-10"><i class="fas fa-star"></i> نجوم الحلقة <i class="fas fa-star"></i></h2>
+                    
+                    <div id="topThreeContainer" class="flex justify-center items-end gap-2 md:gap-6 relative z-10 h-48">
+                        <!-- التوليد هنا -->
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <table class="w-full text-right">
+                        <thead class="bg-gray-50 text-gray-500 text-sm border-b">
+                            <tr>
+                                <th class="p-4 font-bold w-16">المركز</th>
+                                <th class="p-4 font-bold">اسم الطالبة</th>
+                                <th class="p-4 font-bold text-center">مجموع النقاط</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardTableBody" class="divide-y divide-gray-100">
+                            <!-- التوليد هنا -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 3. الإعدادات -->
+            <div id="view-settings" class="tab-content hide animate-fade-in space-y-6">
+                <!-- تعديل الحلقة -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="font-bold text-mosque-green text-lg mb-4 border-b pb-2"><i class="fas fa-users-cog text-mosque-gold"></i> تعديل طالبات حلقتي</h3>
+                    <p class="text-sm text-gray-500 mb-4">في حال انضمام طالبة جديدة لحلقتك من الطالبات الموجودات مسبقاً، يمكنك إضافتها من هنا.</p>
+                    <button onclick="openSetupScreen()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold p-3 rounded-lg transition border border-gray-300">
+                        إعادة تحديد طالبات الحلقة
+                    </button>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="font-bold text-mosque-green text-lg mb-4 border-b pb-2"><i class="fas fa-user-plus text-mosque-gold"></i> تسجيل طالبة جديدة تماماً للمسجد</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-600 mb-1">اسم الطالبة الثلاثي</label>
+                            <input type="text" id="newStudentName" class="w-full p-3 border border-gray-300 rounded-lg focus:border-mosque-green outline-none bg-gray-50">
+                        </div>
+                    </div>
+                    <button onclick="addNewStudent()" class="mt-4 bg-mosque-gold text-mosque-green hover:bg-yellow-600 font-bold p-3 rounded-lg w-full transition shadow">
+                        إضافة لقاعدة البيانات
+                    </button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- بوابة أولياء الأمور -->
+    <div id="parentDashboard" class="hide min-h-screen bg-mosque-gold-light pb-20 relative">
+        <div class="absolute top-0 w-full h-40 bg-mosque-green rounded-b-[40px] shadow-md z-0"></div>
+        
+        <div class="max-w-md mx-auto p-4 relative z-10 pt-8">
+            <div class="flex justify-between items-start text-white mb-6">
+                <div>
+                    <h2 class="text-xs text-mosque-gold opacity-80 mb-1">مرحباً بولي أمر الطالبة:</h2>
+                    <h1 id="parentStudentTitle" class="text-2xl font-extrabold">الاسم هنا</h1>
+                </div>
+                <button onclick="logout()" class="w-10 h-10 bg-white/10 hover:bg-red-500/80 rounded-full flex items-center justify-center transition shadow-sm border border-white/20">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="bg-white rounded-3xl p-6 shadow-xl border-b-4 border-mosque-gold mb-6 text-center relative">
+                <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-mosque-gold rounded-full flex items-center justify-center text-white text-2xl shadow-lg border-4 border-white">
+                    <i class="fas fa-medal"></i>
+                </div>
+                <h3 class="text-gray-500 text-sm font-bold mt-6 mb-2">الرصيد التراكمي للنقاط</h3>
+                <div class="text-5xl font-extrabold text-mosque-green flex items-center justify-center gap-2">
+                    <span id="parentStudentPoints">0</span>
+                    <i class="fas fa-star text-mosque-gold text-2xl"></i>
+                </div>
+            </div>
+
+            <h3 class="font-bold text-mosque-green mb-4 ml-2"><i class="fas fa-history text-mosque-gold"></i> سجل المتابعة الأخير</h3>
+            <div id="parentHistoryList" class="space-y-3"></div>
+        </div>
+    </div>
+
+    <!-- الإشعارات -->
+    <div id="toast" class="hide fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 z-[100] toast-animate text-sm font-bold min-w-max border border-gray-700">
+        <i class="fas fa-check-circle text-green-400 text-lg"></i>
+        <span id="toastMsg">تمت العملية بنجاح</span>
+    </div>
+
+    <script>
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxGbZ5ikgwPDD7pa_yLCZai6eo9qyaNbEhaamnYu9FN_VxLx1UuQEEGp5TPtjXgv1zq/exec";
+        
+        // البيانات الأولية للطالبات
+        const initialNames = [
+            "أرجوان فخر الدين", "ألمى صبحي", "أوركيد فخر الدين", "إيمان حويان", "تالة حناوي",
+            "تاليا المزي", "تالين معمولي", "جنى سحلول", "جودي زرزور", "جودي سحلول",
+            "جودي سامر سحلول", "جوري عزيزية", "حلا تركماني", "حلا زرزور", "حنين دباسوا",
+            "زينة المقدمي", "سارة أبو لحية", "سارة كلول", "سدرة المقدس", "سدرة عبد الرحمن",
+            "ليلاس السيد", "لمار السيد", "لمار خليفة", "لين صبحي", "ماريا المزي",
+            "مروة السطام", "مها المقرن", "مريم الحريري", "ميرا حاطوم", "ميرا حسن",
+            "ميرال شقير", "مايا صالحة", "نبيهة سحلول", "نور الهدى العناية", "ورد عزيزية",
+            "ياسمين زقاري", "غدى السطام", "أم غدى السطام" // إضافة من القوائم
+        ];
+
+        let students = initialNames.map((name, index) => ({
+            id: index + 1,
+            name: name,
+            points: Math.floor(Math.random() * 20) + 5,
+            history: [] 
+        }));
+
+        const POINTS = { ATTENDANCE_ON_TIME: 5, MEMORIZATION_PERFECT: 10 };
+        
+        // حالة المعلمة الحالية
+        let currentTeacher = null;
+        let viewFilter = 'myGroup'; // 'myGroup' or 'all'
+        let studentBehaviorRatings = {}; // يخزن تقييم السلوك النجمي المؤقت
+
+        // جلب إعدادات المعلمات من التخزين المحلي (Local Storage)
+        let teachersData = JSON.parse(localStorage.getItem('mosqueTeachersData')) || {};
+
+        // --- التنقل بين الشاشات الأساسية ---
+        function showTeacherLogin() {
+            document.getElementById('loginOptions').classList.add('hide');
+            document.getElementById('teacherPinArea').classList.remove('hide');
+        }
+
+        function showParentLogin() {
+            document.getElementById('loginOptions').classList.add('hide');
+            document.getElementById('parentLoginArea').classList.remove('hide');
+        }
+
+        function backToLoginOptions() {
+            document.getElementById('teacherPinArea').classList.add('hide');
+            document.getElementById('parentLoginArea').classList.add('hide');
+            document.getElementById('loginOptions').classList.remove('hide');
+        }
+
+        function loginTeacher() {
+            const tName = document.getElementById('teacherSelectName').value;
+            const pin = document.getElementById('teacherPin').value;
+
+            if (!tName) { alert("الرجاء اختيار اسم المعلمة أولاً."); return; }
+            if (pin !== "1234") { alert("الرمز السري غير صحيح. (الرمز هو 1234)"); return; }
+
+            currentTeacher = tName;
+            document.getElementById('loginScreen').classList.add('hide');
+
+            // التحقق مما إذا كانت المعلمة قد أعدت حلقتها مسبقاً على هذا الجهاز
+            if (!teachersData[currentTeacher]) {
+                openSetupScreen();
+            } else {
+                openTeacherDashboard();
+            }
+        }
+
+        function openSetupScreen() {
+            document.getElementById('teacherDashboard').classList.add('hide');
+            document.getElementById('teacherSetupScreen').classList.remove('hide');
+            document.getElementById('setupTeacherName').innerText = currentTeacher;
+            
+            if(teachersData[currentTeacher]) {
+                document.getElementById('setupGroupName').value = teachersData[currentTeacher].groupName;
+            } else {
+                document.getElementById('setupGroupName').value = "";
+            }
+
+            const listDiv = document.getElementById('setupStudentList');
+            listDiv.innerHTML = '';
+            
+            // ترتيب أبجدي لتسهيل البحث
+            const sortedStudents = [...students].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+            
+            const myStudentIds = teachersData[currentTeacher] ? teachersData[currentTeacher].studentIds : [];
+
+            sortedStudents.forEach(s => {
+                const isChecked = myStudentIds.includes(s.id) ? 'checked' : '';
+                listDiv.innerHTML += `
+                    <div class="flex items-center gap-3 p-2 border-b border-gray-200 hover:bg-gray-100 transition">
+                        <input type="checkbox" id="setup_std_${s.id}" value="${s.id}" class="setup-checkbox w-5 h-5 accent-mosque-green" ${isChecked}>
+                        <label for="setup_std_${s.id}" class="cursor-pointer flex-1 font-bold text-gray-700">${s.name}</label>
+                    </div>
+                `;
+            });
+        }
+
+        function saveTeacherSetup() {
+            const gName = document.getElementById('setupGroupName').value.trim();
+            if(!gName) { alert("يرجى كتابة اسم الحلقة"); return; }
+
+            const selectedIds = Array.from(document.querySelectorAll('.setup-checkbox:checked')).map(cb => parseInt(cb.value));
+            
+            if(selectedIds.length === 0) {
+                const confirmEmpty = confirm("لم تقومي بتحديد أي طالبة. هل تريدين المتابعة بحلقة فارغة؟");
+                if(!confirmEmpty) return;
+            }
+
+            // حفظ البيانات
+            teachersData[currentTeacher] = {
+                groupName: gName,
+                studentIds: selectedIds
+            };
+            localStorage.setItem('mosqueTeachersData', JSON.stringify(teachersData));
+
+            document.getElementById('teacherSetupScreen').classList.add('hide');
+            openTeacherDashboard();
+            showToast("تم حفظ إعدادات الحلقة بنجاح");
+        }
+
+        function openTeacherDashboard() {
+            document.getElementById('teacherSetupScreen').classList.add('hide');
+            document.getElementById('teacherDashboard').classList.remove('hide');
+            
+            document.getElementById('headerTeacherName').innerText = currentTeacher;
+            document.getElementById('headerGroupName').innerText = teachersData[currentTeacher].groupName;
+            
+            viewFilter = 'myGroup'; // افتراضياً عرض حلقة المعلمة
+            updateFilterButtonsUI();
+            renderStudentList();
+            renderLeaderboard();
+        }
+
+        function setStudentFilter(filter) {
+            viewFilter = filter;
+            updateFilterButtonsUI();
+            renderStudentList();
+        }
+
+        function updateFilterButtonsUI() {
+            const myBtn = document.getElementById('filterMyGroupBtn');
+            const allBtn = document.getElementById('filterAllBtn');
+            
+            if(viewFilter === 'myGroup') {
+                myBtn.className = "px-6 py-2 rounded-full bg-white text-mosque-green shadow-sm transition font-bold";
+                allBtn.className = "px-6 py-2 rounded-full text-gray-500 hover:text-gray-700 transition";
+            } else {
+                allBtn.className = "px-6 py-2 rounded-full bg-white text-mosque-green shadow-sm transition font-bold";
+                myBtn.className = "px-6 py-2 rounded-full text-gray-500 hover:text-gray-700 transition";
+            }
+        }
+
+        function renderStudentList() {
+            const container = document.getElementById('studentListContainer');
+            container.innerHTML = '';
+            
+            // تصفية الطالبات بناءً على الخيار
+            let displayStudents = students;
+            if (viewFilter === 'myGroup') {
+                const myIds = teachersData[currentTeacher].studentIds;
+                displayStudents = students.filter(s => myIds.includes(s.id));
+            }
+
+            // ترتيب أبجدي للعرض
+            displayStudents.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+
+            document.getElementById('studentCount').innerText = displayStudents.length;
+
+            if(displayStudents.length === 0) {
+                container.innerHTML = `<div class="text-center p-8 text-gray-400 italic">لا يوجد طالبات لعرضهن.</div>`;
+                return;
+            }
+
+            displayStudents.forEach(student => {
+                // تعيين السلوك الافتراضي المؤقت ليكون 0 في البداية لتظهر النجوم فارغة للتقييم الجديد
+                if(studentBehaviorRatings[student.id] === undefined) {
+                    studentBehaviorRatings[student.id] = 0; 
+                }
+
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded-xl shadow-sm border border-gray-200 transition focus-within:border-mosque-gold focus-within:shadow-md";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-3">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" class="student-checkbox w-5 h-5 accent-mosque-green cursor-pointer" data-id="${student.id}">
+                            <div>
+                                <h4 class="font-bold text-lg text-mosque-green">${student.name}</h4>
+                            </div>
+                        </div>
+                        <div class="text-mosque-gold font-bold bg-mosque-gold-light px-3 py-1 rounded-full border border-yellow-200 text-sm">
+                            <i class="fas fa-star text-xs"></i> ${student.points}
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1"><i class="far fa-clock"></i> الدوام</label>
+                            <select id="attendance_${student.id}" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 focus:border-mosque-green outline-none text-sm font-medium">
+                                <option value="present">حاضر (+5)</option>
+                                <option value="late">تأخير</option>
+                                <option value="absent">غائب</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1"><i class="fas fa-book-open"></i> الحفظ</label>
+                            <input type="text" id="memo_${student.id}" class="memo-input w-full p-2 border border-gray-300 rounded-lg bg-gray-50 focus:border-mosque-green outline-none text-sm" placeholder="مثال: النبأ 1-10">
+                            <div class="mt-2 flex items-center gap-2">
+                                <input type="checkbox" id="memoPerfect_${student.id}" class="w-4 h-4 accent-mosque-gold cursor-pointer">
+                                <label for="memoPerfect_${student.id}" class="text-xs font-bold text-gray-600 cursor-pointer select-none">متقن (+10)</label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1"><i class="far fa-star"></i> السلوك (التقييم)</label>
+                            <div class="star-rating flex flex-row-reverse justify-end gap-1 text-2xl" id="starsContainer_${student.id}">
+                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 5)"></i>
+                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 4)"></i>
+                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 3)"></i>
+                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 2)"></i>
+                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 1)"></i>
+                            </div>
+                            <div class="text-[10px] text-gray-400 mt-1 text-left">النجمة = 1 نقطة</div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+                
+                // إعادة رسم النجوم إذا كان هناك تقييم مسجل مسبقاً قبل الحفظ
+                updateStarsUI(student.id, studentBehaviorRatings[student.id]);
+            });
+        }
+
+        function setBehaviorRating(studentId, rating) {
+            studentBehaviorRatings[studentId] = rating;
+            updateStarsUI(studentId, rating);
+        }
+
+        function updateStarsUI(studentId, rating) {
+            const container = document.getElementById(`starsContainer_${studentId}`);
+            if(!container) return;
+            const stars = container.querySelectorAll('i');
+            
+            // لأننا استخدمنا flex-row-reverse، النجمة رقم 5 هي الأولى في المصفوفة
+            // [0]=5, [1]=4, [2]=3, [3]=2, [4]=1
+            stars.forEach((star, index) => {
+                const starValue = 5 - index; 
+                if (starValue <= rating) {
+                    star.className = "fas fa-star text-mosque-gold cursor-pointer";
+                } else {
+                    star.className = "far fa-star text-gray-300 cursor-pointer hover:text-yellow-400";
+                }
+            });
+        }
+
+        function toggleSelectAll() {
+            const isChecked = document.getElementById('selectAll').checked;
+            document.querySelectorAll('.student-checkbox').forEach(cb => cb.checked = isChecked);
+        }
+
+        function applyBulkMemorization() {
+            const bulkText = document.getElementById('bulkMemorization').value.trim();
+            if (!bulkText) { alert("أدخلي مقدار الحفظ أولاً."); return; }
+
+            let applied = 0;
+            document.querySelectorAll('.student-checkbox:checked').forEach(cb => {
+                const id = cb.getAttribute('data-id');
+                document.getElementById(`memo_${id}`).value = bulkText;
+                applied++;
+            });
+            if (applied > 0) showToast(`تم النسخ إلى ${applied} طالبة`);
+        }
+
+        function saveAllDailyRecords() {
+            let updateCount = 0;
+            let newRecordsToSave = []; 
+
+            // نمر على الطالبات المعروضات حالياً فقط
+            document.querySelectorAll('.student-checkbox').forEach(cb => {
+                const id = parseInt(cb.getAttribute('data-id'));
+                const student = students.find(s => s.id === id);
+                
+                const attendance = document.getElementById(`attendance_${id}`).value;
+                const memoText = document.getElementById(`memo_${id}`).value.trim();
+                const isMemoPerfect = document.getElementById(`memoPerfect_${id}`).checked;
+                const behaviorPoints = studentBehaviorRatings[id] || 0; // السلوك بالنجوم
+
+                if (attendance !== 'absent' || memoText !== '' || behaviorPoints > 0) {
+                    let dailyPoints = 0;
+                    let actions = [];
+
+                    let attendanceAr = (attendance === 'present') ? 'حاضر' : (attendance === 'late' ? 'تأخير' : 'غائب');
+
+                    if (attendance === 'present') { dailyPoints += POINTS.ATTENDANCE_ON_TIME; actions.push('حضور'); }
+                    if (memoText && isMemoPerfect) { dailyPoints += POINTS.MEMORIZATION_PERFECT; actions.push('حفظ متقن'); }
+                    if (behaviorPoints > 0) { dailyPoints += behaviorPoints; actions.push(`سلوك (${behaviorPoints} نجوم)`); }
+
+                    student.points += dailyPoints;
+                    const dateStr = new Date().toLocaleDateString('ar-EG');
+                    
+                    student.history.unshift({
+                        date: dateStr,
+                        memo: memoText || '-',
+                        pointsEarned: dailyPoints,
+                        details: actions.join('، ')
+                    });
+
+                    newRecordsToSave.push({
+                        date: dateStr,
+                        teacher: currentTeacher,
+                        name: student.name,
+                        attendance: attendanceAr,
+                        memo: memoText || '-',
+                        behavior: behaviorPoints + ' نجوم',
+                        pointsEarned: dailyPoints,
+                        details: actions.join('، ')
+                    });
+
+                    updateCount++;
+
+                    // تصفير الخانات
+                    document.getElementById(`memo_${id}`).value = '';
+                    document.getElementById(`memoPerfect_${id}`).checked = false;
+                    studentBehaviorRatings[id] = 0; // تصفير النجوم
+                    updateStarsUI(id, 0);
+                }
+            });
+
+            if (updateCount > 0) {
+                showToast(`تم حفظ وتحديث سجلات ${updateCount} طالبة.`);
+                renderStudentList(); 
+
+                if (GOOGLE_SCRIPT_URL) {
+                    fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors', 
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: "save_records", records: newRecordsToSave })
+                    }).catch(e => console.log("Offline mode active"));
+                }
+                document.getElementById('selectAll').checked = false;
+                toggleSelectAll();
+                document.getElementById('bulkMemorization').value = '';
+            } else {
+                alert("لم يتم إدخال بيانات. سجلوا حفظاً أو حضوراً أو سلوكاً أولاً.");
+            }
+        }
+
+        function renderLeaderboard() {
+            // المعلمة ترى فقط طالبات حلقتها في لوحة الشرف
+            const myIds = teachersData[currentTeacher].studentIds;
+            const myStudents = students.filter(s => myIds.includes(s.id));
+            
+            const sortedStudents = [...myStudents].sort((a, b) => b.points - a.points);
+            const top3Container = document.getElementById('topThreeContainer');
+            top3Container.innerHTML = '';
+            
+            if (sortedStudents.length >= 3) {
+                const podiumHTML = `
+                    <div class="flex flex-col items-center order-2 w-1/3">
+                        <div class="text-center font-bold text-white text-sm mb-2 truncate w-full px-1">${sortedStudents[1].name}</div>
+                        <div class="w-12 h-12 bg-gray-200 rounded-full border-4 border-gray-400 flex items-center justify-center font-bold text-gray-600 shadow-inner mb-2 z-20">2</div>
+                        <div class="bg-gradient-to-b from-gray-300 to-gray-400 w-full h-20 rounded-t-lg shadow-[0_-5px_15px_rgba(0,0,0,0.2)] flex items-center justify-start pt-3 flex-col border-t border-gray-200">
+                            <span class="text-gray-800 font-extrabold text-lg">${sortedStudents[1].points}</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center order-1 z-30 w-1/3 -mb-4">
+                        <i class="fas fa-crown text-mosque-gold text-4xl mb-2 drop-shadow-[0_0_10px_rgba(212,175,55,0.8)]"></i>
+                        <div class="text-center font-bold text-mosque-gold text-base mb-2 truncate w-full px-1">${sortedStudents[0].name}</div>
+                        <div class="w-16 h-16 bg-yellow-100 rounded-full border-4 border-mosque-gold flex items-center justify-center font-bold text-yellow-600 text-xl shadow-[0_0_15px_rgba(212,175,55,0.5)] mb-2 z-20">1</div>
+                        <div class="bg-gradient-to-b from-mosque-gold to-yellow-600 w-full h-32 rounded-t-lg shadow-[0_-5px_20px_rgba(0,0,0,0.3)] flex items-center justify-start pt-4 flex-col border-t border-yellow-300">
+                            <span class="font-extrabold text-2xl text-yellow-900">${sortedStudents[0].points}</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center order-3 w-1/3">
+                        <div class="text-center font-bold text-white text-sm mb-2 truncate w-full px-1">${sortedStudents[2].name}</div>
+                        <div class="w-10 h-10 bg-orange-100 rounded-full border-4 border-orange-400 flex items-center justify-center font-bold text-orange-700 shadow-inner mb-2 z-20">3</div>
+                        <div class="bg-gradient-to-b from-orange-300 to-orange-500 w-full h-16 rounded-t-lg shadow-[0_-5px_15px_rgba(0,0,0,0.2)] flex items-center justify-start pt-2 flex-col border-t border-orange-200">
+                            <span class="text-orange-900 font-extrabold">${sortedStudents[2].points}</span>
+                        </div>
+                    </div>
+                `;
+                top3Container.innerHTML = podiumHTML;
+            }
+
+            const tbody = document.getElementById('leaderboardTableBody');
+            tbody.innerHTML = '';
+            sortedStudents.forEach((student, index) => {
+                if(index < 3) return; 
+                
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-green-50 transition border-b border-gray-50";
+                tr.innerHTML = `
+                    <td class="p-3"><span class="inline-block w-6 h-6 text-center leading-6 rounded-full bg-gray-100 text-gray-500 text-xs font-bold">${index + 1}</span></td>
+                    <td class="p-3 font-bold text-gray-700 text-sm">${student.name}</td>
+                    <td class="p-3 text-center"><span class="bg-mosque-gold-light text-yellow-800 py-1 px-3 rounded-full font-bold border border-yellow-200 text-xs">${student.points} نقطة</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function addNewStudent() {
+            const name = document.getElementById('newStudentName').value.trim();
+            if (!name) { alert("يرجى إدخال اسم الطالبة"); return; }
+
+            const newStudent = { id: students.length + 1, name: name, points: 0, history: [] };
+            students.push(newStudent);
+            
+            // إضافة الطالبة تلقائياً لحلقة المعلمة الحالية
+            teachersData[currentTeacher].studentIds.push(newStudent.id);
+            localStorage.setItem('mosqueTeachersData', JSON.stringify(teachersData));
+
+            showToast("تم الإضافة. الطالبة متوفرة الآن في حلقتك.");
+            document.getElementById('newStudentName').value = '';
+            renderStudentList();
+        }
+
+        function loginParent() {
+            const searchName = document.getElementById('parentStudentName').value.trim();
+            if (!searchName) return;
+            const student = students.find(s => s.name.includes(searchName));
+            if (student) {
+                currentParentViewStudent = student;
+                document.getElementById('loginScreen').classList.add('hide');
+                document.getElementById('parentDashboard').classList.remove('hide');
+                updateParentDashboard();
+            } else { alert("لم يتم العثور على طالبة بهذا الاسم."); }
+        }
+
+        function updateParentDashboard() {
+            const s = currentParentViewStudent;
+            document.getElementById('parentStudentTitle').innerText = s.name;
+            document.getElementById('parentStudentPoints').innerText = s.points;
+
+            const hList = document.getElementById('parentHistoryList');
+            hList.innerHTML = '';
+            if (s.history.length === 0) {
+                hList.innerHTML = `<div class="p-8 bg-white/50 rounded-2xl border border-white text-gray-500 italic text-center shadow-sm">لم يتم تسجيل أداء بعد.</div>`;
+            } else {
+                s.history.forEach(record => {
+                    hList.innerHTML += `
+                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-white text-right flex justify-between items-center relative overflow-hidden group hover:shadow-md transition">
+                            <div class="absolute right-0 top-0 w-1 h-full bg-mosque-green"></div>
+                            <div class="pr-3">
+                                <div class="text-xs text-gray-400 mb-1">${record.date}</div>
+                                <div class="font-bold text-mosque-green text-sm mb-1">الحفظ: <span class="text-gray-700 font-normal bg-gray-50 px-2 rounded">${record.memo}</span></div>
+                                <div class="text-xs text-gray-500"><i class="fas fa-award text-mosque-gold mr-1"></i> ${record.details}</div>
+                            </div>
+                            <div class="flex flex-col items-center justify-center bg-mosque-gold-light p-3 rounded-xl border border-yellow-100 min-w-[70px]">
+                                <span class="text-yellow-700 font-extrabold text-xl">+${record.pointsEarned}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        function logout() {
+            document.getElementById('teacherDashboard').classList.add('hide');
+            document.getElementById('parentDashboard').classList.add('hide');
+            document.getElementById('teacherSetupScreen').classList.add('hide');
+            document.getElementById('loginScreen').classList.remove('hide');
+            document.getElementById('teacherPin').value = '';
+            document.getElementById('teacherSelectName').value = '';
+            currentTeacher = null;
+            backToLoginOptions();
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hide'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('text-mosque-green', 'border-mosque-gold', 'bg-mosque-green/5');
+                el.classList.add('text-gray-500', 'border-transparent');
+            });
+            document.getElementById(`view-${tabName}`).classList.remove('hide');
+            const activeBtn = document.getElementById(`tab-${tabName}`);
+            activeBtn.classList.remove('text-gray-500', 'border-transparent');
+            activeBtn.classList.add('text-mosque-green', 'border-mosque-gold', 'bg-mosque-green/5');
+            if(tabName === 'leaderboard') renderLeaderboard();
+        }
+    </script>
+</body>
+</html>
