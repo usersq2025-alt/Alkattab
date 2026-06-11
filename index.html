@@ -40,6 +40,12 @@
         }
         .toast-animate { animation: slideIn 0.3s ease-out forwards; }
         
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal-animate { animation: modalFadeIn 0.2s ease-out forwards; }
+        
         /* تأثير النجوم */
         .star-rating i { transition: color 0.2s, transform 0.1s; }
         .star-rating i:active { transform: scale(0.8); }
@@ -47,6 +53,22 @@
 </head>
 <body class="text-gray-800 antialiased selection:bg-mosque-gold selection:text-white">
 
+    <!-- نافذة الرسائل المخصصة (بديل الـ Alert و Confirm) -->
+    <div id="customModalBox" class="hide fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 modal-animate border-t-4 border-mosque-gold text-center relative overflow-hidden">
+            <div id="modalIcon" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-gray-100 text-gray-500 text-2xl">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <h3 id="modalTitle" class="text-xl font-bold text-gray-800 mb-2">تنبيه</h3>
+            <p id="modalMessage" class="text-gray-600 mb-6 text-sm"></p>
+            
+            <div id="modalButtons" class="flex gap-3 justify-center">
+                <!-- الأزرار ستضاف عبر الجافاسكربت -->
+            </div>
+        </div>
+    </div>
+
+    <!-- شاشة تسجيل الدخول -->
     <div id="loginScreen" class="min-h-screen flex flex-col items-center justify-center bg-mosque-gold-light p-4 relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-64 bg-mosque-green rounded-b-[50%] opacity-10"></div>
         <div class="absolute -bottom-20 -right-20 text-mosque-green opacity-5 text-[20rem]">
@@ -55,9 +77,10 @@
 
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 relative z-10 border-t-4 border-mosque-gold">
             <div class="text-center mb-8">
-                <div class="w-20 h-20 bg-mosque-green text-mosque-gold rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <i class="fas fa-book-quran text-3xl"></i>
-                </div>
+                <!-- مكان الشعار (اللوجو) الرئيسي -->
+                <!-- ملاحظة: إذا كانت صيغة صورتك مختلفة (مثل logo2.jpg)، فقط قومي بتعديل src -->
+                <img src="logo2.png" alt="شعار مسجد حسين الخطاب" class="w-32 h-32 object-contain mx-auto mb-4 drop-shadow-xl" onerror="this.outerHTML='<div class=\'w-20 h-20 bg-mosque-green text-mosque-gold rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg\'><i class=\'fas fa-book-quran text-3xl\'></i></div>'">
+                
                 <h1 class="text-3xl font-extrabold text-mosque-green">مسجد حسين الخطاب</h1>
                 <p class="text-gray-500 mt-2 text-sm">نظام المتابعة للحلقات القرآنية</p>
             </div>
@@ -121,11 +144,11 @@
         </div>
     </div>
 
-    <!-- شاشة الإعداد الأولية للمعلمة (تظهر مرة واحدة) -->
+    <!-- شاشة الإعداد الأولية للمعلمة -->
     <div id="teacherSetupScreen" class="hide min-h-screen bg-gray-50 p-4 pb-20">
         <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-6 mt-10 border-t-4 border-mosque-gold">
             <h2 class="text-2xl font-bold text-mosque-green mb-2"><i class="fas fa-cog text-mosque-gold"></i> إعداد حلقة جديدة</h2>
-            <p class="text-gray-500 text-sm mb-6">مرحباً بكِ <span id="setupTeacherName" class="font-bold text-mosque-green"></span>. يبدو أن هذه أول مرة تدخلين فيها من هذا الجهاز، يرجى تحديد اسم حلقتك واختيار طالباتك لمرة واحدة.</p>
+            <p class="text-gray-500 text-sm mb-6">مرحباً بكِ <span id="setupTeacherName" class="font-bold text-mosque-green"></span>. يرجى تحديد اسم حلقتك واختيار طالباتك لمرة واحدة.</p>
             
             <div class="mb-6">
                 <label class="block font-bold text-gray-700 mb-2">اسم الحلقة (مثال: حلقة عائشة رضي الله عنها)</label>
@@ -133,9 +156,9 @@
             </div>
 
             <div class="mb-4">
-                <label class="block font-bold text-gray-700 mb-2">حددي طالباتك (يمكنك تغييرهن لاحقاً)</label>
-                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 h-64 overflow-y-auto" id="setupStudentList">
-                    <!-- سيتم توليد القائمة هنا -->
+                <label class="block font-bold text-gray-700 mb-2">حددي طالباتك من قاعدة البيانات</label>
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 h-64 overflow-y-auto space-y-2" id="setupStudentList">
+                    <!-- سيتم التوليد هنا -->
                 </div>
             </div>
 
@@ -151,9 +174,8 @@
         <header class="bg-mosque-green text-white p-4 shadow-lg sticky top-0 z-50 rounded-b-2xl border-b-4 border-mosque-gold">
             <div class="max-w-4xl mx-auto flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-white text-mosque-green rounded-full flex items-center justify-center font-bold shadow-inner">
-                        <i class="fas fa-book-open"></i>
-                    </div>
+                    <!-- اللوجو المصغر في لوحة التحكم -->
+                    <img src="logo2.png" alt="شعار المسجد" class="w-12 h-12 object-contain bg-white rounded-full p-1 shadow-inner" onerror="this.outerHTML='<div class=\'w-10 h-10 bg-white text-mosque-green rounded-full flex items-center justify-center font-bold shadow-inner\'><i class=\'fas fa-book-open\'></i></div>'">
                     <div>
                         <h2 id="headerTeacherName" class="font-bold text-lg">بوابة المعلمات</h2>
                         <p id="headerGroupName" class="text-xs text-mosque-gold-light opacity-80">اسم الحلقة</p>
@@ -254,17 +276,17 @@
 
             <!-- 3. الإعدادات -->
             <div id="view-settings" class="tab-content hide animate-fade-in space-y-6">
-                <!-- تعديل الحلقة -->
+                
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <h3 class="font-bold text-mosque-green text-lg mb-4 border-b pb-2"><i class="fas fa-users-cog text-mosque-gold"></i> تعديل طالبات حلقتي</h3>
-                    <p class="text-sm text-gray-500 mb-4">في حال انضمام طالبة جديدة لحلقتك من الطالبات الموجودات مسبقاً، يمكنك إضافتها من هنا.</p>
+                    <p class="text-sm text-gray-500 mb-4">في حال انضمام طالبة جديدة لحلقتك، يمكنك إعادة تحديد الأسماء.</p>
                     <button onclick="openSetupScreen()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold p-3 rounded-lg transition border border-gray-300">
                         إعادة تحديد طالبات الحلقة
                     </button>
                 </div>
 
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <h3 class="font-bold text-mosque-green text-lg mb-4 border-b pb-2"><i class="fas fa-user-plus text-mosque-gold"></i> تسجيل طالبة جديدة تماماً للمسجد</h3>
+                    <h3 class="font-bold text-mosque-green text-lg mb-4 border-b pb-2"><i class="fas fa-user-plus text-mosque-gold"></i> تسجيل طالبة جديدة للمسجد</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-bold text-gray-600 mb-1">اسم الطالبة الثلاثي</label>
@@ -274,6 +296,24 @@
                     <button onclick="addNewStudent()" class="mt-4 bg-mosque-gold text-mosque-green hover:bg-yellow-600 font-bold p-3 rounded-lg w-full transition shadow">
                         إضافة لقاعدة البيانات
                     </button>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="font-bold text-mosque-green text-lg mb-4 border-b pb-2"><i class="fas fa-plus-circle text-mosque-gold"></i> إضافة معايير نقاط إضافية</h3>
+                    <div class="flex gap-4">
+                        <div class="flex-1">
+                            <input type="text" id="customPointName" placeholder="مثال: إحضار دفتر المتابعة" class="w-full p-3 border border-gray-300 rounded-lg focus:border-mosque-green outline-none bg-gray-50">
+                        </div>
+                        <div class="w-24">
+                            <input type="number" id="customPointValue" placeholder="النقاط" class="w-full p-3 border border-gray-300 rounded-lg focus:border-mosque-green outline-none bg-gray-50 text-center">
+                        </div>
+                        <button onclick="addCustomPointCategory()" class="bg-mosque-light text-white font-bold px-6 rounded-lg hover:bg-green-700 transition">
+                            إضافة
+                        </button>
+                    </div>
+                    <div id="customCategoriesList" class="mt-4 space-y-2">
+                        <!-- التوليد هنا -->
+                    </div>
                 </div>
             </div>
 
@@ -320,7 +360,7 @@
     <script>
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxGbZ5ikgwPDD7pa_yLCZai6eo9qyaNbEhaamnYu9FN_VxLx1UuQEEGp5TPtjXgv1zq/exec";
         
-        // البيانات الأولية للطالبات
+        // البيانات الأولية
         const initialNames = [
             "أرجوان فخر الدين", "ألمى صبحي", "أوركيد فخر الدين", "إيمان حويان", "تالة حناوي",
             "تاليا المزي", "تالين معمولي", "جنى سحلول", "جودي زرزور", "جودي سحلول",
@@ -329,7 +369,7 @@
             "ليلاس السيد", "لمار السيد", "لمار خليفة", "لين صبحي", "ماريا المزي",
             "مروة السطام", "مها المقرن", "مريم الحريري", "ميرا حاطوم", "ميرا حسن",
             "ميرال شقير", "مايا صالحة", "نبيهة سحلول", "نور الهدى العناية", "ورد عزيزية",
-            "ياسمين زقاري", "غدى السطام", "أم غدى السطام" // إضافة من القوائم
+            "ياسمين زقاري", "غدى السطام", "أم غدى السطام" 
         ];
 
         let students = initialNames.map((name, index) => ({
@@ -339,17 +379,81 @@
             history: [] 
         }));
 
+        let customCategories = [
+            { id: 1, name: "مشاركة في تنظيف المسجد", points: 10 },
+            { id: 2, name: "إجابة سؤال الدرس", points: 5 }
+        ];
+
         const POINTS = { ATTENDANCE_ON_TIME: 5, MEMORIZATION_PERFECT: 10 };
         
-        // حالة المعلمة الحالية
         let currentTeacher = null;
-        let viewFilter = 'myGroup'; // 'myGroup' or 'all'
-        let studentBehaviorRatings = {}; // يخزن تقييم السلوك النجمي المؤقت
+        let viewFilter = 'myGroup'; 
+        let studentBehaviorRatings = {}; 
+        let currentParentViewStudent = null;
 
-        // جلب إعدادات المعلمات من التخزين المحلي (Local Storage)
         let teachersData = JSON.parse(localStorage.getItem('mosqueTeachersData')) || {};
 
-        // --- التنقل بين الشاشات الأساسية ---
+        // بديل لـ alert و confirm (لأن المتصفح هنا يمنعها)
+        function closeModalBox() {
+            document.getElementById('customModalBox').classList.add('hide');
+        }
+
+        function showMessage(title, message, isError = false) {
+            const modal = document.getElementById('customModalBox');
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerText = message;
+            
+            const icon = document.getElementById('modalIcon');
+            if(isError) {
+                icon.innerHTML = '<i class="fas fa-exclamation-triangle text-red-500"></i>';
+                icon.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-red-50 text-2xl";
+                document.getElementById('modalTitle').classList.add('text-red-600');
+            } else {
+                icon.innerHTML = '<i class="fas fa-info-circle text-mosque-green"></i>';
+                icon.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-green-50 text-2xl";
+                document.getElementById('modalTitle').classList.remove('text-red-600');
+                document.getElementById('modalTitle').classList.add('text-mosque-green');
+            }
+
+            const btns = document.getElementById('modalButtons');
+            btns.innerHTML = `<button onclick="closeModalBox()" class="px-6 py-2 bg-mosque-green text-white rounded-xl font-bold shadow hover:bg-green-800 transition">حسناً</button>`;
+            
+            modal.classList.remove('hide');
+        }
+
+        function showConfirmDialog(title, message, onConfirmCallback) {
+            const modal = document.getElementById('customModalBox');
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerText = message;
+            
+            const icon = document.getElementById('modalIcon');
+            icon.innerHTML = '<i class="fas fa-question-circle text-yellow-500"></i>';
+            icon.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-yellow-50 text-2xl";
+
+            const btns = document.getElementById('modalButtons');
+            btns.innerHTML = `
+                <button id="confirmYesBtn" class="px-6 py-2 bg-mosque-green text-white rounded-xl font-bold shadow hover:bg-green-800 transition flex-1">نعم، متأكد</button>
+                <button onclick="closeModalBox()" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-300 transition flex-1">إلغاء</button>
+            `;
+            
+            document.getElementById('confirmYesBtn').onclick = () => {
+                closeModalBox();
+                onConfirmCallback();
+            };
+
+            modal.classList.remove('hide');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = message;
+            toast.classList.remove('hide');
+            toast.style.animation = 'none';
+            toast.offsetHeight; 
+            toast.style.animation = null;
+            setTimeout(() => { toast.classList.add('hide'); }, 3000);
+        }
+
         function showTeacherLogin() {
             document.getElementById('loginOptions').classList.add('hide');
             document.getElementById('teacherPinArea').classList.remove('hide');
@@ -370,13 +474,12 @@
             const tName = document.getElementById('teacherSelectName').value;
             const pin = document.getElementById('teacherPin').value;
 
-            if (!tName) { alert("الرجاء اختيار اسم المعلمة أولاً."); return; }
-            if (pin !== "1234") { alert("الرمز السري غير صحيح. (الرمز هو 1234)"); return; }
+            if (!tName) { showMessage("تنبيه", "الرجاء اختيار اسم المعلمة أولاً.", true); return; }
+            if (pin !== "1234") { showMessage("خطأ", "الرمز السري غير صحيح. (الرمز للتجربة هو 1234)", true); return; }
 
             currentTeacher = tName;
             document.getElementById('loginScreen').classList.add('hide');
 
-            // التحقق مما إذا كانت المعلمة قد أعدت حلقتها مسبقاً على هذا الجهاز
             if (!teachersData[currentTeacher]) {
                 openSetupScreen();
             } else {
@@ -398,16 +501,14 @@
             const listDiv = document.getElementById('setupStudentList');
             listDiv.innerHTML = '';
             
-            // ترتيب أبجدي لتسهيل البحث
             const sortedStudents = [...students].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
-            
             const myStudentIds = teachersData[currentTeacher] ? teachersData[currentTeacher].studentIds : [];
 
             sortedStudents.forEach(s => {
                 const isChecked = myStudentIds.includes(s.id) ? 'checked' : '';
                 listDiv.innerHTML += `
-                    <div class="flex items-center gap-3 p-2 border-b border-gray-200 hover:bg-gray-100 transition">
-                        <input type="checkbox" id="setup_std_${s.id}" value="${s.id}" class="setup-checkbox w-5 h-5 accent-mosque-green" ${isChecked}>
+                    <div class="flex items-center gap-3 p-2 bg-white border border-gray-200 rounded-lg hover:border-mosque-gold transition">
+                        <input type="checkbox" id="setup_std_${s.id}" value="${s.id}" class="setup-checkbox w-5 h-5 accent-mosque-green cursor-pointer" ${isChecked}>
                         <label for="setup_std_${s.id}" class="cursor-pointer flex-1 font-bold text-gray-700">${s.name}</label>
                     </div>
                 `;
@@ -416,25 +517,26 @@
 
         function saveTeacherSetup() {
             const gName = document.getElementById('setupGroupName').value.trim();
-            if(!gName) { alert("يرجى كتابة اسم الحلقة"); return; }
+            if(!gName) { showMessage("مطلوب", "يرجى كتابة اسم الحلقة لتتمكني من المتابعة.", true); return; }
 
             const selectedIds = Array.from(document.querySelectorAll('.setup-checkbox:checked')).map(cb => parseInt(cb.value));
             
             if(selectedIds.length === 0) {
-                const confirmEmpty = confirm("لم تقومي بتحديد أي طالبة. هل تريدين المتابعة بحلقة فارغة؟");
-                if(!confirmEmpty) return;
+                showConfirmDialog("حلقة فارغة؟", "لم تقومي بتحديد أي طالبة لحلقتك. هل تريدين حفظ الحلقة فارغة؟", () => {
+                    executeSetupSave(gName, selectedIds);
+                });
+            } else {
+                executeSetupSave(gName, selectedIds);
             }
+        }
 
-            // حفظ البيانات
-            teachersData[currentTeacher] = {
-                groupName: gName,
-                studentIds: selectedIds
-            };
+        function executeSetupSave(gName, selectedIds) {
+            teachersData[currentTeacher] = { groupName: gName, studentIds: selectedIds };
             localStorage.setItem('mosqueTeachersData', JSON.stringify(teachersData));
 
             document.getElementById('teacherSetupScreen').classList.add('hide');
             openTeacherDashboard();
-            showToast("تم حفظ إعدادات الحلقة بنجاح");
+            showToast("تم حفظ إعدادات حلقتك بنجاح");
         }
 
         function openTeacherDashboard() {
@@ -444,8 +546,9 @@
             document.getElementById('headerTeacherName').innerText = currentTeacher;
             document.getElementById('headerGroupName').innerText = teachersData[currentTeacher].groupName;
             
-            viewFilter = 'myGroup'; // افتراضياً عرض حلقة المعلمة
+            viewFilter = 'myGroup'; 
             updateFilterButtonsUI();
+            renderCustomCategories();
             renderStudentList();
             renderLeaderboard();
         }
@@ -461,10 +564,10 @@
             const allBtn = document.getElementById('filterAllBtn');
             
             if(viewFilter === 'myGroup') {
-                myBtn.className = "px-6 py-2 rounded-full bg-white text-mosque-green shadow-sm transition font-bold";
+                myBtn.className = "px-6 py-2 rounded-full bg-white text-mosque-green shadow-sm transition font-bold border border-gray-200";
                 allBtn.className = "px-6 py-2 rounded-full text-gray-500 hover:text-gray-700 transition";
             } else {
-                allBtn.className = "px-6 py-2 rounded-full bg-white text-mosque-green shadow-sm transition font-bold";
+                allBtn.className = "px-6 py-2 rounded-full bg-white text-mosque-green shadow-sm transition font-bold border border-gray-200";
                 myBtn.className = "px-6 py-2 rounded-full text-gray-500 hover:text-gray-700 transition";
             }
         }
@@ -473,31 +576,31 @@
             const container = document.getElementById('studentListContainer');
             container.innerHTML = '';
             
-            // تصفية الطالبات بناءً على الخيار
             let displayStudents = students;
             if (viewFilter === 'myGroup') {
                 const myIds = teachersData[currentTeacher].studentIds;
                 displayStudents = students.filter(s => myIds.includes(s.id));
             }
 
-            // ترتيب أبجدي للعرض
             displayStudents.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
-
             document.getElementById('studentCount').innerText = displayStudents.length;
 
             if(displayStudents.length === 0) {
-                container.innerHTML = `<div class="text-center p-8 text-gray-400 italic">لا يوجد طالبات لعرضهن.</div>`;
+                container.innerHTML = `<div class="text-center p-8 text-gray-400 italic bg-white rounded-xl border border-gray-200">لا يوجد طالبات لعرضهن في هذه القائمة.</div>`;
                 return;
             }
 
             displayStudents.forEach(student => {
-                // تعيين السلوك الافتراضي المؤقت ليكون 0 في البداية لتظهر النجوم فارغة للتقييم الجديد
-                if(studentBehaviorRatings[student.id] === undefined) {
-                    studentBehaviorRatings[student.id] = 0; 
-                }
+                if(studentBehaviorRatings[student.id] === undefined) studentBehaviorRatings[student.id] = 0; 
 
                 const card = document.createElement('div');
                 card.className = "bg-white p-4 rounded-xl shadow-sm border border-gray-200 transition focus-within:border-mosque-gold focus-within:shadow-md";
+                
+                let extraOptions = `<option value="">+ إضافة نشاط (اختياري)</option>`;
+                customCategories.forEach(c => {
+                    extraOptions += `<option value="${c.points}">${c.name} (+${c.points})</option>`;
+                });
+
                 card.innerHTML = `
                     <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-3">
                         <div class="flex items-center gap-3">
@@ -506,7 +609,7 @@
                                 <h4 class="font-bold text-lg text-mosque-green">${student.name}</h4>
                             </div>
                         </div>
-                        <div class="text-mosque-gold font-bold bg-mosque-gold-light px-3 py-1 rounded-full border border-yellow-200 text-sm">
+                        <div class="text-mosque-gold font-bold bg-mosque-gold-light px-3 py-1 rounded-full border border-yellow-200 text-sm flex items-center gap-1">
                             <i class="fas fa-star text-xs"></i> ${student.points}
                         </div>
                     </div>
@@ -515,7 +618,7 @@
                         <div>
                             <label class="block text-xs font-bold text-gray-500 mb-1"><i class="far fa-clock"></i> الدوام</label>
                             <select id="attendance_${student.id}" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 focus:border-mosque-green outline-none text-sm font-medium">
-                                <option value="present">حاضر (+5)</option>
+                                <option value="present">حاضر (+5 نقاط)</option>
                                 <option value="late">تأخير</option>
                                 <option value="absent">غائب</option>
                             </select>
@@ -526,26 +629,28 @@
                             <input type="text" id="memo_${student.id}" class="memo-input w-full p-2 border border-gray-300 rounded-lg bg-gray-50 focus:border-mosque-green outline-none text-sm" placeholder="مثال: النبأ 1-10">
                             <div class="mt-2 flex items-center gap-2">
                                 <input type="checkbox" id="memoPerfect_${student.id}" class="w-4 h-4 accent-mosque-gold cursor-pointer">
-                                <label for="memoPerfect_${student.id}" class="text-xs font-bold text-gray-600 cursor-pointer select-none">متقن (+10)</label>
+                                <label for="memoPerfect_${student.id}" class="text-xs font-bold text-gray-600 cursor-pointer select-none">متقن (+10 نقاط)</label>
                             </div>
                         </div>
 
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 mb-1"><i class="far fa-star"></i> السلوك (التقييم)</label>
-                            <div class="star-rating flex flex-row-reverse justify-end gap-1 text-2xl" id="starsContainer_${student.id}">
-                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 5)"></i>
-                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 4)"></i>
-                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 3)"></i>
-                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 2)"></i>
-                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 1)"></i>
+                        <div class="flex flex-col gap-2">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1"><i class="far fa-star"></i> السلوك (كل نجمة=نقطة)</label>
+                                <div class="star-rating flex flex-row-reverse justify-end gap-1 text-2xl" id="starsContainer_${student.id}">
+                                    <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 5)"></i>
+                                    <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 4)"></i>
+                                    <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 3)"></i>
+                                    <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 2)"></i>
+                                    <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 1)"></i>
+                                </div>
                             </div>
-                            <div class="text-[10px] text-gray-400 mt-1 text-left">النجمة = 1 نقطة</div>
+                            <select id="extraPoint_${student.id}" class="w-full p-2 border border-mosque-gold/50 rounded-lg bg-yellow-50 focus:border-mosque-gold outline-none text-xs font-bold text-mosque-green">
+                                ${extraOptions}
+                            </select>
                         </div>
                     </div>
                 `;
                 container.appendChild(card);
-                
-                // إعادة رسم النجوم إذا كان هناك تقييم مسجل مسبقاً قبل الحفظ
                 updateStarsUI(student.id, studentBehaviorRatings[student.id]);
             });
         }
@@ -560,8 +665,6 @@
             if(!container) return;
             const stars = container.querySelectorAll('i');
             
-            // لأننا استخدمنا flex-row-reverse، النجمة رقم 5 هي الأولى في المصفوفة
-            // [0]=5, [1]=4, [2]=3, [3]=2, [4]=1
             stars.forEach((star, index) => {
                 const starValue = 5 - index; 
                 if (starValue <= rating) {
@@ -579,7 +682,7 @@
 
         function applyBulkMemorization() {
             const bulkText = document.getElementById('bulkMemorization').value.trim();
-            if (!bulkText) { alert("أدخلي مقدار الحفظ أولاً."); return; }
+            if (!bulkText) { showMessage("تنبيه", "أدخلي مقدار الحفظ الموحد في الخانة أولاً.", true); return; }
 
             let applied = 0;
             document.querySelectorAll('.student-checkbox:checked').forEach(cb => {
@@ -588,13 +691,13 @@
                 applied++;
             });
             if (applied > 0) showToast(`تم النسخ إلى ${applied} طالبة`);
+            else showMessage("تنبيه", "لم تقومي بتحديد أي طالبة لتطبيق الحفظ عليها.", true);
         }
 
         function saveAllDailyRecords() {
             let updateCount = 0;
             let newRecordsToSave = []; 
 
-            // نمر على الطالبات المعروضات حالياً فقط
             document.querySelectorAll('.student-checkbox').forEach(cb => {
                 const id = parseInt(cb.getAttribute('data-id'));
                 const student = students.find(s => s.id === id);
@@ -602,9 +705,13 @@
                 const attendance = document.getElementById(`attendance_${id}`).value;
                 const memoText = document.getElementById(`memo_${id}`).value.trim();
                 const isMemoPerfect = document.getElementById(`memoPerfect_${id}`).checked;
-                const behaviorPoints = studentBehaviorRatings[id] || 0; // السلوك بالنجوم
+                const behaviorPoints = studentBehaviorRatings[id] || 0; 
+                
+                const extraPointSelect = document.getElementById(`extraPoint_${id}`);
+                const extraPoints = extraPointSelect && extraPointSelect.value ? parseInt(extraPointSelect.value) : 0;
+                const extraPointDesc = extraPointSelect && extraPointSelect.value ? extraPointSelect.options[extraPointSelect.selectedIndex].text : "";
 
-                if (attendance !== 'absent' || memoText !== '' || behaviorPoints > 0) {
+                if (attendance !== 'absent' || memoText !== '' || behaviorPoints > 0 || extraPoints > 0) {
                     let dailyPoints = 0;
                     let actions = [];
 
@@ -613,6 +720,7 @@
                     if (attendance === 'present') { dailyPoints += POINTS.ATTENDANCE_ON_TIME; actions.push('حضور'); }
                     if (memoText && isMemoPerfect) { dailyPoints += POINTS.MEMORIZATION_PERFECT; actions.push('حفظ متقن'); }
                     if (behaviorPoints > 0) { dailyPoints += behaviorPoints; actions.push(`سلوك (${behaviorPoints} نجوم)`); }
+                    if (extraPoints > 0) { dailyPoints += extraPoints; actions.push(extraPointDesc.split('(+')[0].trim()); }
 
                     student.points += dailyPoints;
                     const dateStr = new Date().toLocaleDateString('ar-EG');
@@ -640,13 +748,14 @@
                     // تصفير الخانات
                     document.getElementById(`memo_${id}`).value = '';
                     document.getElementById(`memoPerfect_${id}`).checked = false;
-                    studentBehaviorRatings[id] = 0; // تصفير النجوم
+                    studentBehaviorRatings[id] = 0; 
                     updateStarsUI(id, 0);
+                    if(extraPointSelect) extraPointSelect.value = '';
                 }
             });
 
             if (updateCount > 0) {
-                showToast(`تم حفظ وتحديث سجلات ${updateCount} طالبة.`);
+                showMessage("اكتمل الحفظ", `تم حفظ وتحديث سجلات ${updateCount} طالبة بنجاح.`);
                 renderStudentList(); 
 
                 if (GOOGLE_SCRIPT_URL) {
@@ -655,22 +764,21 @@
                         mode: 'no-cors', 
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ action: "save_records", records: newRecordsToSave })
-                    }).catch(e => console.log("Offline mode active"));
+                    }).catch(e => console.log("Offline Mode Active"));
                 }
                 document.getElementById('selectAll').checked = false;
                 toggleSelectAll();
                 document.getElementById('bulkMemorization').value = '';
             } else {
-                alert("لم يتم إدخال بيانات. سجلوا حفظاً أو حضوراً أو سلوكاً أولاً.");
+                showMessage("لا يوجد بيانات", "لم يتم إدخال بيانات. سجلوا حفظاً أو حضوراً أو سلوكاً لطالبة واحدة على الأقل قبل الحفظ.", true);
             }
         }
 
         function renderLeaderboard() {
-            // المعلمة ترى فقط طالبات حلقتها في لوحة الشرف
             const myIds = teachersData[currentTeacher].studentIds;
             const myStudents = students.filter(s => myIds.includes(s.id));
-            
             const sortedStudents = [...myStudents].sort((a, b) => b.points - a.points);
+            
             const top3Container = document.getElementById('topThreeContainer');
             top3Container.innerHTML = '';
             
@@ -720,7 +828,7 @@
 
         function addNewStudent() {
             const name = document.getElementById('newStudentName').value.trim();
-            if (!name) { alert("يرجى إدخال اسم الطالبة"); return; }
+            if (!name) { showMessage("بيانات ناقصة", "يرجى إدخال اسم الطالبة أولاً.", true); return; }
 
             const newStudent = { id: students.length + 1, name: name, points: 0, history: [] };
             students.push(newStudent);
@@ -734,6 +842,38 @@
             renderStudentList();
         }
 
+        function addCustomPointCategory() {
+            const name = document.getElementById('customPointName').value.trim();
+            const val = parseInt(document.getElementById('customPointValue').value);
+
+            if (!name || isNaN(val)) {
+                showMessage("خطأ", "يرجى إدخال اسم المعيار وعدد النقاط بشكل صحيح", true);
+                return;
+            }
+
+            customCategories.push({ id: customCategories.length + 1, name: name, points: val });
+            showToast("تمت إضافة المعيار، سيظهر الآن في قائمة الطالبات.");
+            
+            document.getElementById('customPointName').value = '';
+            document.getElementById('customPointValue').value = '';
+            
+            renderCustomCategories();
+            renderStudentList(); 
+        }
+
+        function renderCustomCategories() {
+            const list = document.getElementById('customCategoriesList');
+            list.innerHTML = '';
+            customCategories.forEach(c => {
+                list.innerHTML += `
+                    <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-200">
+                        <span class="font-bold text-gray-700 text-sm"><i class="fas fa-check text-mosque-green ml-2"></i>${c.name}</span>
+                        <span class="bg-mosque-light text-white px-2 py-1 rounded text-xs font-bold shadow-sm">+${c.points}</span>
+                    </div>
+                `;
+            });
+        }
+
         function loginParent() {
             const searchName = document.getElementById('parentStudentName').value.trim();
             if (!searchName) return;
@@ -743,7 +883,9 @@
                 document.getElementById('loginScreen').classList.add('hide');
                 document.getElementById('parentDashboard').classList.remove('hide');
                 updateParentDashboard();
-            } else { alert("لم يتم العثور على طالبة بهذا الاسم."); }
+            } else { 
+                showMessage("غير موجود", "لم يتم العثور على طالبة بهذا الاسم. حاول كتابة الاسم كما هو مسجل.", true); 
+            }
         }
 
         function updateParentDashboard() {
@@ -780,6 +922,7 @@
             document.getElementById('teacherSetupScreen').classList.add('hide');
             document.getElementById('loginScreen').classList.remove('hide');
             document.getElementById('teacherPin').value = '';
+            document.getElementById('parentStudentName').value = '';
             document.getElementById('teacherSelectName').value = '';
             currentTeacher = null;
             backToLoginOptions();
