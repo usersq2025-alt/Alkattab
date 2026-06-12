@@ -58,10 +58,9 @@
         .nav-btn.active { color: #0a4226; font-weight: 900; }
         .nav-btn.active i { transform: translateY(-4px); color: #d4af37; font-size: 1.6rem; }
         
-        /* تدرجات المنصة الملكية */
-        .podium-1 { background: linear-gradient(135deg, #fde047 0%, #ca8a04 100%); border-top: 4px solid #fef08a; }
-        .podium-2 { background: linear-gradient(135deg, #e5e7eb 0%, #9ca3af 100%); border-top: 4px solid #f3f4f6; }
-        .podium-3 { background: linear-gradient(135deg, #fdba74 0%, #ea580c 100%); border-top: 4px solid #fed7aa; }
+        .mode-attendance .sec-memo, .mode-attendance .sec-behavior { display: none !important; }
+        .mode-memo .sec-attendance, .mode-memo .sec-behavior { display: none !important; }
+        .mode-behavior .sec-attendance, .mode-behavior .sec-memo { display: none !important; }
 
         .loader {
             border: 4px solid #e5e7eb; border-top: 4px solid #d4af37;
@@ -72,11 +71,6 @@
     </style>
 </head>
 <body class="text-gray-800 antialiased">
-
-    <!-- شريط التاريخ الثابت في الأعلى -->
-    <div id="topDateBar" class="hide sticky top-0 z-50 bg-mosque-green text-white text-center py-2 shadow-md font-bold text-sm md:text-base border-b-2 border-mosque-gold">
-        <i class="far fa-calendar-alt text-mosque-gold mr-2"></i> <span id="currentDateDisplay"></span>
-    </div>
 
     <!-- شاشة التحميل -->
     <div id="loadingOverlay" class="hide fixed inset-0 z-[200] flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm">
@@ -96,21 +90,23 @@
         </div>
     </div>
 
-    <!-- ==========================================
-         شاشة تسجيل الدخول
-         ========================================== -->
-    <div id="loginScreen" class="min-h-screen flex flex-col items-center justify-center bg-mosque-gold-light p-4 relative overflow-hidden">
+    <!-- الإشعارات المنبثقة -->
+    <div id="toast" class="hide fixed top-20 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-8 py-4 rounded-full shadow-2xl flex items-center gap-4 z-[300] toast-animate text-lg font-bold min-w-max border-2 border-gray-700">
+        <i class="fas fa-check-circle text-green-400 text-2xl"></i>
+        <span id="toastMsg">تمت العملية بنجاح</span>
+    </div>
+
+    <!-- شاشة تسجيل دخول المعلمة -->
+    <div id="loginScreen" class="hide min-h-screen flex flex-col items-center justify-center bg-mosque-gold-light p-4 relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-72 bg-mosque-green rounded-b-[60%] opacity-5"></div>
-        
         <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md p-8 relative z-10 border-t-4 border-mosque-gold">
             <div class="text-center mb-10">
-                <img src="logo2.png" alt="شعار مسجد حسين الخطاب" class="w-32 h-32 object-contain mx-auto mb-4 drop-shadow-xl" onerror="this.outerHTML='<div class=\'w-28 h-28 bg-mosque-green text-mosque-gold rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl\'><i class=\'fas fa-mosque text-5xl\'></i></div>'">
+                <img src="logo2.png" alt="شعار المسجد" class="w-32 h-32 object-contain mx-auto mb-4 drop-shadow-xl" onerror="this.outerHTML='<div class=\'w-28 h-28 bg-mosque-green text-mosque-gold rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl\'><i class=\'fas fa-mosque text-5xl\'></i></div>'">
                 <h1 class="text-4xl font-ruqaa font-bold text-mosque-green leading-tight">مسجد حسين الخطاب</h1>
-                <p id="loginSubtitle" class="text-gray-500 mt-3 font-bold text-sm bg-gray-100 py-1.5 px-5 rounded-full inline-block border border-gray-200">بوابة الإدارة والمعلمات</p>
+                <p class="text-gray-500 mt-3 font-bold text-sm bg-gray-100 py-1.5 px-5 rounded-full inline-block border border-gray-200">بوابة الإدارة والمعلمات</p>
             </div>
 
-            <!-- تسجيل المعلمة (بدون رمز سري) -->
-            <div id="teacherPinArea" class="animate-fade-in space-y-6">
+            <div class="space-y-6">
                 <div>
                     <label class="block font-black text-mosque-green mb-3 text-lg">اختر اسم المعلمة للدخول</label>
                     <div class="relative">
@@ -132,33 +128,13 @@
                     دخول للحلقة <i class="fas fa-arrow-left mr-2"></i>
                 </button>
             </div>
-
-            <!-- تسجيل دخول ولي الأمر -->
-            <div id="parentLoginArea" class="hide animate-fade-in">
-                <label class="block font-black text-mosque-green mb-2 text-center text-xl">أهلاً بك ولي الأمر الكريم</label>
-                <p class="text-sm text-gray-500 text-center mb-6 font-bold">الرجاء إدخال اسم ابنتك الثلاثي لمتابعة سجلها ومكافآتها.</p>
-                <div class="relative">
-                    <i class="fas fa-search absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></i>
-                    <input type="text" id="parentStudentName" placeholder="اكتب اسم الطالبة هنا..." class="w-full p-4 pr-14 border-2 border-gray-200 rounded-2xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-lg">
-                </div>
-                <button onclick="loginParent()" class="w-full mt-8 bg-mosque-green hover:bg-green-900 text-white p-4 rounded-2xl font-black text-xl shadow-lg transition transform hover:-translate-y-1">
-                    متابعة السجل
-                </button>
-            </div>
         </div>
     </div>
 
-    <!-- ==========================================
-         شاشة الإعداد الأولية (مع زر رجوع وبحث)
-         ========================================== -->
+    <!-- شاشة إعداد المعلمة (اختيار الطالبات) -->
     <div id="teacherSetupScreen" class="hide min-h-screen bg-gray-50 p-4 pb-20">
         <div class="max-w-2xl mx-auto bg-white rounded-3xl shadow-xl p-8 mt-6 border-t-8 border-mosque-gold animate-slide-up relative">
-            
-            <button onclick="closeSetupScreen()" class="absolute top-6 left-6 text-gray-400 hover:text-gray-800 font-bold bg-gray-100 px-4 py-2 rounded-xl transition flex items-center gap-2">
-                <i class="fas fa-arrow-right"></i> رجوع
-            </button>
-
-            <h2 class="text-4xl font-ruqaa text-mosque-green mb-4 mt-8"><i class="fas fa-users-cog text-mosque-gold"></i> إعداد الحلقة</h2>
+            <h2 class="text-4xl font-ruqaa text-mosque-green mb-4 mt-4"><i class="fas fa-users-cog text-mosque-gold"></i> إعداد الحلقة</h2>
             <p class="text-gray-500 text-lg font-bold mb-8 leading-relaxed">أهلاً بكِ أ. <span id="setupTeacherName" class="font-black text-mosque-green"></span>. حددي اسم حلقتك وطالباتك من القائمة.</p>
             
             <div class="mb-6">
@@ -168,15 +144,11 @@
 
             <div class="mb-8">
                 <label class="block font-black text-gray-800 mb-3 text-lg">حددي طالبات الحلقة</label>
-                <!-- مربع البحث الذكي لتسهيل إيجاد الطالبة -->
                 <div class="relative mb-4">
                     <i class="fas fa-search absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></i>
                     <input type="text" id="setupSearchStudent" onkeyup="filterSetupStudents()" placeholder="ابحثي عن اسم الطالبة سريعاً..." class="w-full p-4 pr-14 border-2 border-mosque-gold/50 rounded-2xl focus:border-mosque-gold outline-none bg-mosque-gold-light/30 font-bold text-lg">
                 </div>
-                
-                <div class="bg-gray-50 p-3 rounded-2xl border-2 border-gray-200 h-[350px] overflow-y-auto space-y-2" id="setupStudentList">
-                    <!-- سيتم التوليد هنا -->
-                </div>
+                <div class="bg-gray-50 p-3 rounded-2xl border-2 border-gray-200 h-[350px] overflow-y-auto space-y-2" id="setupStudentList"></div>
             </div>
 
             <button onclick="saveTeacherSetup()" class="w-full bg-mosque-green text-white font-black text-xl p-5 rounded-2xl shadow-xl hover:bg-green-900 transition flex items-center justify-center gap-3">
@@ -185,137 +157,166 @@
         </div>
     </div>
 
-    <!-- ==========================================
-         بوابة المعلمات (اللوحة الرئيسية)
-         ========================================== -->
+    <!-- شاشة إعداد أولياء الأمور (تحديد الأبناء لأول مرة) -->
+    <div id="parentSetupScreen" class="hide min-h-screen bg-mosque-gold-light p-4 flex flex-col items-center justify-center relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-72 bg-mosque-green rounded-b-[60%] opacity-5"></div>
+        <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md p-8 relative z-10 border-t-4 border-mosque-gold">
+            <div class="text-center mb-8">
+                <i class="fas fa-users text-5xl text-mosque-green mb-4"></i>
+                <h1 class="text-3xl font-ruqaa font-bold text-mosque-green">بوابة الأهالي</h1>
+                <p class="text-gray-500 mt-2 font-bold">يرجى تحديد أسماء بناتك للمتابعة</p>
+            </div>
+            
+            <div class="relative mb-4">
+                <i class="fas fa-search absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                <input type="text" id="parentSearchStudent" onkeyup="filterParentSetupStudents()" placeholder="ابحثي عن اسم الطالبة..." class="w-full p-3 pr-12 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold">
+            </div>
+
+            <div class="bg-gray-50 p-2 rounded-xl border border-gray-200 h-60 overflow-y-auto space-y-2 mb-6" id="parentStudentListCheckboxes">
+                <!-- يُولد برمجيا -->
+            </div>
+
+            <button onclick="saveParentSetup()" class="w-full bg-mosque-green hover:bg-green-900 text-white p-4 rounded-xl font-black text-xl shadow-md transition">
+                اعتماد الدخول
+            </button>
+        </div>
+    </div>
+
+    <!-- بوابة أولياء الأمور (لوحة المتابعة) -->
+    <div id="parentDashboard" class="hide min-h-screen bg-mosque-gold-light pb-20 relative">
+        <div class="absolute top-0 w-full h-56 bg-mosque-green rounded-b-[50px] shadow-lg z-0"></div>
+        
+        <div class="max-w-md mx-auto p-4 relative z-10 pt-6">
+            
+            <!-- أزرار تبديل الأبناء (في حال كان هناك أكثر من ابنة) -->
+            <div id="parentChildSwitcher" class="flex gap-2 overflow-x-auto hide-scrollbar mb-6 pb-2">
+                <!-- يُولد برمجيا -->
+            </div>
+
+            <div class="text-center text-white mb-8">
+                <h2 class="text-lg text-mosque-gold opacity-90 mb-1 font-bold">سجل الطالبة</h2>
+                <h1 id="parentStudentTitle" class="text-3xl font-black text-white drop-shadow-md">الاسم هنا</h1>
+            </div>
+
+            <div class="bg-white rounded-[2rem] p-6 shadow-xl border-b-8 border-mosque-gold mb-8 text-center relative mt-12">
+                <div class="absolute -top-12 left-1/2 transform -translate-x-1/2 w-24 h-24 bg-gradient-to-br from-mosque-gold to-yellow-600 rounded-full flex items-center justify-center text-white text-4xl shadow-lg border-4 border-white">
+                    <i class="fas fa-medal"></i>
+                </div>
+                <h3 class="text-gray-500 text-base font-bold mt-10 mb-2">الرصيد التراكمي للنقاط</h3>
+                <div class="text-6xl font-black text-mosque-green flex items-center justify-center gap-3">
+                    <span id="parentStudentPoints" dir="ltr">0</span>
+                    <i class="fas fa-star text-mosque-gold text-4xl"></i>
+                </div>
+            </div>
+
+            <!-- لوحة التميز (للأهالي) -->
+            <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 mb-8">
+                <h3 class="font-ruqaa font-bold text-2xl text-mosque-green border-b pb-3 mb-4"><i class="fas fa-crown text-mosque-gold ml-2"></i> لوحة التميز (أوائل المسجد)</h3>
+                <div id="parentLeaderboardList" class="space-y-3"></div>
+            </div>
+
+            <h3 class="font-ruqaa font-bold text-2xl text-mosque-green mb-4 ml-2"><i class="fas fa-history text-mosque-gold ml-2"></i> سجل المتابعة التفصيلي</h3>
+            <div id="parentHistoryList" class="space-y-4 mb-8"></div>
+            
+            <!-- إرسال ملاحظة للمعلمة -->
+            <div class="bg-white rounded-3xl p-5 shadow-sm border-2 border-mosque-green/20 mb-8">
+                <h3 class="font-ruqaa font-bold text-xl text-mosque-green mb-3"><i class="fas fa-envelope-open-text text-mosque-gold ml-2"></i> تواصل مع المعلمة</h3>
+                <textarea id="parentNoteText" rows="3" placeholder="اكتبي ملاحظة أو استفساراً لمعلمة الحلقة هنا..." class="w-full p-3 border border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold resize-none mb-3"></textarea>
+                <button onclick="sendNoteToTeacher()" class="w-full bg-mosque-gold text-mosque-green font-black p-3 rounded-xl shadow-md hover:bg-yellow-500 transition">
+                    إرسال الملاحظة
+                </button>
+            </div>
+            
+            <button onclick="logoutParent()" class="w-full bg-red-50 text-red-600 hover:bg-red-100 font-black text-lg p-4 rounded-2xl shadow-sm border border-red-200 transition flex items-center justify-center gap-2">
+                <i class="fas fa-sign-out-alt"></i> تسجيل خروج
+            </button>
+        </div>
+    </div>
+
+    <!-- بوابة المعلمات (اللوحة الرئيسية) -->
     <div id="teacherDashboard" class="hide min-h-screen bg-gray-50 pb-32">
+        
+        <!-- شريط التاريخ الثابت مع التقويم -->
+        <div class="sticky top-0 z-50 bg-mosque-green text-white text-center py-3 shadow-md border-b-2 border-mosque-gold relative">
+            <label for="mainDatePicker" class="cursor-pointer flex items-center justify-center gap-2 hover:opacity-80 transition">
+                <i class="far fa-calendar-alt text-mosque-gold text-lg"></i> 
+                <span id="currentDateDisplay" class="font-black text-lg font-ruqaa tracking-wide"></span>
+                <i class="fas fa-caret-down text-xs opacity-70"></i>
+            </label>
+            <!-- input date مخفي شفاف يغطي المساحة ليتم فتحه عند النقر -->
+            <input type="date" id="mainDatePicker" onchange="changeActiveDate(this.value)" class="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer">
+        </div>
+
+        <header class="bg-white p-4 shadow-sm relative z-40 border-b border-gray-200">
+            <div class="max-w-4xl mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-mosque-green/10 text-mosque-green rounded-full flex items-center justify-center text-xl border border-mosque-green/20">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div>
+                        <h2 id="headerTeacherName" class="font-black text-lg text-gray-800">أ. المعلمة</h2>
+                        <p id="headerGroupName" class="text-sm text-gray-500 font-bold">اسم الحلقة</p>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button onclick="showTeacherNotifications()" class="relative w-12 h-12 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-600 transition border border-gray-200">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span id="notifBadge" class="hide absolute top-0 right-0 w-5 h-5 bg-red-500 text-white rounded-full text-xs font-black flex items-center justify-center border-2 border-white">0</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
         <main class="max-w-4xl mx-auto p-4 mt-2">
 
-            <!-- 1. شاشة الدوام (محدثة بالكامل) -->
-            <div id="view-attendance" class="tab-content animate-fade-in">
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-6">
-                    <div class="flex justify-between items-start mb-6 border-b border-gray-100 pb-4">
-                        <div>
-                            <h2 class="text-3xl font-ruqaa text-mosque-green font-bold">سجل الحضور اليومي</h2>
-                            <p class="text-gray-500 font-bold mt-2 text-sm leading-relaxed">بشكل افتراضي الجميع (حاضر). غيّري حالة الطالبات الغائبات فقط لسرعة الإنجاز.</p>
-                        </div>
-                        <span class="bg-green-50 text-mosque-green font-black px-4 py-2 rounded-xl border border-green-200 shadow-sm whitespace-nowrap"><span id="attCount">0</span> طالبة</span>
-                    </div>
-
-                    <div class="flex justify-center mb-6">
-                        <div class="bg-gray-100 p-1.5 rounded-2xl flex text-base font-bold shadow-inner w-full">
-                            <button id="filterAttMyGroupBtn" onclick="setAttFilter('myGroup')" class="flex-1 px-4 py-3 rounded-xl bg-white text-mosque-green shadow-sm transition border border-gray-200">طالبات حلقتي</button>
-                            <button id="filterAttAllBtn" onclick="setAttFilter('all')" class="flex-1 px-4 py-3 rounded-xl text-gray-500 hover:text-gray-700 transition">جميع الطالبات</button>
-                        </div>
-                    </div>
-
-                    <div id="attendanceListContainer" class="space-y-3 mb-6">
-                        <!-- يُولد عبر الجافاسكربت -->
-                    </div>
-
-                    <button onclick="saveAttendance()" class="w-full bg-mosque-green text-mosque-gold-light font-black text-xl p-5 rounded-2xl shadow-xl hover:bg-green-900 transition flex justify-center items-center gap-3">
-                        <i class="fas fa-save text-2xl text-mosque-gold"></i> حفظ الحضور لليوم
-                    </button>
-                </div>
+            <!-- شريط التبويبات الكبير -->
+            <div class="flex overflow-x-auto bg-white rounded-2xl shadow-sm border-2 border-gray-100 p-2 mb-6 hide-scrollbar gap-2">
+                <button id="tab-attendance" onclick="switchMainTab('attendance')" class="tab-btn flex-1 min-w-[100px] py-3 px-2 text-center font-black text-mosque-green border-b-4 border-mosque-gold rounded-xl bg-mosque-green/5 transition text-lg">
+                    <i class="fas fa-clock block text-xl mb-1"></i> الدوام
+                </button>
+                <button id="tab-memo" onclick="switchMainTab('memo')" class="tab-btn flex-1 min-w-[100px] py-3 px-2 text-center font-bold text-gray-400 border-b-4 border-transparent hover:bg-gray-50 rounded-xl transition text-lg">
+                    <i class="fas fa-book-open block text-xl mb-1"></i> التسميع
+                </button>
+                <button id="tab-behavior" onclick="switchMainTab('behavior')" class="tab-btn flex-1 min-w-[100px] py-3 px-2 text-center font-bold text-gray-400 border-b-4 border-transparent hover:bg-gray-50 rounded-xl transition text-lg">
+                    <i class="fas fa-star block text-xl mb-1"></i> السلوك
+                </button>
+                <button id="tab-leaderboard" onclick="switchMainTab('leaderboard')" class="tab-btn flex-1 min-w-[100px] py-3 px-2 text-center font-bold text-gray-400 border-b-4 border-transparent hover:bg-gray-50 rounded-xl transition text-lg">
+                    <i class="fas fa-crown block text-xl mb-1"></i> الشرف
+                </button>
+                <button id="tab-settings" onclick="switchMainTab('settings')" class="tab-btn flex-1 min-w-[100px] py-3 px-2 text-center font-bold text-gray-400 border-b-4 border-transparent hover:bg-gray-50 rounded-xl transition text-lg">
+                    <i class="fas fa-cog block text-xl mb-1"></i> الإعدادات
+                </button>
             </div>
 
-            <!-- 2. شاشة التسميع (تحديد منفصل لكل طالبة) -->
-            <div id="view-memo" class="tab-content hide animate-fade-in">
-                <h2 class="text-3xl font-ruqaa text-mosque-green font-bold mb-6 px-2">سجل الحفظ والتسميع</h2>
+            <!-- حاوية السجلات اليومية المجمعة -->
+            <div id="view-daily-records" class="tab-content mode-attendance animate-fade-in">
                 
-                <div class="bg-white p-6 rounded-3xl shadow-sm border-2 border-mosque-gold/30 mb-6 relative overflow-visible z-20">
-                    <label class="block font-black text-gray-800 mb-3 text-lg">اختاري اسم الطالبة للتسميع:</label>
-                    <div class="relative">
-                        <select id="memoStudentSelect" onchange="loadMemoForm()" class="w-full p-4 border-2 border-gray-200 rounded-2xl focus:border-mosque-green outline-none bg-gray-50 text-xl font-bold text-mosque-green appearance-none">
-                            <!-- يولد برمجياً -->
-                        </select>
-                        <i class="fas fa-chevron-down absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl"></i>
+                <div class="flex justify-center mb-6">
+                    <div class="bg-gray-200 p-1.5 rounded-full flex text-base font-black shadow-inner w-full md:w-auto">
+                        <button id="filterMyGroupBtn" onclick="setStudentFilter('myGroup')" class="flex-1 px-8 py-3 rounded-full bg-white text-mosque-green shadow-md transition border border-gray-200">طالبات حلقتي</button>
+                        <button id="filterAllBtn" onclick="setStudentFilter('all')" class="flex-1 px-8 py-3 rounded-full text-gray-500 hover:text-gray-700 transition">جميع الطالبات</button>
                     </div>
                 </div>
 
-                <div id="memoFormArea" class="hide bg-white p-6 md:p-8 rounded-3xl shadow-md border border-gray-100 space-y-6 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-2 h-full bg-mosque-green"></div>
-                    
+                <!-- أداة التحديد السريع للدوام (فقط في تبويب الدوام) -->
+                <div class="sec-attendance bg-blue-50/50 border border-blue-100 p-4 rounded-xl mb-6 flex justify-between items-center">
                     <div>
-                        <label class="block font-black text-gray-800 mb-3 text-lg">مقدار الحفظ الذي أسمعته</label>
-                        <input type="text" id="memoInputAmount" oninput="saveDrafts()" placeholder="مثال: سورة النبأ من 1 إلى 15" class="w-full p-4 border-2 border-gray-200 rounded-2xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-lg">
+                        <span class="font-bold text-blue-800 text-sm block mb-1">افتراضياً الجميع (حاضر)</span>
+                        <span class="text-xs text-blue-600">غيّري حالة الغائبات فقط لسرعة الإنجاز.</span>
                     </div>
-                    
-                    <div class="bg-gray-50 p-5 rounded-2xl border-2 border-gray-100 text-center">
-                        <label class="block font-black text-gray-800 mb-4 text-lg">تقييم مستوى الإتقان (نجوم)</label>
-                        <div class="star-rating flex flex-row-reverse justify-center gap-3 text-5xl text-mosque-gold" id="memoStarsContainer">
-                            <!-- سيتم التوليد برمجيا لسهولة التحكم -->
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block font-black text-gray-800 mb-3 text-lg">ملاحظات على التلاوة <span class="text-gray-400 text-sm font-bold bg-white px-2 py-1 rounded">(يظهر للأهل)</span></label>
-                        <textarea id="memoInputNotes" oninput="saveDrafts()" rows="2" placeholder="اكتبي ملاحظاتك هنا... (اختياري)" class="w-full p-4 border-2 border-gray-200 rounded-2xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-base resize-none"></textarea>
-                    </div>
-
-                    <div class="bg-blue-50/50 p-5 rounded-2xl border-2 border-blue-100">
-                        <label class="block font-black text-blue-800 mb-3 text-lg"><i class="fas fa-tasks mr-2 text-blue-500"></i>المطلوب للقاء القادم</label>
-                        <input type="text" id="memoInputNext" oninput="saveDrafts()" placeholder="مثال: مراجعة سورة النبأ كاملة" class="w-full p-4 border-2 border-white rounded-xl focus:border-blue-400 outline-none bg-white font-bold text-lg shadow-sm">
-                    </div>
-
-                    <button id="btnSaveMemo" onclick="saveStudentMemo()" class="w-full bg-mosque-green text-mosque-gold-light font-black text-xl p-5 rounded-2xl shadow-xl hover:bg-green-900 transition flex justify-center items-center gap-3 mt-4">
-                        <i class="fas fa-check-circle text-2xl text-mosque-gold"></i> <span>حفظ التسميع</span>
-                    </button>
+                    <span class="bg-white text-blue-800 font-black px-4 py-2 rounded-lg border border-blue-200 shadow-sm"><span id="studentCount">0</span> طالبة</span>
                 </div>
+
+                <div id="studentListContainer" class="space-y-4 mb-6"></div>
             </div>
 
-            <!-- 3. شاشة السلوك (منفصلة لكل طالبة) -->
-            <div id="view-behavior" class="tab-content hide animate-fade-in">
-                <h2 class="text-3xl font-ruqaa text-mosque-green font-bold mb-6 px-2">السلوك والمكافآت الإضافية</h2>
-
-                <div class="bg-white p-6 rounded-3xl shadow-sm border-2 border-gray-200 mb-6 relative z-20">
-                    <label class="block font-black text-gray-800 mb-3 text-lg">اختاري اسم الطالبة للتقييم:</label>
-                    <div class="relative">
-                        <select id="behaviorStudentSelect" onchange="loadBehaviorForm()" class="w-full p-4 border-2 border-gray-200 rounded-2xl focus:border-mosque-green outline-none bg-gray-50 text-xl font-bold text-mosque-green appearance-none">
-                            <!-- يولد برمجياً -->
-                        </select>
-                        <i class="fas fa-chevron-down absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl"></i>
-                    </div>
-                </div>
-
-                <div id="behaviorFormArea" class="hide bg-white p-6 md:p-8 rounded-3xl shadow-md border border-gray-100 space-y-8 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-2 h-full bg-mosque-gold"></div>
-
-                    <!-- نجوم السلوك -->
-                    <div class="bg-gray-50 p-6 rounded-3xl border-2 border-gray-100 text-center">
-                        <label class="block font-black text-gray-800 mb-4 text-xl">تقييم السلوك العام</label>
-                        <p class="text-sm font-bold text-gray-500 mb-4">(اضغطي على النجمة لإلغائها إذا لزم الأمر)</p>
-                        <div class="star-rating flex flex-row-reverse justify-center gap-4 text-5xl text-mosque-gold" id="behaviorStarsContainer"></div>
-                    </div>
-                    
-                    <!-- عداد النقاط الحرة -->
-                    <div class="bg-white p-6 rounded-3xl border-2 border-blue-100 text-center shadow-sm">
-                        <label class="block font-black text-blue-900 mb-6 text-xl">مكافأة أو خصم نقاط</label>
-                        <div class="flex items-center justify-center gap-6 mb-6">
-                            <button onclick="changePoints(-1)" class="w-16 h-16 rounded-2xl bg-red-50 border-2 border-red-200 text-red-600 font-black text-4xl hover:bg-red-100 transition shadow-sm">-</button>
-                            <div class="bg-gray-50 border-2 border-gray-200 rounded-2xl px-6 py-4 min-w-[100px]">
-                                <span id="behaviorPointsCounter" class="text-4xl font-black text-gray-800" dir="ltr">0</span>
-                            </div>
-                            <button onclick="changePoints(1)" class="w-16 h-16 rounded-2xl bg-green-50 border-2 border-green-200 text-green-600 font-black text-4xl hover:bg-green-100 transition shadow-sm">+</button>
-                        </div>
-                        <input type="text" id="behaviorInputReason" oninput="saveDrafts()" placeholder="اكتبي السبب (مثال: إجابة متميزة، أو مشاغبة)" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-400 outline-none bg-gray-50 font-bold text-lg text-center">
-                    </div>
-
-                    <button id="btnSaveBehavior" onclick="saveStudentBehavior()" class="w-full bg-mosque-gold text-mosque-green font-black text-xl p-5 rounded-2xl shadow-lg hover:bg-yellow-500 transition flex justify-center items-center gap-3">
-                        <i class="fas fa-check-circle text-2xl"></i> <span>حفظ السلوك والنقاط</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- 4. لوحة التميز (الشرف) -->
+            <!-- لوحة التميز (الشرف) -->
             <div id="view-leaderboard" class="tab-content hide animate-fade-in">
-                <div class="bg-gradient-to-b from-mosque-green to-[#052c18] rounded-[2.5rem] p-8 shadow-2xl mb-8 text-white relative overflow-hidden border-4 border-mosque-gold">
+                <div class="bg-gradient-to-b from-mosque-green to-[#052c18] rounded-[2rem] p-8 shadow-2xl mb-8 text-white relative overflow-hidden border-4 border-mosque-gold">
                     <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')]"></div>
                     <h2 class="text-center font-ruqaa font-bold text-4xl text-mosque-gold mb-16 relative z-10 drop-shadow-md">لوحة التميّـز والأوائـل</h2>
-                    
-                    <div id="topThreeContainer" class="flex justify-center items-end gap-3 md:gap-8 relative z-10 h-64">
-                        <!-- التوليد برمجيا لضمان الشكل السليم -->
-                    </div>
+                    <div id="topThreeContainer" class="flex justify-center items-end gap-3 md:gap-8 relative z-10 h-64"></div>
                 </div>
 
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
@@ -332,12 +333,12 @@
                 </div>
             </div>
 
-            <!-- 5. الإعدادات -->
+            <!-- الإعدادات -->
             <div id="view-settings" class="tab-content hide animate-fade-in space-y-6">
                 
                 <div class="bg-gradient-to-r from-mosque-gold-light to-white p-6 rounded-3xl shadow-sm border-2 border-mosque-gold/40">
                     <h3 class="font-ruqaa font-bold text-mosque-green text-2xl mb-2"><i class="fas fa-link text-mosque-gold ml-2"></i> رابط أولياء الأمور</h3>
-                    <p class="text-gray-600 font-bold mb-6 text-sm">هذا الرابط يفتح شاشة المتابعة للأهالي مباشرة.</p>
+                    <p class="text-gray-600 font-bold mb-6 text-sm">هذا الرابط يفتح شاشة المتابعة للأهالي مباشرة بدون الدخول كمعلمة.</p>
                     <button onclick="copyParentLink()" class="w-full bg-white hover:bg-gray-50 text-mosque-green font-black text-lg p-4 rounded-xl transition border-2 border-mosque-gold shadow-sm flex justify-center items-center gap-3">
                         <i class="fas fa-copy text-2xl"></i> نسخ الرابط للواتساب
                     </button>
@@ -347,7 +348,7 @@
                     <button onclick="syncWithDatabase()" class="w-full bg-blue-50 text-blue-700 hover:bg-blue-100 font-black text-lg p-5 rounded-2xl transition border-2 border-blue-200 flex flex-col justify-center items-center gap-2">
                         <i class="fas fa-cloud-download-alt text-3xl mb-1"></i> مزامنة البيانات
                     </button>
-                    <button onclick="openSetupScreenFromSettings()" class="w-full bg-gray-50 text-gray-700 hover:bg-gray-100 font-black text-lg p-5 rounded-2xl transition border-2 border-gray-200 flex flex-col justify-center items-center gap-2">
+                    <button onclick="openSetupScreen()" class="w-full bg-gray-50 text-gray-700 hover:bg-gray-100 font-black text-lg p-5 rounded-2xl transition border-2 border-gray-200 flex flex-col justify-center items-center gap-2">
                         <i class="fas fa-users-cog text-3xl mb-1 text-gray-500"></i> تعديل طالبات الحلقة
                     </button>
                 </div>
@@ -366,6 +367,16 @@
             </div>
 
         </main>
+        
+        <!-- زر الحفظ العائم الثابت -->
+        <div id="floatingSaveBtn" class="fixed bottom-[95px] left-0 w-full z-40 px-4">
+            <div class="max-w-4xl mx-auto">
+                <button onclick="saveAllDailyRecords()" class="w-full bg-mosque-green hover:bg-green-900 text-white text-xl font-black p-4 rounded-2xl shadow-[0_5px_20px_rgba(10,66,38,0.5)] transition flex justify-center items-center gap-3 border-2 border-mosque-gold transform active:scale-95">
+                    <i class="fas fa-save text-mosque-gold text-2xl"></i>
+                    تأكيد وحفظ الإدخالات
+                </button>
+            </div>
+        </div>
 
         <!-- شريط التنقل السفلي -->
         <nav class="fixed bottom-0 w-full bg-white shadow-[0_-5px_20px_rgba(0,0,0,0.06)] border-t border-gray-100 flex justify-around items-center h-[85px] pb-safe z-50 rounded-t-3xl">
@@ -392,57 +403,51 @@
         </nav>
     </div>
 
-    <!-- ==========================================
-         بوابة أولياء الأمور
-         ========================================== -->
-    <div id="parentDashboard" class="hide min-h-screen bg-mosque-gold-light pb-20 relative">
-        <div class="absolute top-0 w-full h-56 bg-mosque-green rounded-b-[50px] shadow-lg z-0"></div>
-        
-        <div class="max-w-md mx-auto p-4 relative z-10 pt-10">
-            <div class="text-center text-white mb-10">
-                <h2 class="text-lg text-mosque-gold opacity-90 mb-2 font-bold">مرحباً بولي أمر الطالبة</h2>
-                <h1 id="parentStudentTitle" class="text-4xl font-ruqaa font-bold">الاسم هنا</h1>
+    <!-- نافذة إشعارات المعلمة -->
+    <div id="notificationsPanel" class="hide fixed inset-0 z-[150] flex justify-end bg-black/50 backdrop-blur-sm transition-opacity">
+        <div class="bg-white w-full max-w-sm h-full shadow-2xl flex flex-col animate-slide-up md:animate-none">
+            <div class="bg-mosque-green text-white p-5 flex justify-between items-center border-b-4 border-mosque-gold">
+                <h2 class="font-black text-xl"><i class="fas fa-envelope-open-text text-mosque-gold mr-2"></i> رسائل الأهالي</h2>
+                <button onclick="closeNotifications()" class="text-white hover:text-red-300 text-2xl"><i class="fas fa-times"></i></button>
             </div>
-
-            <div class="bg-white rounded-[2.5rem] p-8 shadow-2xl border-b-8 border-mosque-gold mb-10 text-center relative mt-16">
-                <div class="absolute -top-14 left-1/2 transform -translate-x-1/2 w-28 h-28 bg-gradient-to-br from-mosque-gold to-yellow-600 rounded-full flex items-center justify-center text-white text-5xl shadow-xl border-4 border-white">
-                    <i class="fas fa-medal"></i>
-                </div>
-                <h3 class="text-gray-500 text-lg font-bold mt-12 mb-2">رصيد النقاط والمكافآت</h3>
-                <div class="text-7xl font-black text-mosque-green flex items-center justify-center gap-3">
-                    <span id="parentStudentPoints">0</span>
-                    <i class="fas fa-star text-mosque-gold text-5xl"></i>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-3xl p-6 shadow-md border border-gray-100 mb-8">
-                <h3 class="font-ruqaa font-bold text-2xl text-mosque-green border-b pb-3 mb-4"><i class="fas fa-trophy text-mosque-gold ml-2"></i> أوائل المسجد</h3>
-                <div id="parentLeaderboardList" class="space-y-3"></div>
-            </div>
-
-            <h3 class="font-ruqaa font-bold text-2xl text-mosque-green mb-5 ml-2"><i class="fas fa-history text-mosque-gold ml-2"></i> سجل المتابعة اليومي</h3>
-            <div id="parentHistoryList" class="space-y-4"></div>
-            
-            <button onclick="logoutParent()" class="w-full mt-10 bg-white text-gray-600 hover:bg-gray-50 font-black text-lg p-4 rounded-2xl shadow-sm border border-gray-200 transition flex items-center justify-center gap-2">
-                <i class="fas fa-search"></i> بحث عن طالبة أخرى
-            </button>
+            <div id="notificationsList" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50"></div>
         </div>
     </div>
 
-    <!-- الإشعارات -->
-    <div id="toast" class="hide fixed top-20 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-8 py-4 rounded-full shadow-2xl flex items-center gap-4 z-[300] toast-animate text-lg font-bold min-w-max border-2 border-gray-700">
-        <i class="fas fa-check-circle text-green-400 text-2xl"></i>
-        <span id="toastMsg">تمت العملية بنجاح</span>
-    </div>
-
-    <!-- ==========================================
-         سكريبت التطبيق
-         ========================================== -->
     <script>
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxGbZ5ikgwPDD7pa_yLCZai6eo9qyaNbEhaamnYu9FN_VxLx1UuQEEGp5TPtjXgv1zq/exec";
+        // === يرجى وضع رابط الـ Apps Script الجديد هنا ===
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxLeYxaU52gj-66LbWunQMiw0Lb4KrdnpClDzWooJfA29xp5lUtq2jqoIvqgoEJ01kK/exec";
         
+        // --- توجيه الروابط ---
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if(urlParams.get('role') === 'parent') {
+                document.getElementById('loginScreen').classList.add('hide');
+                initParentFlow();
+            } else {
+                document.getElementById('loginScreen').classList.remove('hide');
+            }
+        };
+
+        function copyParentLink() {
+            const parentUrl = window.location.href.split('?')[0] + '?role=parent';
+            navigator.clipboard.writeText(parentUrl).then(() => {
+                showToast("تم نسخ رابط الأهالي بنجاح.");
+            }).catch(err => {
+                const dummy = document.createElement('input');
+                document.body.appendChild(dummy); dummy.value = parentUrl; dummy.select();
+                document.execCommand('copy'); document.body.removeChild(dummy);
+                showToast("تم نسخ الرابط.");
+            });
+        }
+        
+        // البيانات الأولية
         const initialNames = [
-            "أرجوان فخر الدين", "ألمى صبحي", "أوركيد فخر الدين", "إيمان حويان", "تالة حناوي", "تاليا المزي", "تالين معمولي", "جنى سحلول", "جودي زرزور", "جودي سحلول", "جودي سامر سحلول", "جوري عزيزية", "حلا تركماني", "حلا زرزور", "حنين دباسوا", "زينة المقدمي", "سارة أبو لحية", "سارة كلول", "سدرة المقدس", "سدرة عبد الرحمن", "ليلاس السيد", "لمار السيد", "لمار خليفة", "لين صبحي", "ماريا المزي", "مروة السطام", "مها المقرن", "مريم الحريري", "ميرا حاطوم", "ميرا حسن", "ميرال شقير", "مايا صالحة", "نبيهة سحلول", "نور الهدى العناية", "ورد عزيزية", "ياسمين زقاري", "غدى السطام", "أم غدى السطام" 
+            "أرجوان فخر الدين", "ألمى صبحي", "أوركيد فخر الدين", "إيمان حويان", "تالة حناوي",
+            "تاليا المزي", "تالين معمولي", "جنى سحلول", "جودي زرزور", "جودي سحلول",
+            "جودي سامر سحلول", "جوري عزيزية", "حلا تركماني", "حلا زرزور", "حنين دباسوا",
+            "زينة المقدمي", "سارة أبو لحية", "سارة كلول", "سدرة المقدس", "سدرة عبد الرحمن",
+            "ليلاس السيد", "لمار السيد", "لمار خليفة", "لين صبحي", "ماريا المزي"
         ];
 
         let storedData = JSON.parse(localStorage.getItem('mosqueStudents'));
@@ -453,37 +458,41 @@
         const POINTS = { ATTENDANCE_ON_TIME: 5, LATE: 0, ABSENT: -5 };
         
         let currentTeacher = null;
-        let currentParentViewStudent = null;
+        let viewFilter = 'myGroup'; 
         let teachersData = JSON.parse(localStorage.getItem('mosqueTeachersData')) || {};
-        let setupPreviousScreen = 'login'; // 'login' or 'settings'
         
-        // نظام الذاكرة المؤقتة (المسودات)
-        const todayStr = new Date().toLocaleDateString('ar-EG');
-        let drafts = JSON.parse(localStorage.getItem('mosqueDrafts')) || { date: '', attendance: {}, memo: {}, behavior: {} };
-        if(drafts.date !== todayStr) drafts = { date: todayStr, attendance: {}, memo: {}, behavior: {} };
-
-        // تهيئة التاريخ
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString('ar-EG', options);
+        // نظام التاريخ الديناميكي والمسودات
+        let activeDateObj = new Date();
+        let activeDateStr = activeDateObj.toLocaleDateString('ar-EG');
+        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         
-        window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if(urlParams.get('role') === 'parent') {
-                document.getElementById('teacherPinArea').classList.add('hide');
-                document.getElementById('parentLoginArea').classList.remove('hide');
-                document.getElementById('loginSubtitle').innerText = "بوابة أولياء الأمور والمتابعة";
-            }
-        };
+        // تحديث عرض التاريخ في الأعلى
+        function updateDateDisplay() {
+            const displays = document.querySelectorAll('#currentDateDisplay');
+            displays.forEach(d => d.innerText = activeDateObj.toLocaleDateString('ar-EG', dateOptions));
+            document.getElementById('mainDatePicker').value = activeDateObj.toISOString().split('T')[0];
+        }
+        updateDateDisplay();
 
-        function copyParentLink() {
-            const url = window.location.href.split('?')[0] + '?role=parent';
-            navigator.clipboard.writeText(url).then(() => {
-                showToast("تم نسخ رابط الأهالي للواتساب بنجاح.");
-            }).catch(() => { showToast("فشل النسخ التلقائي."); });
+        function changeActiveDate(val) {
+            if(!val) return;
+            activeDateObj = new Date(val);
+            activeDateStr = activeDateObj.toLocaleDateString('ar-EG');
+            updateDateDisplay();
+            if(currentTeacher) renderStudentList();
+            showToast("تم تغيير تاريخ الإدخال إلى " + activeDateStr);
         }
 
-        // --- النوافذ المنبثقة والإشعارات ---
+        // مسودات الحفظ التلقائي
+        let drafts = JSON.parse(localStorage.getItem('mosqueDrafts')) || {};
+        function saveDraftsToLocal() { localStorage.setItem('mosqueDrafts', JSON.stringify(drafts)); }
+        
+        // ملاحظات الأهالي
+        let parentNotesList = JSON.parse(localStorage.getItem('mosqueParentNotes')) || [];
+
+        // === دوال النوافذ والإشعارات ===
         function closeModalBox() { document.getElementById('customModalBox').classList.add('hide'); }
+
         function showMessage(title, message, isError = false) {
             const modal = document.getElementById('customModalBox');
             document.getElementById('modalTitle').innerText = title;
@@ -498,7 +507,7 @@
                 icon.className = "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 bg-green-50 text-4xl";
                 document.getElementById('modalTitle').className = 'text-3xl font-ruqaa text-mosque-green mb-3';
             }
-            document.getElementById('modalButtons').innerHTML = `<button onclick="closeModalBox()" class="px-10 py-3 bg-mosque-green text-white rounded-2xl font-black text-lg shadow hover:bg-green-800 transition">حسناً</button>`;
+            document.getElementById('modalButtons').innerHTML = `<button onclick="closeModalBox()" class="w-full px-6 py-4 bg-mosque-green text-white rounded-2xl font-black text-xl shadow-lg hover:bg-green-800 transition">حسناً، فهمت</button>`;
             modal.classList.remove('hide');
         }
 
@@ -514,84 +523,78 @@
             if (!GOOGLE_SCRIPT_URL) return;
             document.getElementById('loadingOverlay').classList.remove('hide');
             try {
-                const response = await fetch(GOOGLE_SCRIPT_URL + "?action=get_students");
-                const data = await response.json();
-                if (data && data.length > 0) {
-                    data.forEach(dbStudent => {
+                const response = await fetch(GOOGLE_SCRIPT_URL + "?action=get_data");
+                const resData = await response.json();
+                
+                // تحديث الطالبات
+                if (resData.students && resData.students.length > 0) {
+                    resData.students.forEach(dbStudent => {
                         let local = students.find(s => s.id === dbStudent.id);
                         if (local) { local.name = dbStudent.name; local.points = dbStudent.points; } 
                         else { students.push({ id: dbStudent.id, name: dbStudent.name, points: dbStudent.points, history: [] }); }
                     });
                     localStorage.setItem('mosqueStudents', JSON.stringify(students));
-                    if(currentTeacher) refreshAllViews();
-                    showToast("تمت مزامنة وتحديث الأسماء");
                 }
-            } catch (err) { console.log(err); }
+
+                // تحديث ملاحظات الأهالي
+                if (resData.notes) {
+                    parentNotesList = resData.notes;
+                    localStorage.setItem('mosqueParentNotes', JSON.stringify(parentNotesList));
+                    updateNotificationBadge();
+                }
+
+                if(!document.getElementById('teacherDashboard').classList.contains('hide')) {
+                    renderStudentList(); renderLeaderboard();
+                }
+                showToast("تمت مزامنة البيانات بنجاح");
+            } catch (err) { console.log(err); showToast("تتم المزامنة محلياً لعدم توفر اتصال."); }
             document.getElementById('loadingOverlay').classList.add('hide');
         }
 
-        // --- الدخول وإعداد الحلقة ---
+        // === دخول وإعداد المعلمة ===
         function loginTeacher() {
             const tName = document.getElementById('teacherSelectName').value;
-            if (!tName) { showMessage("تنبيه", "اختاري اسمك من القائمة.", true); return; }
-            
+            if (!tName) { showMessage("تنبيه", "الرجاء اختيار اسم المعلمة من القائمة.", true); return; }
             currentTeacher = tName;
             document.getElementById('loginScreen').classList.add('hide');
-
-            if (!teachersData[currentTeacher]) {
-                setupPreviousScreen = 'login';
-                openSetupScreen();
-            } else {
-                openTeacherDashboard();
-            }
-        }
-
-        function openSetupScreenFromSettings() {
-            setupPreviousScreen = 'settings';
-            document.getElementById('teacherDashboard').classList.add('hide');
-            openSetupScreen();
-        }
-
-        function closeSetupScreen() {
-            document.getElementById('teacherSetupScreen').classList.add('hide');
-            if(setupPreviousScreen === 'settings') document.getElementById('teacherDashboard').classList.remove('hide');
-            else document.getElementById('loginScreen').classList.remove('hide');
-        }
-
-        function filterSetupStudents() {
-            const query = document.getElementById('setupSearchStudent').value.toLowerCase();
-            document.querySelectorAll('.setup-student-item').forEach(label => {
-                const text = label.innerText.toLowerCase();
-                label.style.display = text.includes(query) ? 'flex' : 'none';
-            });
+            if (!teachersData[currentTeacher]) openSetupScreen();
+            else openTeacherDashboard();
         }
 
         function openSetupScreen() {
+            document.getElementById('teacherDashboard').classList.add('hide');
             document.getElementById('teacherSetupScreen').classList.remove('hide');
             document.getElementById('setupTeacherName').innerText = currentTeacher;
             
             if(teachersData[currentTeacher]) document.getElementById('setupGroupName').value = teachersData[currentTeacher].groupName;
             
+            filterSetupStudents(); // لتوليد القائمة
+        }
+
+        function filterSetupStudents() {
+            const query = document.getElementById('setupSearchStudent') ? document.getElementById('setupSearchStudent').value.toLowerCase() : "";
             const listDiv = document.getElementById('setupStudentList');
+            if(!listDiv) return;
             listDiv.innerHTML = '';
+            
             const sortedStudents = [...students].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
             const myIds = teachersData[currentTeacher] ? teachersData[currentTeacher].studentIds : [];
 
             sortedStudents.forEach((s, idx) => {
-                const isChecked = myIds.includes(s.id) ? 'checked' : '';
-                listDiv.innerHTML += `
-                    <div class="setup-student-item flex items-center gap-4 p-3 bg-white border border-gray-200 rounded-2xl hover:border-mosque-green transition">
-                        <span class="text-gray-400 font-bold text-sm w-6">${idx+1}-</span>
-                        <input type="checkbox" id="setup_std_${s.id}" value="${s.id}" class="setup-checkbox w-7 h-7 accent-mosque-green cursor-pointer" ${isChecked}>
-                        <label for="setup_std_${s.id}" class="cursor-pointer flex-1 font-bold text-gray-800 text-lg">${s.name}</label>
-                    </div>`;
+                if(s.name.toLowerCase().includes(query)) {
+                    const isChecked = myIds.includes(s.id) ? 'checked' : '';
+                    listDiv.innerHTML += `
+                        <div class="flex items-center gap-4 p-3 bg-white border border-gray-200 rounded-xl hover:border-mosque-gold transition">
+                            <input type="checkbox" id="setup_std_${s.id}" value="${s.id}" class="setup-checkbox w-6 h-6 accent-mosque-green cursor-pointer" ${isChecked}>
+                            <label for="setup_std_${s.id}" class="cursor-pointer flex-1 font-bold text-gray-800 text-lg">${s.name}</label>
+                        </div>`;
+                }
             });
         }
 
         function saveTeacherSetup() {
             const gName = document.getElementById('setupGroupName').value.trim();
             if(!gName) { showMessage("بيانات مطلوبة", "اكتبي اسم الحلقة لتتمكني من الحفظ.", true); return; }
-            
             const selectedIds = Array.from(document.querySelectorAll('.setup-checkbox:checked')).map(cb => parseInt(cb.value));
             teachersData[currentTeacher] = { groupName: gName, studentIds: selectedIds };
             localStorage.setItem('mosqueTeachersData', JSON.stringify(teachersData));
@@ -601,467 +604,377 @@
             showToast("تم حفظ إعدادات الحلقة بنجاح");
         }
 
-        // --- اللوحة الرئيسية للمعلمة ---
+        // === الإشعارات للمعلمة ===
+        function updateNotificationBadge() {
+            const badge = document.getElementById('notifBadge');
+            if(!badge) return;
+            const myIds = teachersData[currentTeacher] ? teachersData[currentTeacher].studentIds : [];
+            const myNotes = parentNotesList.filter(n => myIds.includes(parseInt(n.studentId)));
+            if(myNotes.length > 0) { badge.innerText = myNotes.length; badge.classList.remove('hide'); }
+            else { badge.classList.add('hide'); }
+        }
+
+        function showTeacherNotifications() {
+            const panel = document.getElementById('notificationsPanel');
+            const list = document.getElementById('notificationsList');
+            list.innerHTML = '';
+            const myIds = teachersData[currentTeacher] ? teachersData[currentTeacher].studentIds : [];
+            const myNotes = parentNotesList.filter(n => myIds.includes(parseInt(n.studentId))).reverse();
+            
+            if(myNotes.length === 0) {
+                list.innerHTML = `<div class="text-center text-gray-400 p-10 font-bold"><i class="fas fa-inbox text-5xl mb-4 block"></i>لا توجد رسائل جديدة من الأهالي.</div>`;
+            } else {
+                myNotes.forEach(n => {
+                    list.innerHTML += `
+                        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden">
+                            <div class="absolute right-0 top-0 w-1 h-full bg-mosque-gold"></div>
+                            <div class="text-xs text-gray-400 mb-1">${n.date}</div>
+                            <div class="font-black text-mosque-green mb-2">طالبة: ${n.studentName}</div>
+                            <div class="text-gray-700 text-sm font-bold bg-gray-50 p-3 rounded-lg border border-gray-100">${n.text}</div>
+                        </div>`;
+                });
+            }
+            panel.classList.remove('hide');
+        }
+        function closeNotifications() { document.getElementById('notificationsPanel').classList.add('hide'); }
+
+        // === اللوحة الرئيسية للمعلمة ===
         function openTeacherDashboard() {
+            document.getElementById('teacherSetupScreen').classList.add('hide');
             document.getElementById('teacherDashboard').classList.remove('hide');
-            document.getElementById('topDateBar').classList.remove('hide');
+            
             document.getElementById('headerTeacherName').innerText = currentTeacher;
             document.getElementById('headerGroupName').innerText = teachersData[currentTeacher].groupName;
             
-            // تعيين الحضور الافتراضي للجميع في المسودة إذا لم يكن موجوداً
-            teachersData[currentTeacher].studentIds.forEach(id => {
-                if(!drafts.attendance[id]) drafts.attendance[id] = 'present';
+            updateNotificationBadge();
+            viewFilter = 'myGroup'; updateFilterButtonsUI();
+            
+            syncWithDatabase().then(() => {
+                renderStudentList(); renderLeaderboard();
+                switchMainTab('attendance');
             });
-            saveDraftsToLocal();
-
-            syncWithDatabase().then(() => { refreshAllViews(); switchMainTab('attendance'); });
-        }
-
-        function refreshAllViews() {
-            renderAttendanceList();
-            renderMemoSelect();
-            renderBehaviorSelect();
-            renderLeaderboard();
         }
 
         function switchMainTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hide'));
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
             
-            document.getElementById(`nav-${tabName}`).classList.add('active');
-            document.getElementById(`view-${tabName}`).classList.remove('hide');
+            const activeNav = document.getElementById(`nav-${tabName}`);
+            if(activeNav) activeNav.classList.add('active');
+
+            // شريط التبويبات العلوي
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('text-mosque-green', 'border-mosque-gold', 'bg-mosque-green/5', 'font-black');
+                el.classList.add('text-gray-400', 'border-transparent', 'font-bold');
+            });
+            const activeTabBtn = document.getElementById(`tab-${tabName}`);
+            if(activeTabBtn) {
+                activeTabBtn.classList.remove('text-gray-400', 'border-transparent', 'font-bold');
+                activeTabBtn.classList.add('text-mosque-green', 'border-mosque-gold', 'bg-mosque-green/5', 'font-black');
+                activeTabBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
+            
+            const dailyContainer = document.getElementById('view-daily-records');
+            const floatingSaveBtn = document.getElementById('floatingSaveBtn');
+            
+            if (['attendance', 'memo', 'behavior'].includes(tabName)) {
+                floatingSaveBtn.classList.remove('translate-y-40', 'opacity-0');
+                dailyContainer.classList.remove('hide');
+                dailyContainer.className = `tab-content mode-${tabName} animate-fade-in`;
+            } else {
+                floatingSaveBtn.classList.add('translate-y-40', 'opacity-0');
+                document.getElementById(`view-${tabName}`).classList.remove('hide');
+            }
+            
+            if(tabName === 'leaderboard') renderLeaderboard();
             window.scrollTo(0,0);
         }
 
-        function saveDraftsToLocal() { localStorage.setItem('mosqueDrafts', JSON.stringify(drafts)); }
+        function setStudentFilter(filter) { viewFilter = filter; updateFilterButtonsUI(); renderStudentList(); }
 
-        // --- 1. الدوام ---
-        let attFilter = 'myGroup';
-        function setAttFilter(filter) { attFilter = filter; renderAttendanceList(); }
+        function updateFilterButtonsUI() {
+            const myBtn = document.getElementById('filterMyGroupBtn');
+            const allBtn = document.getElementById('filterAllBtn');
+            if(viewFilter === 'myGroup') {
+                myBtn.className = "flex-1 px-8 py-3 rounded-full bg-white text-mosque-green shadow-md transition font-black border border-gray-200";
+                allBtn.className = "flex-1 px-8 py-3 rounded-full text-gray-500 hover:text-gray-700 font-bold transition";
+            } else {
+                allBtn.className = "flex-1 px-8 py-3 rounded-full bg-white text-mosque-green shadow-md transition font-black border border-gray-200";
+                myBtn.className = "flex-1 px-8 py-3 rounded-full text-gray-500 hover:text-gray-700 font-bold transition";
+            }
+        }
 
-        function renderAttendanceList() {
-            const container = document.getElementById('attendanceListContainer');
+        // --- توليد قائمة السجل اليومي المتطورة ---
+        function renderStudentList() {
+            const container = document.getElementById('studentListContainer');
             container.innerHTML = '';
             
-            const myIds = teachersData[currentTeacher].studentIds;
-            let list = students;
-            if(attFilter === 'myGroup') list = students.filter(s => myIds.includes(s.id));
-            list.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
-            
-            document.getElementById('attCount').innerText = list.length;
-            
-            const btnMyGroup = document.getElementById('filterAttMyGroupBtn');
-            const btnAll = document.getElementById('filterAttAllBtn');
-            if(attFilter === 'myGroup') {
-                btnMyGroup.className = "flex-1 px-4 py-3 rounded-xl bg-white text-mosque-green shadow-sm transition border border-gray-200";
-                btnAll.className = "flex-1 px-4 py-3 rounded-xl text-gray-500 hover:text-gray-700 transition";
-            } else {
-                btnAll.className = "flex-1 px-4 py-3 rounded-xl bg-white text-mosque-green shadow-sm transition border border-gray-200";
-                btnMyGroup.className = "flex-1 px-4 py-3 rounded-xl text-gray-500 hover:text-gray-700 transition";
+            if(!drafts[activeDateStr]) drafts[activeDateStr] = {};
+            const dayDrafts = drafts[activeDateStr];
+
+            let displayStudents = students;
+            if (viewFilter === 'myGroup') {
+                const myIds = teachersData[currentTeacher].studentIds;
+                displayStudents = students.filter(s => myIds.includes(s.id));
             }
 
-            list.forEach((s, idx) => {
-                const state = drafts.attendance[s.id] || 'present';
-                // التحقق إذا كان محفوظاً من قبل اليوم
-                const isSaved = s.history.some(h => h.date === todayStr && h.details.includes('حضور'));
-                const savedBadge = isSaved ? `<i class="fas fa-check-circle text-green-500 ml-2" title="محفوظ"></i>` : '';
+            displayStudents.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+            document.getElementById('studentCount').innerText = displayStudents.length;
 
-                container.innerHTML += `
-                    <div class="flex flex-col md:flex-row md:items-center justify-between p-5 gap-4 ${idx%2===0?'bg-white':'bg-gray-50/50'}">
-                        <div class="flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-full bg-gray-200 text-gray-600 font-bold flex items-center justify-center text-sm">${idx + 1}</span>
-                            <div class="font-bold text-lg text-gray-800">${s.name} ${savedBadge}</div>
-                        </div>
-                        <div class="flex gap-2 w-full md:w-auto">
-                            <button onclick="setAttendance(${s.id}, 'present')" id="btn_att_${s.id}_present" class="att-btn flex-1 md:w-20 py-2.5 rounded-xl font-bold text-sm border ${state==='present'?'active-present':'bg-white border-gray-200 text-gray-500'}">حاضر</button>
-                            <button onclick="setAttendance(${s.id}, 'late')" id="btn_att_${s.id}_late" class="att-btn flex-1 md:w-20 py-2.5 rounded-xl font-bold text-sm border ${state==='late'?'active-late':'bg-white border-gray-200 text-gray-500'}">تأخير</button>
-                            <button onclick="setAttendance(${s.id}, 'absent')" id="btn_att_${s.id}_absent" class="att-btn flex-1 md:w-20 py-2.5 rounded-xl font-bold text-sm border ${state==='absent'?'active-absent':'bg-white border-gray-200 text-gray-500'}">غائب</button>
-                        </div>
-                    </div>`;
-            });
-        }
+            displayStudents.forEach((student, idx) => {
+                if(!dayDrafts[student.id]) dayDrafts[student.id] = { attendance: 'present', memo:'', memoStars:0, notes:'', next:'', behaviorStars:0 };
+                const dData = dayDrafts[student.id];
 
-        function setAttendance(studentId, status) {
-            drafts.attendance[studentId] = status;
-            saveDraftsToLocal();
-            ['present', 'late', 'absent'].forEach(st => {
-                const btn = document.getElementById(`btn_att_${studentId}_${st}`);
-                if(btn) btn.className = `att-btn flex-1 md:w-20 py-2.5 rounded-xl font-bold text-sm border bg-white border-gray-200 text-gray-500`;
-            });
-            const activeBtn = document.getElementById(`btn_att_${studentId}_${status}`);
-            if(activeBtn) {
-                activeBtn.classList.add(`active-${status}`);
-                activeBtn.classList.remove('bg-white', 'border-gray-200', 'text-gray-500');
-            }
-        }
-
-        function saveAttendance() {
-            let savedCount = 0;
-            let records = [];
-            
-            Object.keys(drafts.attendance).forEach(idStr => {
-                const id = parseInt(idStr);
-                const s = students.find(x => x.id === id);
-                if(!s) return;
+                // التحقق من وجود إدخال سابق لهذا اليوم
+                const existingRecord = student.history.find(h => h.date === activeDateStr);
+                const savedBadge = existingRecord ? `<span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold ml-2 shadow-sm border border-green-200"><i class="fas fa-check mr-1"></i> مسجل</span>` : '';
                 
-                const status = drafts.attendance[id];
-                let newPts = status === 'present' ? POINTS.ATTENDANCE_ON_TIME : (status === 'late' ? POINTS.LATE : POINTS.ABSENT);
-                let statusAr = status === 'present' ? 'حاضر' : (status === 'late' ? 'تأخير' : 'غائب');
-                
-                // التعديل الذكي بدون تكرار
-                let existingRecord = s.history.find(h => h.date === todayStr && h.details.includes('سجل حضور'));
-                
-                if (existingRecord) {
-                    let diff = newPts - existingRecord.pointsEarned;
-                    s.points += diff;
-                    existingRecord.pointsEarned = newPts;
-                    existingRecord.details = `سجل حضور: ${statusAr}`;
-                } else {
-                    s.points += newPts;
-                    s.history.unshift({ date: todayStr, memo: '-', pointsEarned: newPts, details: `سجل حضور: ${statusAr}` });
+                // جلب القيم من المسودة أو من السجل القديم لتسهيل التعديل
+                if(existingRecord && dData.attendance === 'present' && !dData.memo) {
+                    if(existingRecord.details.includes('غائب')) dData.attendance = 'absent';
+                    else if(existingRecord.details.includes('تأخير')) dData.attendance = 'late';
+                    dData.memo = existingRecord.memo !== '-' ? existingRecord.memo : '';
                 }
+
+                const card = document.createElement('div');
+                card.className = "bg-white p-5 rounded-3xl shadow-sm border-2 border-gray-100 mb-4 overflow-hidden relative";
                 
-                records.push({ id: id, date: todayStr, teacher: currentTeacher, name: s.name, attendance: statusAr, memo: '-', behavior: '-', pointsEarned: newPts, details: 'تحديث الدوام' });
-                savedCount++;
+                card.innerHTML = `
+                    <div class="flex items-center justify-between border-b-2 border-gray-50 pb-4 mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 font-black flex items-center justify-center text-sm shadow-inner">${idx+1}</span>
+                            <h4 class="font-black text-xl text-mosque-green">${student.name} ${savedBadge}</h4>
+                        </div>
+                        <div class="text-mosque-gold font-black bg-mosque-gold-light px-4 py-2 rounded-xl border border-yellow-200 text-base flex items-center gap-2 shadow-sm">
+                            <i class="fas fa-star"></i> ${student.points}
+                        </div>
+                    </div>
+                    
+                    <!-- 1. الدوام -->
+                    <div class="sec-attendance">
+                        <div class="flex gap-2 w-full">
+                            <button onclick="setStudentAtt(${student.id}, 'present')" id="btn_att_${student.id}_present" class="flex-1 py-3 rounded-xl font-black text-sm border-2 ${dData.attendance==='present'?'bg-green-500 text-white border-green-600 shadow-md':'bg-gray-50 border-gray-200 text-gray-500'} transition">حاضر (+5)</button>
+                            <button onclick="setStudentAtt(${student.id}, 'late')" id="btn_att_${student.id}_late" class="flex-1 py-3 rounded-xl font-black text-sm border-2 ${dData.attendance==='late'?'bg-yellow-500 text-white border-yellow-600 shadow-md':'bg-gray-50 border-gray-200 text-gray-500'} transition">تأخير (0)</button>
+                            <button onclick="setStudentAtt(${student.id}, 'absent')" id="btn_att_${student.id}_absent" class="flex-1 py-3 rounded-xl font-black text-sm border-2 ${dData.attendance==='absent'?'bg-red-500 text-white border-red-600 shadow-md':'bg-gray-50 border-gray-200 text-gray-500'} transition">غائب (-5)</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 2. التسميع -->
+                    <div class="sec-memo space-y-4">
+                        <div>
+                            <label class="block text-sm font-black text-gray-500 mb-2">مقدار الحفظ</label>
+                            <input type="text" id="memo_amt_${student.id}" value="${dData.memo}" oninput="saveStudentDraft(${student.id})" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 text-lg font-bold" placeholder="مثال: سورة النبأ 1-15">
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-xl border-2 border-gray-100 flex justify-between items-center">
+                            <label class="font-black text-gray-700 text-sm">تقييم الإتقان</label>
+                            <div class="flex flex-row-reverse gap-2 text-3xl" id="memo_stars_${student.id}">
+                                ${[5,4,3,2,1].map(i => `<i class="${i<=dData.memoStars?'fas text-mosque-gold':'far text-gray-300 hover:text-yellow-400'} fa-star cursor-pointer transition-transform hover:scale-110" onclick="setMemoStar(${student.id}, ${i})"></i>`).join('')}
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <input type="text" id="memo_notes_${student.id}" value="${dData.notes}" oninput="saveStudentDraft(${student.id})" placeholder="ملاحظات للأهل (اختياري)..." class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-white font-bold text-sm">
+                            <input type="text" id="memo_next_${student.id}" value="${dData.next}" oninput="saveStudentDraft(${student.id})" placeholder="المطلوب للقاء القادم..." class="w-full p-3 border-2 border-blue-200 rounded-xl focus:border-blue-400 outline-none bg-blue-50 font-bold text-sm text-blue-800">
+                        </div>
+                    </div>
+
+                    <!-- 3. السلوك -->
+                    <div class="sec-behavior">
+                        <div class="bg-gray-50 p-6 rounded-2xl border-2 border-gray-100 flex flex-col items-center">
+                            <label class="font-black text-gray-700 text-base mb-4">تقييم السلوك (النجوم تزيد النقاط)</label>
+                            <div class="flex flex-row-reverse gap-4 text-5xl" id="beh_stars_${student.id}">
+                                ${[5,4,3,2,1].map(i => `<i class="${i<=dData.behaviorStars?'fas text-mosque-gold':'far text-gray-300 hover:text-yellow-400'} fa-star cursor-pointer transition-transform hover:scale-110" onclick="setBehaviorStar(${student.id}, ${i})"></i>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // تحديث المسودات
+        function setStudentAtt(id, status) {
+            drafts[activeDateStr][id].attendance = status; saveDraftsToLocal();
+            ['present', 'late', 'absent'].forEach(st => {
+                const btn = document.getElementById(`btn_att_${id}_${st}`);
+                if(btn) btn.className = `flex-1 py-3 rounded-xl font-black text-sm border-2 bg-gray-50 border-gray-200 text-gray-500 transition`;
+            });
+            const activeBtn = document.getElementById(`btn_att_${id}_${status}`);
+            if(activeBtn) {
+                if(status==='present') activeBtn.className = "flex-1 py-3 rounded-xl font-black text-sm border-2 bg-green-500 text-white border-green-600 shadow-md transition";
+                if(status==='late') activeBtn.className = "flex-1 py-3 rounded-xl font-black text-sm border-2 bg-yellow-500 text-white border-yellow-600 shadow-md transition";
+                if(status==='absent') activeBtn.className = "flex-1 py-3 rounded-xl font-black text-sm border-2 bg-red-500 text-white border-red-600 shadow-md transition";
+            }
+        }
+
+        function saveStudentDraft(id) {
+            const amt = document.getElementById(`memo_amt_${id}`);
+            const nts = document.getElementById(`memo_notes_${id}`);
+            const nxt = document.getElementById(`memo_next_${id}`);
+            if(amt) drafts[activeDateStr][id].memo = amt.value;
+            if(nts) drafts[activeDateStr][id].notes = nts.value;
+            if(nxt) drafts[activeDateStr][id].next = nxt.value;
+            saveDraftsToLocal();
+        }
+
+        function setMemoStar(id, rating) {
+            if(drafts[activeDateStr][id].memoStars === rating) drafts[activeDateStr][id].memoStars = 0; // مسح النجمة
+            else drafts[activeDateStr][id].memoStars = rating;
+            saveDraftsToLocal(); renderStudentList(); 
+        }
+
+        function setBehaviorStar(id, rating) {
+            if(drafts[activeDateStr][id].behaviorStars === rating) drafts[activeDateStr][id].behaviorStars = 0;
+            else drafts[activeDateStr][id].behaviorStars = rating;
+            saveDraftsToLocal(); renderStudentList();
+        }
+
+        // الحفظ النهائي الشامل
+        function saveAllDailyRecords() {
+            let updateCount = 0;
+            let newRecordsToSave = []; 
+            const dayDrafts = drafts[activeDateStr] || {};
+
+            Object.keys(dayDrafts).forEach(idStr => {
+                const id = parseInt(idStr);
+                const student = students.find(s => s.id === id);
+                if(!student) return;
+
+                const d = dayDrafts[id];
+                
+                // لن نحفظ إلا إذا كان هناك تغيير (غياب/تأخير، أو تسميع، أو سلوك)
+                if (d.attendance !== 'present' || d.memo !== '' || d.behaviorStars > 0) {
+                    let dailyPoints = 0;
+                    let actions = [];
+
+                    let attAr = (d.attendance === 'present') ? 'حاضر' : (d.attendance === 'late' ? 'تأخير' : 'غائب');
+                    if (d.attendance === 'present') { dailyPoints += POINTS.ATTENDANCE_ON_TIME; actions.push('حضور'); }
+                    if (d.attendance === 'absent') { dailyPoints += POINTS.ABSENT; actions.push('غياب'); }
+
+                    if (d.memo) {
+                        let memoPts = d.memoStars * 2; // كل نجمة تسميع بنقطتين (المجموع 10)
+                        dailyPoints += memoPts;
+                        actions.push(`تسميع (${d.memoStars} نجوم)`);
+                    }
+                    
+                    if (d.behaviorStars > 0) {
+                        dailyPoints += d.behaviorStars; // نجمة السلوك بنقطة
+                        actions.push(`سلوك (${d.behaviorStars} نجوم)`);
+                    }
+
+                    if(d.notes) actions.push(`ملاحظة: ${d.notes}`);
+                    if(d.next) actions.push(`القادم: ${d.next}`);
+
+                    let detailsStr = actions.join(' | ');
+
+                    // ميزة التعديل الذكي
+                    let existingRecordIndex = student.history.findIndex(h => h.date === activeDateStr);
+                    if (existingRecordIndex > -1) {
+                        let oldRecord = student.history[existingRecordIndex];
+                        let diff = dailyPoints - oldRecord.pointsEarned;
+                        student.points += diff;
+                        oldRecord.pointsEarned = dailyPoints;
+                        oldRecord.memo = d.memo || '-';
+                        oldRecord.details = detailsStr;
+                    } else {
+                        student.points += dailyPoints;
+                        student.history.unshift({ date: activeDateStr, memo: d.memo || '-', pointsEarned: dailyPoints, details: detailsStr });
+                    }
+
+                    newRecordsToSave.push({
+                        id: student.id, date: activeDateStr, teacher: currentTeacher, name: student.name,
+                        attendance: attAr, memo: d.memo || '-', behavior: d.behaviorStars + ' نجوم',
+                        pointsEarned: dailyPoints, details: detailsStr
+                    });
+
+                    updateCount++;
+                }
             });
 
-            if(savedCount > 0) {
+            if (updateCount > 0) {
                 localStorage.setItem('mosqueStudents', JSON.stringify(students));
-                showToast("تم حفظ وتحديث سجل الدوام بنجاح.");
-                renderAttendanceList();
-                sendToGoogle(records);
-            }
-        }
+                showMessage("اكتمل الحفظ بنجاح", `تم تسجيل وتحديث السجلات لـ ${updateCount} طالبة في يوم (${activeDateStr}).`);
+                renderStudentList(); 
 
-        // --- 2. التسميع ---
-        function renderMemoSelect() {
-            const select = document.getElementById('memoStudentSelect');
-            select.innerHTML = '<option value="">-- اضغطي لاختيار الطالبة --</option>';
-            const myIds = teachersData[currentTeacher].studentIds;
-            const myStudents = students.filter(s => myIds.includes(s.id)).sort((a, b) => a.name.localeCompare(b.name, 'ar'));
-            myStudents.forEach(s => {
-                // وضع إشارة صح إذا كان مسجلا اليوم
-                let isSaved = s.history.some(h => h.date === todayStr && h.details.includes('تسميع'));
-                let marker = isSaved ? ' ✅' : '';
-                select.innerHTML += `<option value="${s.id}">${s.name}${marker}</option>`; 
-            });
-        }
-
-        function renderMemoStars(sId) {
-            const container = document.getElementById('memoStarsContainer');
-            container.innerHTML = '';
-            const data = drafts.memo[sId] || { stars: 0 };
-            for(let i=5; i>=1; i--) {
-                let starClass = i <= data.stars ? "fas fa-star" : "far fa-star text-gray-300";
-                container.innerHTML += `<i class="${starClass}" onclick="setMemoStars(${sId}, ${i})"></i>`;
-            }
-        }
-
-        function setMemoStars(sId, rating) {
-            if(!drafts.memo[sId]) drafts.memo[sId] = { amount:'', stars:0, notes:'', next:'' };
-            if(drafts.memo[sId].stars === rating) drafts.memo[sId].stars = 0; // إزالة النجمة
-            else drafts.memo[sId].stars = rating;
-            saveDraftsToLocal();
-            renderMemoStars(sId);
-        }
-
-        function saveDrafts() {
-            const sId = parseInt(document.getElementById('memoStudentSelect').value);
-            if(sId) {
-                if(!drafts.memo[sId]) drafts.memo[sId] = { amount:'', stars:0, notes:'', next:'' };
-                drafts.memo[sId].amount = document.getElementById('memoInputAmount').value;
-                drafts.memo[sId].notes = document.getElementById('memoInputNotes').value;
-                drafts.memo[sId].next = document.getElementById('memoInputNext').value;
-            }
-            const bId = parseInt(document.getElementById('behaviorStudentSelect').value);
-            if(bId) {
-                if(!drafts.behavior[bId]) drafts.behavior[bId] = { stars:0, points:0, reason:'' };
-                drafts.behavior[bId].reason = document.getElementById('behaviorInputReason').value;
-            }
-            saveDraftsToLocal();
-        }
-
-        function loadMemoForm() {
-            const sId = parseInt(document.getElementById('memoStudentSelect').value);
-            const form = document.getElementById('memoFormArea');
-            if(!sId) { form.classList.add('hide'); return; }
-            
-            form.classList.remove('hide');
-            
-            // تحميل من الذاكرة المحلية إذا وجد، وإلا تفريغ
-            const data = drafts.memo[sId] || { amount:'', stars:0, notes:'', next:'' };
-            document.getElementById('memoInputAmount').value = data.amount;
-            document.getElementById('memoInputNotes').value = data.notes;
-            document.getElementById('memoInputNext').value = data.next;
-            
-            renderMemoStars(sId);
-            
-            // تغيير النص إذا تم الحفظ سابقاً اليوم
-            const s = students.find(x => x.id === sId);
-            const isSaved = s.history.some(h => h.date === todayStr && h.details.includes('تسميع'));
-            const btn = document.getElementById('btnSaveMemo');
-            if(isSaved) {
-                btn.innerHTML = `<i class="fas fa-edit text-2xl text-mosque-gold"></i> <span>تعديل التسميع المحفوظ</span>`;
-                btn.classList.add('bg-blue-800'); btn.classList.remove('bg-mosque-green');
+                if (GOOGLE_SCRIPT_URL) {
+                    fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: "save_records", records: newRecordsToSave })
+                    });
+                }
             } else {
-                btn.innerHTML = `<i class="fas fa-check-circle text-2xl text-mosque-gold"></i> <span>حفظ التسميع للطالبة</span>`;
-                btn.classList.add('bg-mosque-green'); btn.classList.remove('bg-blue-800');
+                showMessage("لا يوجد بيانات جديدة", "لم تقومي بتسجيل أي غياب أو حفظ أو سلوك للحفظ.", true);
             }
         }
 
-        function saveStudentMemo() {
-            const sId = parseInt(document.getElementById('memoStudentSelect').value);
-            if(!sId) return;
-            const s = students.find(x => x.id === sId);
-            
-            const data = drafts.memo[sId] || { amount:'', stars:0, notes:'', next:'' };
-            const amount = document.getElementById('memoInputAmount').value.trim();
-            const notes = document.getElementById('memoInputNotes').value.trim();
-            const next = document.getElementById('memoInputNext').value.trim();
-            const stars = data.stars;
-
-            if(!amount) { showMessage("تنبيه", "يرجى كتابة مقدار الحفظ.", true); return; }
-
-            // حفظ في المسودة
-            drafts.memo[sId] = { amount, stars, notes, next };
-            saveDraftsToLocal();
-
-            let pts = stars * 2; // كل نجمة بنقطتين (المجموع 10)
-            
-            let details = `تسميع`;
-            if(stars > 0) details += ` (${stars} نجوم إتقان)`;
-            if(notes) details += ` | ملاحظات: ${notes}`;
-            if(next) details += ` | المطلوب: ${next}`;
-
-            // التعديل الذكي بدون تكرار
-            let existingRecord = s.history.find(h => h.date === todayStr && h.details.includes('تسميع'));
-            
-            if (existingRecord) {
-                let diff = pts - existingRecord.pointsEarned;
-                s.points += diff;
-                existingRecord.pointsEarned = pts;
-                existingRecord.memo = amount;
-                existingRecord.details = details;
-                showToast(`تم تعديل وتحديث تسميع ${s.name}`);
-            } else {
-                s.points += pts;
-                s.history.unshift({ date: todayStr, memo: amount, pointsEarned: pts, details: details });
-                showToast(`تم حفظ تسميع ${s.name} بنجاح`);
-            }
-
-            localStorage.setItem('mosqueStudents', JSON.stringify(students));
-            renderMemoSelect(); // لتحديث علامة الصح
-            document.getElementById('memoStudentSelect').value = sId;
-            loadMemoForm(); // لتحديث زر الحفظ
-            
-            let records = [{ id: s.id, date: todayStr, teacher: currentTeacher, name: s.name, attendance: '-', memo: amount, behavior: '-', pointsEarned: pts, details: details }];
-            sendToGoogle(records);
-        }
-
-        // --- 3. السلوك والنقاط (محدثة لتكون مثل التسميع) ---
-        function renderBehaviorSelect() {
-            const select = document.getElementById('behaviorStudentSelect');
-            select.innerHTML = '<option value="">-- اختاري اسم الطالبة للتقييم --</option>';
-            const myIds = teachersData[currentTeacher].studentIds;
-            const myStudents = students.filter(s => myIds.includes(s.id)).sort((a, b) => a.name.localeCompare(b.name, 'ar'));
-            myStudents.forEach(s => { 
-                let isSaved = s.history.some(h => h.date === todayStr && h.details.includes('تقييم سلوك'));
-                let marker = isSaved ? ' ✅' : '';
-                select.innerHTML += `<option value="${s.id}">${s.name}${marker}</option>`; 
-            });
-        }
-
-        function loadBehaviorForm() {
-            const sId = parseInt(document.getElementById('behaviorStudentSelect').value);
-            const form = document.getElementById('behaviorFormArea');
-            if(!sId) { form.classList.add('hide'); return; }
-            
-            form.classList.remove('hide');
-            const data = drafts.behavior[sId] || { stars:0, points:0, reason:'' };
-            
-            document.getElementById('behaviorInputReason').value = data.reason;
-            renderBehaviorStars(sId);
-            updateBehaviorPointsUI(sId);
-
-            const s = students.find(x => x.id === sId);
-            const isSaved = s.history.some(h => h.date === todayStr && h.details.includes('تقييم سلوك'));
-            const btn = document.getElementById('btnSaveBehavior');
-            if(isSaved) {
-                btn.innerHTML = `<i class="fas fa-edit text-2xl"></i> <span>تعديل السلوك المحفوظ</span>`;
-                btn.className = "w-full bg-blue-800 text-white font-black text-xl p-5 rounded-2xl shadow-lg hover:bg-blue-900 transition flex justify-center items-center gap-3";
-            } else {
-                btn.innerHTML = `<i class="fas fa-check-circle text-2xl"></i> <span>حفظ السلوك والنقاط</span>`;
-                btn.className = "w-full bg-mosque-gold text-mosque-green font-black text-xl p-5 rounded-2xl shadow-lg hover:bg-yellow-500 transition flex justify-center items-center gap-3";
-            }
-        }
-
-        function renderBehaviorStars(sId) {
-            const container = document.getElementById('behaviorStarsContainer');
-            container.innerHTML = '';
-            const data = drafts.behavior[sId] || { stars: 0 };
-            for(let i=5; i>=1; i--) {
-                let starClass = i <= data.stars ? "fas fa-star" : "far fa-star text-gray-300";
-                container.innerHTML += `<i class="${starClass}" onclick="setBehaviorStars(${sId}, ${i})"></i>`;
-            }
-        }
-
-        function setBehaviorStars(sId, rating) {
-            if(!drafts.behavior[sId]) drafts.behavior[sId] = { stars:0, points:0, reason:'' };
-            if(drafts.behavior[sId].stars === rating) drafts.behavior[sId].stars = 0;
-            else drafts.behavior[sId].stars = rating;
-            saveDraftsToLocal();
-            renderBehaviorStars(sId);
-        }
-
-        function changePoints(val) {
-            const sId = parseInt(document.getElementById('behaviorStudentSelect').value);
-            if(!sId) return;
-            if(!drafts.behavior[sId]) drafts.behavior[sId] = { stars:0, points:0, reason:'' };
-            drafts.behavior[sId].points += val;
-            saveDraftsToLocal();
-            updateBehaviorPointsUI(sId);
-        }
-
-        function updateBehaviorPointsUI(sId) {
-            const val = drafts.behavior[sId].points;
-            let el = document.getElementById('behaviorPointsCounter');
-            el.innerText = (val > 0 ? '+' : '') + val;
-            if(val < 0) el.className = "text-4xl font-black text-red-600";
-            else if(val > 0) el.className = "text-4xl font-black text-green-600";
-            else el.className = "text-4xl font-black text-gray-800";
-        }
-
-        function saveStudentBehavior() {
-            const sId = parseInt(document.getElementById('behaviorStudentSelect').value);
-            if(!sId) return;
-            const s = students.find(x => x.id === sId);
-            const data = drafts.behavior[sId] || { stars:0, points:0, reason:'' };
-            
-            const reason = document.getElementById('behaviorInputReason').value.trim();
-            drafts.behavior[sId].reason = reason;
-            saveDraftsToLocal();
-
-            let totalPts = data.stars + data.points; // النجوم كتقييم والمكافآت/خصم
-            
-            let details = [];
-            details.push(`تقييم سلوك`);
-            if(data.stars > 0) details.push(`${data.stars} نجوم`);
-            if(data.points !== 0) details.push(`${data.points > 0 ? 'مكافأة' : 'خصم'} (${data.points}) ${reason ? 'السبب: '+reason : ''}`);
-
-            let detailsStr = details.join(' | ');
-
-            // التعديل الذكي بدون تكرار
-            let existingRecord = s.history.find(h => h.date === todayStr && h.details.includes('تقييم سلوك'));
-            
-            if (existingRecord) {
-                let diff = totalPts - existingRecord.pointsEarned;
-                s.points += diff;
-                existingRecord.pointsEarned = totalPts;
-                existingRecord.details = detailsStr;
-                showToast(`تم تعديل وتقييم ${s.name}`);
-            } else {
-                s.points += totalPts;
-                s.history.unshift({ date: todayStr, memo: '-', pointsEarned: totalPts, details: detailsStr });
-                showToast(`تم حفظ تقييم ${s.name}`);
-            }
-
-            localStorage.setItem('mosqueStudents', JSON.stringify(students));
-            renderBehaviorSelect();
-            document.getElementById('behaviorStudentSelect').value = sId;
-            loadBehaviorForm();
-            
-            let records = [{ id: s.id, date: todayStr, teacher: currentTeacher, name: s.name, attendance: '-', memo: '-', behavior: data.stars+' نجوم', pointsEarned: totalPts, details: detailsStr }];
-            sendToGoogle(records);
-        }
-
-        // --- 4. لوحة التميز (الشرف) ---
+        // === لوحة التميز ===
         function renderLeaderboard() {
             let groupIds = [];
             if(currentTeacher && teachersData[currentTeacher]) groupIds = teachersData[currentTeacher].studentIds;
-            else if(currentParentViewStudent) groupIds = students.map(s=>s.id); 
+            else if(currentParentViewStudent) groupIds = students.map(s=>s.id); // للأهالي نعرض الجميع حاليا أو حسب الرغبة
             
             let pool = currentTeacher ? students.filter(s => groupIds.includes(s.id)) : students; 
             const sorted = [...pool].sort((a, b) => b.points - a.points);
             
-            const renderPodium = (containerId, top3) => {
+            const renderPodium = (containerId) => {
                 const el = document.getElementById(containerId);
                 if(!el) return;
                 el.innerHTML = '';
-                if (top3.length >= 3) {
+                if (sorted.length >= 3) {
                     el.innerHTML = `
                         <div class="flex flex-col items-center justify-end order-2 w-1/3 h-full pb-0 relative">
-                            <div class="bg-white text-gray-800 text-sm font-bold px-3 py-1 rounded-full mb-3 shadow-md whitespace-nowrap z-30">${top3[1].name}</div>
+                            <div class="bg-white text-gray-800 text-sm font-bold px-3 py-1 rounded-full mb-3 shadow-md whitespace-nowrap z-30">${sorted[1].name}</div>
                             <div class="podium-2 w-full h-[60%] rounded-t-[2rem] shadow-lg flex items-center justify-start pt-6 flex-col border-t-[6px] border-white/50 relative z-10">
                                 <span class="text-white font-black text-2xl drop-shadow-md">2</span>
-                                <span class="text-gray-800 font-black text-xl mt-2 bg-white/50 px-3 rounded-full">${top3[1].points}</span>
+                                <span class="text-gray-800 font-black text-xl mt-2 bg-white/50 px-3 rounded-full">${sorted[1].points}</span>
                             </div>
                         </div>
                         <div class="flex flex-col items-center justify-end order-1 z-30 w-1/3 h-full pb-0 mb-6 relative">
                             <i class="fas fa-crown text-white text-5xl mb-2 drop-shadow-[0_4px_10px_rgba(212,175,55,1)] z-40 relative -bottom-2"></i>
-                            <div class="bg-mosque-gold text-white text-base md:text-lg font-black px-4 py-1.5 rounded-full mb-3 shadow-xl whitespace-nowrap z-30">${top3[0].name}</div>
+                            <div class="bg-mosque-gold text-white text-base md:text-lg font-black px-4 py-1.5 rounded-full mb-3 shadow-xl whitespace-nowrap z-30">${sorted[0].name}</div>
                             <div class="podium-1 w-full h-[80%] rounded-t-[2rem] shadow-2xl flex items-center justify-start pt-8 flex-col border-t-[6px] border-white/70 relative z-10">
                                 <span class="text-white font-black text-4xl drop-shadow-lg">1</span>
-                                <span class="text-yellow-900 font-black text-2xl mt-3 bg-white/50 px-4 rounded-full">${top3[0].points}</span>
+                                <span class="text-yellow-900 font-black text-2xl mt-3 bg-white/50 px-4 rounded-full">${sorted[0].points}</span>
                             </div>
                         </div>
                         <div class="flex flex-col items-center justify-end order-3 w-1/3 h-full pb-0 relative">
-                            <div class="bg-white text-gray-800 text-sm font-bold px-3 py-1 rounded-full mb-3 shadow-md whitespace-nowrap z-30">${top3[2].name}</div>
+                            <div class="bg-white text-gray-800 text-sm font-bold px-3 py-1 rounded-full mb-3 shadow-md whitespace-nowrap z-30">${sorted[2].name}</div>
                             <div class="podium-3 w-full h-[50%] rounded-t-[2rem] shadow-lg flex items-center justify-start pt-5 flex-col border-t-[6px] border-white/50 relative z-10">
                                 <span class="text-white font-black text-2xl drop-shadow-md">3</span>
-                                <span class="text-orange-900 font-black text-xl mt-2 bg-white/50 px-3 rounded-full">${top3[2].points}</span>
+                                <span class="text-orange-900 font-black text-xl mt-2 bg-white/50 px-3 rounded-full">${sorted[2].points}</span>
                             </div>
                         </div>
                     `;
                 }
             };
 
-            const renderTable = (tbodyId, list) => {
+            const renderTable = (tbodyId) => {
                 const tbody = document.getElementById(tbodyId);
                 if(!tbody) return;
                 tbody.innerHTML = '';
-                list.forEach((s, i) => {
-                    if(i < 3) return; 
+                sorted.forEach((s, i) => {
+                    if(currentTeacher && i < 3) return; // المعلمة ترى المنصة للأوائل
+                    
+                    let medal = i===0?'<i class="fas fa-medal text-yellow-500 text-2xl"></i>':(i===1?'<i class="fas fa-medal text-gray-400 text-2xl"></i>':(i===2?'<i class="fas fa-medal text-orange-400 text-2xl"></i>':`<span class="inline-block w-8 h-8 text-center leading-8 rounded-full bg-gray-100 text-gray-500 text-sm font-black">${i + 1}</span>`));
+                    
+                    let highlight = (currentParentViewStudent && s.id === currentParentViewStudent.id) ? 'bg-mosque-gold-light border-l-4 border-mosque-gold' : 'hover:bg-gray-50 border-b border-gray-100';
+
                     tbody.innerHTML += `
-                        <tr class="hover:bg-gray-100 transition">
-                            <td class="p-4"><span class="inline-block w-8 h-8 text-center leading-8 rounded-full bg-gray-200 text-gray-600 text-sm font-black shadow-inner">${i + 1}</span></td>
-                            <td class="p-4 font-bold text-gray-800">${s.name}</td>
-                            <td class="p-4 text-center"><span class="bg-gradient-to-r from-mosque-gold-light to-white text-yellow-800 py-1.5 px-4 rounded-full font-black border border-mosque-gold/30 text-sm shadow-sm">${s.points}</span></td>
+                        <tr class="transition ${highlight}">
+                            <td class="p-4 text-center">${currentTeacher ? `<span class="inline-block w-8 h-8 text-center leading-8 rounded-full bg-gray-100 text-gray-500 text-sm font-black">${i + 1}</span>` : medal}</td>
+                            <td class="p-4 font-black text-gray-800 text-lg">${s.name}</td>
+                            <td class="p-4 text-center"><span class="bg-mosque-gold-light text-yellow-800 py-1.5 px-4 rounded-full font-black border border-yellow-200 text-sm shadow-sm">${s.points}</span></td>
                         </tr>`;
                 });
             };
 
-            if(currentTeacher) {
-                renderPodium('topThreeContainer', sorted);
-                renderTable('leaderboardTableBody', sorted);
-            }
-            if(currentParentViewStudent) {
-                const pl = document.getElementById('parentLeaderboardList');
-                pl.innerHTML = '';
-                sorted.slice(0, 5).forEach((s, i) => {
-                    let medal = i===0?'<i class="fas fa-medal text-yellow-500 text-2xl"></i>':(i===1?'<i class="fas fa-medal text-gray-400 text-2xl"></i>':(i===2?'<i class="fas fa-medal text-orange-400 text-2xl"></i>':`<span class="text-gray-400 font-black text-lg ml-2">${i+1}</span>`));
-                    let highlight = s.name === currentParentViewStudent.name ? 'bg-mosque-gold-light border-mosque-gold shadow-md' : 'bg-gray-50 border-transparent';
-                    pl.innerHTML += `
-                        <div class="flex justify-between items-center p-4 rounded-2xl border-2 ${highlight} mb-2">
-                            <div class="flex items-center gap-4">${medal} <span class="font-bold text-gray-800 text-lg">${s.name}</span></div>
-                            <span class="font-black text-xl text-mosque-green">${s.points}</span>
-                        </div>`;
-                });
-            }
+            if(currentTeacher) { renderPodium('topThreeContainer'); renderTable('leaderboardTableBody'); }
+            if(currentParentViewStudent) { renderTable('parentLeaderboardList'); }
         }
 
-        function sendToGoogle(records) {
-            if (GOOGLE_SCRIPT_URL) {
-                fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: "save_records", records: records })
-                }).catch(e=>console.log("Offline mode"));
-            }
-        }
-
-        // --- إضافة طالبة جديدة ---
+        // === الإعدادات (إضافة طالبة) ===
         function addNewStudent() {
             const name = document.getElementById('newStudentName').value.trim();
-            if (!name) { showMessage("بيانات ناقصة", "اكتبي الاسم الثلاثي للطالبة الجديدة.", true); return; }
+            if (!name) { showMessage("بيانات ناقصة", "يرجى إدخال اسم الطالبة أولاً.", true); return; }
 
             const newId = students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1001;
             const newStudent = { id: newId, name: name, points: 0, history: [] };
@@ -1081,72 +994,159 @@
                 });
             }
             document.getElementById('newStudentName').value = '';
-            refreshAllViews();
+            renderStudentList();
         }
 
-        // --- أولياء الأمور ---
-        function loginParent() {
-            const searchName = document.getElementById('parentStudentName').value.trim();
-            if (!searchName) return;
-            const student = students.find(s => s.name.includes(searchName));
-            if (student) {
-                currentParentViewStudent = student;
-                document.getElementById('loginScreen').classList.add('hide');
-                document.getElementById('parentDashboard').classList.remove('hide');
-                updateParentDashboard();
-                renderLeaderboard();
-            } else { 
-                showMessage("غير موجود", "لم يتم العثور على اسم مطابق. تأكدي من كتابة الاسم بدقة.", true); 
+        // === بوابة أولياء الأمور ===
+        let currentParentStudentIds = [];
+        
+        function initParentFlow() {
+            let saved = JSON.parse(localStorage.getItem('mosqueParentStudents'));
+            if(saved && saved.length > 0) {
+                currentParentStudentIds = saved;
+                openParentDashboard();
+            } else {
+                openParentSetup();
             }
         }
 
-        function updateParentDashboard() {
+        function openParentSetup() {
+            document.getElementById('parentDashboard').classList.add('hide');
+            document.getElementById('parentSetupScreen').classList.remove('hide');
+            filterParentSetupStudents();
+        }
+
+        function filterParentSetupStudents() {
+            const query = document.getElementById('parentSearchStudent') ? document.getElementById('parentSearchStudent').value.toLowerCase() : "";
+            const listDiv = document.getElementById('parentStudentListCheckboxes');
+            if(!listDiv) return;
+            listDiv.innerHTML = '';
+            
+            const sortedStudents = [...students].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+
+            sortedStudents.forEach(s => {
+                if(s.name.toLowerCase().includes(query)) {
+                    listDiv.innerHTML += `
+                        <div class="flex items-center gap-4 p-3 bg-white border border-gray-200 rounded-xl hover:border-mosque-green transition">
+                            <input type="checkbox" id="p_setup_${s.id}" value="${s.id}" class="parent-setup-cb w-6 h-6 accent-mosque-green cursor-pointer">
+                            <label for="p_setup_${s.id}" class="cursor-pointer flex-1 font-bold text-gray-800 text-lg">${s.name}</label>
+                        </div>`;
+                }
+            });
+        }
+
+        function saveParentSetup() {
+            const selectedIds = Array.from(document.querySelectorAll('.parent-setup-cb:checked')).map(cb => parseInt(cb.value));
+            if(selectedIds.length === 0) { showMessage("بيانات مطلوبة", "يرجى تحديد اسم ابنتك للمتابعة.", true); return; }
+            
+            currentParentStudentIds = selectedIds;
+            localStorage.setItem('mosqueParentStudents', JSON.stringify(currentParentStudentIds));
+            openParentDashboard();
+        }
+
+        function openParentDashboard() {
+            document.getElementById('parentSetupScreen').classList.add('hide');
+            document.getElementById('parentDashboard').classList.remove('hide');
+            
+            // بناء أزرار التبديل إذا كان هناك أكثر من ابنة
+            const switcher = document.getElementById('parentChildSwitcher');
+            switcher.innerHTML = '';
+            if(currentParentStudentIds.length > 1) {
+                currentParentStudentIds.forEach(id => {
+                    const s = students.find(x => x.id === id);
+                    if(s) {
+                        switcher.innerHTML += `<button onclick="switchParentView(${s.id})" id="p_btn_${s.id}" class="px-5 py-2 rounded-full font-bold text-sm border-2 whitespace-nowrap transition bg-white/20 text-white border-white/30 hover:bg-white/40">${s.name.split(' ')[0]}</button>`;
+                    }
+                });
+            }
+            
+            switchParentView(currentParentStudentIds[0]); // عرض الأولى افتراضياً
+        }
+
+        function switchParentView(id) {
+            currentParentViewStudent = students.find(s => s.id === id);
+            
+            // تحديث الأزرار
+            if(currentParentStudentIds.length > 1) {
+                currentParentStudentIds.forEach(childId => {
+                    const btn = document.getElementById(`p_btn_${childId}`);
+                    if(btn) btn.className = `px-5 py-2 rounded-full font-bold text-sm border-2 whitespace-nowrap transition ${childId===id ? 'bg-mosque-gold text-white border-yellow-400 shadow-md':'bg-white/20 text-white border-white/30 hover:bg-white/40'}`;
+                });
+            }
+
+            updateParentDashboardUI();
+        }
+
+        function updateParentDashboardUI() {
             const s = currentParentViewStudent;
+            if(!s) return;
+
             document.getElementById('parentStudentTitle').innerText = s.name;
             document.getElementById('parentStudentPoints').innerText = s.points;
 
             const hList = document.getElementById('parentHistoryList');
             hList.innerHTML = '';
             if (s.history.length === 0) {
-                hList.innerHTML = `<div class="p-10 bg-white rounded-3xl border-2 border-gray-100 text-gray-400 font-bold text-center shadow-sm"><i class="far fa-folder-open text-5xl block mb-4"></i>لم يتم تسجيل أداء بعد.</div>`;
+                hList.innerHTML = `<div class="p-10 bg-white/50 rounded-3xl border-2 border-white text-gray-500 font-bold text-center shadow-sm">لم يتم تسجيل أداء بعد.</div>`;
             } else {
                 s.history.forEach(record => {
-                    let ptsClass = record.pointsEarned > 0 ? "text-yellow-600 bg-yellow-50" : (record.pointsEarned < 0 ? "text-red-600 bg-red-50" : "text-gray-500 bg-gray-50");
+                    let ptsClass = record.pointsEarned > 0 ? "text-green-700 bg-green-50" : (record.pointsEarned < 0 ? "text-red-700 bg-red-50" : "text-gray-500 bg-gray-50");
                     let ptsSign = record.pointsEarned > 0 ? "+" : "";
                     
                     hList.innerHTML += `
-                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col gap-4 relative overflow-hidden group">
+                        <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex flex-col gap-4 relative overflow-hidden group">
                             <div class="absolute right-0 top-0 w-2 h-full bg-mosque-green"></div>
                             <div class="flex justify-between items-start pl-2 pr-4">
                                 <div>
                                     <div class="text-sm font-bold text-gray-400 mb-2"><i class="far fa-calendar-alt"></i> ${record.date}</div>
-                                    <div class="font-bold text-mosque-green text-xl mb-1">الحفظ: <span class="text-gray-800 font-normal">${record.memo}</span></div>
+                                    <div class="font-black text-mosque-green text-xl mb-1">الحفظ: <span class="text-gray-800 font-bold">${record.memo}</span></div>
                                 </div>
-                                <div class="flex items-center justify-center ${ptsClass} py-2 px-4 rounded-xl border-2 border-white min-w-[80px] shadow-sm">
+                                <div class="flex items-center justify-center ${ptsClass} py-2 px-4 rounded-xl border border-gray-200 min-w-[80px] shadow-sm">
                                     <span class="font-black text-3xl" dir="ltr">${ptsSign}${record.pointsEarned}</span>
                                 </div>
                             </div>
-                            <div class="bg-gray-50 p-4 rounded-xl mr-4 text-sm font-bold text-gray-600 border border-gray-100 leading-relaxed">
+                            <div class="bg-gray-50 p-4 rounded-xl mr-4 text-sm font-bold text-gray-600 border border-gray-200 leading-relaxed">
                                 <i class="fas fa-info-circle text-mosque-gold mr-2 text-lg"></i> ${record.details}
                             </div>
                         </div>
                     `;
                 });
             }
+            renderLeaderboard(); // لتحديث لوحة التميز للأهالي
+        }
+
+        function sendNoteToTeacher() {
+            const noteText = document.getElementById('parentNoteText').value.trim();
+            if(!noteText) { showMessage("فارغ", "الرجاء كتابة الملاحظة قبل الإرسال.", true); return; }
+
+            const s = currentParentViewStudent;
+            const noteData = { date: new Date().toLocaleDateString('ar-EG', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}), studentId: s.id, studentName: s.name, text: noteText };
+            
+            parentNotesList.push(noteData);
+            localStorage.setItem('mosqueParentNotes', JSON.stringify(parentNotesList));
+            
+            if (GOOGLE_SCRIPT_URL) {
+                fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: "add_parent_note", note: noteData })
+                });
+            }
+
+            document.getElementById('parentNoteText').value = '';
+            showToast("تم إرسال الملاحظة للمعلمة بنجاح!");
         }
 
         function logoutParent() {
+            localStorage.removeItem('mosqueParentStudents');
             document.getElementById('parentDashboard').classList.add('hide');
-            document.getElementById('loginScreen').classList.remove('hide');
-            document.getElementById('parentStudentName').value = '';
-            currentParentViewStudent = null;
+            initParentFlow();
         }
 
         function logout() {
             document.getElementById('teacherDashboard').classList.add('hide');
             document.getElementById('teacherSetupScreen').classList.add('hide');
-            document.getElementById('topDateBar').classList.add('hide');
             document.getElementById('loginScreen').classList.remove('hide');
+            document.getElementById('teacherPin').value = '';
             document.getElementById('teacherSelectName').value = '';
             currentTeacher = null;
             window.scrollTo(0,0);
