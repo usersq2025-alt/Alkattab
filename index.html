@@ -442,7 +442,7 @@
 
     <script>
         // === يرجى وضع رابط جوجل شيت الجديد هنا ===
-        const GOOGLE_SCRIPT_URL = "";
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyYARy1YSXYwGKGFVD7cY7BNsmC7yb5BoIVxx6q1P94WTJKJEpBrb80F6SjL5s7vIoE/exec";
         
         const initialNames = [
             "أرجوان فخر الدين", "ألمى صبحي", "أوركيد فخر الدين", "إيمان حويان", "تالة حناوي", "تاليا المزي", "تالين معمولي", "جنى سحلول", "جودي زرزور", "جودي سحلول", "جودي سامر سحلول", "جوري عزيزية", "حلا تركماني", "حلا زرزور", "حنين دباسوا", "زينة المقدمي", "سارة أبو لحية", "سارة كلول", "سدرة المقدس", "سدرة عبد الرحمن", "ليلاس السيد", "لمار السيد", "لمار خليفة", "لين صبحي", "ماريا المزي"
@@ -714,15 +714,32 @@
             const sortedStudents = [...students].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
             const myIds = teachersData[currentTeacher] ? teachersData[currentTeacher].studentIds : [];
 
-            sortedStudents.forEach((s, idx) => {
+            // تجميع IDs الطالبات المسجلات عند معلمات أخريات
+            let otherTeachersIds = [];
+            for (const tName in teachersData) {
+                if (tName !== currentTeacher) {
+                    otherTeachersIds = otherTeachersIds.concat(teachersData[tName].studentIds);
+                }
+            }
+
+            let displayIdx = 1;
+            sortedStudents.forEach((s) => {
+                // تخطي وإخفاء الطالبة إذا كانت مسجلة عند معلمة أخرى
+                if (otherTeachersIds.includes(s.id)) return;
+
                 const isChecked = myIds.includes(s.id) ? 'checked' : '';
                 listDiv.innerHTML += `
                     <div class="setup-student-item flex items-center gap-4 p-3 bg-white border border-gray-200 rounded-2xl hover:border-mosque-green transition">
-                        <span class="text-gray-400 font-bold text-sm w-6">${idx+1}-</span>
+                        <span class="text-gray-400 font-bold text-sm w-6">${displayIdx}-</span>
                         <input type="checkbox" id="setup_std_${s.id}" value="${s.id}" class="setup-checkbox w-7 h-7 accent-mosque-green cursor-pointer" ${isChecked}>
                         <label for="setup_std_${s.id}" class="cursor-pointer flex-1 font-bold text-gray-800 text-lg">${s.name}</label>
                     </div>`;
+                displayIdx++;
             });
+            
+            if (displayIdx === 1) {
+                listDiv.innerHTML = '<div class="text-center text-gray-500 font-bold p-8 border-2 border-dashed border-gray-200 rounded-xl">لا توجد طالبات غير مسجلات متاحين حالياً.</div>';
+            }
         }
 
         function saveTeacherSetup() {
