@@ -2,10 +2,14 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>تطبيق مسجد حسين الخطاب</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- دمج خط الرقعة للعناوين وخط كايرو للبيانات لراحة بصرية وجمالية عالية -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script>
@@ -13,13 +17,14 @@
             theme: {
                 extend: {
                     colors: {
-                        'mosque-green': '#0f5132',
-                        'mosque-light': '#198754',
+                        'mosque-green': '#0a4226', /* أخضر ملكي أعمق */
+                        'mosque-light': '#147043',
                         'mosque-gold': '#d4af37',
-                        'mosque-gold-light': '#f9f1dc'
+                        'mosque-gold-light': '#fdf9f1'
                     },
                     fontFamily: {
-                        sans: ['Tajawal', 'sans-serif'],
+                        sans: ['Cairo', 'sans-serif'], /* الخط الافتراضي للقراءة */
+                        ruqaa: ['"Aref Ruqaa"', 'serif'], /* خط العناوين الفخم */
                     }
                 }
             }
@@ -27,375 +32,360 @@
     </script>
     <style>
         .hide { display: none !important; }
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #f4f7f6; -webkit-tap-highlight-color: transparent; }
         
-        ::-webkit-scrollbar { display: none; } /* إخفاء شريط التمرير بالكامل لجمالية أفضل على الجوال */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @keyframes slideInUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate-slide-up { animation: slideInUp 0.4s ease-out forwards; }
         
-        @keyframes slideIn {
-            from { transform: translateY(100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .toast-animate { animation: slideIn 0.3s ease-out forwards; }
-        
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        .modal-animate { animation: modalFadeIn 0.2s ease-out forwards; }
-        
-        /* تأثير النجوم */
-        .star-rating i { transition: color 0.2s, transform 0.1s; }
-        .star-rating i:active { transform: scale(0.8); }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
 
         .loader {
-            border: 4px solid #f3f3f3; border-top: 4px solid #d4af37;
+            border: 4px solid #e5e7eb; border-top: 4px solid #d4af37;
             border-radius: 50%; width: 40px; height: 40px;
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* التحكم بظهور الأقسام حسب التبويب النشط */
-        .mode-attendance .sec-memo, .mode-attendance .sec-behavior { display: none !important; }
-        .mode-memo .sec-attendance, .mode-memo .sec-behavior { display: none !important; }
-        .mode-behavior .sec-attendance, .mode-behavior .sec-memo { display: none !important; }
+        /* تنسيق أزرار الحضور السريعة */
+        .att-btn { transition: all 0.2s; }
+        .att-btn.active-present { background-color: #10b981; color: white; border-color: #059669; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+        .att-btn.active-late { background-color: #f59e0b; color: white; border-color: #d97706; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+        .att-btn.active-absent { background-color: #ef4444; color: white; border-color: #dc2626; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+
+        /* شريط التنقل السفلي */
+        .nav-btn.active { color: #0a4226; font-weight: 900; }
+        .nav-btn.active i { transform: translateY(-4px); color: #d4af37; font-size: 1.5rem; }
+        .nav-btn i { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         
-        /* تنسيق شريط التنقل السفلي */
-        .nav-btn.active { color: #0f5132; }
-        .nav-btn.active i { transform: translateY(-2px); color: #d4af37; }
-        .nav-btn i { transition: all 0.3s ease; }
+        /* تدرجات لوحة الشرف */
+        .podium-1 { background: linear-gradient(135deg, #FFD700 0%, #D4AF37 100%); }
+        .podium-2 { background: linear-gradient(135deg, #E0E0E0 0%, #9E9E9E 100%); }
+        .podium-3 { background: linear-gradient(135deg, #FFB74D 0%, #F57C00 100%); }
     </style>
 </head>
-<body class="text-gray-800 antialiased selection:bg-mosque-gold selection:text-white pb-24">
+<body class="text-gray-800 antialiased selection:bg-mosque-gold selection:text-white pb-24 text-base">
 
-    <!-- شاشة التحميل -->
-    <div id="loadingOverlay" class="hide fixed inset-0 z-[200] flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm">
+    <!-- -->
+    <div id="loadingOverlay" class="hide fixed inset-0 z-[200] flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm">
         <div class="loader mb-4"></div>
-        <p class="text-mosque-green font-bold text-lg animate-pulse">جاري مزامنة السجلات...</p>
+        <p class="text-mosque-green font-bold text-xl font-ruqaa animate-pulse">جاري المزامنة...</p>
     </div>
 
-    <!-- نافذة الرسائل (Modal) -->
     <div id="customModalBox" class="hide fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 modal-animate border-t-4 border-mosque-gold text-center relative overflow-hidden">
-            <div id="modalIcon" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 bg-gray-100 text-gray-500 text-3xl">
+        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm p-8 animate-slide-up border-t-8 border-mosque-gold text-center relative overflow-hidden">
+            <div id="modalIcon" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 bg-gray-50 text-gray-500 text-4xl shadow-inner">
                 <i class="fas fa-info-circle"></i>
             </div>
-            <h3 id="modalTitle" class="text-2xl font-black text-gray-800 mb-3">تنبيه</h3>
-            <p id="modalMessage" class="text-gray-600 mb-8 text-base font-medium leading-relaxed"></p>
+            <h3 id="modalTitle" class="text-3xl font-ruqaa text-gray-800 mb-3">تنبيه</h3>
+            <p id="modalMessage" class="text-gray-600 mb-8 text-lg font-semibold leading-relaxed"></p>
             <div id="modalButtons" class="flex gap-4 justify-center"></div>
         </div>
     </div>
 
-    <!-- شاشة تسجيل الدخول -->
+    <!-- -->
     <div id="loginScreen" class="min-h-screen flex flex-col items-center justify-center bg-mosque-gold-light p-4 relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-64 bg-mosque-green rounded-b-[50%] opacity-10"></div>
-        <div class="absolute -bottom-20 -right-20 text-mosque-green opacity-5 text-[20rem]">
-            <i class="fas fa-mosque"></i>
-        </div>
-
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 relative z-10 border-t-4 border-mosque-gold">
-            <div class="text-center mb-8">
-                <img src="logo2.png" alt="شعار مسجد حسين الخطاب" class="w-32 h-32 object-contain mx-auto mb-4 drop-shadow-xl" onerror="this.outerHTML='<div class=\'w-24 h-24 bg-mosque-green text-mosque-gold rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg\'><i class=\'fas fa-book-quran text-4xl\'></i></div>'">
-                <h1 class="text-3xl font-black text-mosque-green">مسجد حسين الخطاب</h1>
-                <p id="loginSubtitle" class="text-gray-500 mt-2 font-bold bg-gray-100 py-1 px-4 rounded-full inline-block">بوابة الإدارة والمعلمات</p>
+        <div class="absolute top-0 left-0 w-full h-72 bg-mosque-green rounded-b-[60%] opacity-[0.03]"></div>
+        
+        <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md p-8 relative z-10 border-t-4 border-mosque-gold">
+            <div class="text-center mb-10">
+                <img src="logo2.png" alt="شعار مسجد حسين الخطاب" class="w-36 h-36 object-contain mx-auto mb-4 drop-shadow-2xl" onerror="this.outerHTML='<div class=\'w-28 h-28 bg-mosque-green text-mosque-gold rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl\'><i class=\'fas fa-book-quran text-5xl\'></i></div>'">
+                <h1 class="text-4xl font-ruqaa font-bold text-mosque-green leading-tight">مسجد حسين الخطاب</h1>
+                <p class="text-gray-500 mt-2 font-bold text-sm bg-gray-100 py-1.5 px-5 rounded-full inline-block">بوابة الإدارة والمعلمات</p>
             </div>
 
-            <!-- تسجيل دخول المعلمة -->
-            <div id="teacherPinArea" class="animate-fade-in">
-                <label class="block font-black text-mosque-green mb-2">اسم المعلمة</label>
-                <div class="relative mb-6">
-                    <select id="teacherSelectName" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-mosque-gold outline-none bg-gray-50 text-gray-800 font-bold text-lg appearance-none">
-                        <option value="">-- اضغطي لاختيار اسمك --</option>
-                        <option value="آ.نهى">آ.نهى</option>
-                        <option value="آ.منال">آ.منال</option>
-                        <option value="آ.سدرة">آ.سدرة</option>
-                        <option value="آ.غنى">آ.غنى</option>
-                        <option value="آ.نور">آ.نور</option>
-                        <option value="آ.قيّمة">آ.قيّمة</option>
-                        <option value="آ.ميسون">آ.ميسون</option>
-                    </select>
-                    <i class="fas fa-chevron-down absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></i>
+            <div id="teacherPinArea" class="animate-fade-in space-y-6">
+                <div>
+                    <label class="block font-bold text-mosque-green mb-2 text-lg">اسم المعلمة</label>
+                    <div class="relative">
+                        <select id="teacherSelectName" class="w-full p-4 border-2 border-gray-200 rounded-2xl focus:border-mosque-gold outline-none bg-gray-50 text-gray-800 font-bold text-lg appearance-none transition-colors">
+                            <option value="">-- اضغطي لاختيار اسمك --</option>
+                            <option value="آ.نهى">آ.نهى</option>
+                            <option value="آ.منال">آ.منال</option>
+                            <option value="آ.سدرة">آ.سدرة</option>
+                            <option value="آ.غنى">آ.غنى</option>
+                            <option value="آ.نور">آ.نور</option>
+                            <option value="آ.قيّمة">آ.قيّمة</option>
+                            <option value="آ.ميسون">آ.ميسون</option>
+                        </select>
+                        <i class="fas fa-chevron-down absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></i>
+                    </div>
                 </div>
 
-                <label class="block font-black text-mosque-green mb-2">الرمز السري</label>
-                <div class="relative">
-                    <i class="fas fa-lock absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></i>
-                    <input type="password" id="teacherPin" placeholder="أدخلي الرمز (1234)" class="w-full p-4 pr-12 border-2 border-gray-200 rounded-xl focus:border-mosque-gold outline-none text-center text-2xl tracking-widest bg-gray-50 font-bold">
+                <div>
+                    <label class="block font-bold text-mosque-green mb-2 text-lg">الرمز السري</label>
+                    <div class="relative">
+                        <i class="fas fa-lock absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></i>
+                        <input type="password" id="teacherPin" placeholder="أدخلي الرمز (1234)" class="w-full p-4 pr-14 border-2 border-gray-200 rounded-2xl focus:border-mosque-gold outline-none text-center text-2xl tracking-widest bg-gray-50 font-bold transition-colors">
+                    </div>
                 </div>
-                <button onclick="loginTeacher()" class="w-full mt-8 bg-mosque-gold hover:bg-yellow-600 text-mosque-green p-4 rounded-xl font-black text-lg shadow-md transition transform hover:-translate-y-1">
-                    دخول للمعسكر
-                </button>
-            </div>
 
-            <!-- تسجيل دخول ولي الأمر (مخفي افتراضياً، يظهر فقط عبر الرابط الخاص) -->
-            <div id="parentLoginArea" class="hide animate-fade-in">
-                <label class="block font-black text-mosque-green mb-2 text-center">أهلاً بك ولي الأمر الكريم</label>
-                <p class="text-sm text-gray-500 text-center mb-6 font-bold">الرجاء إدخال اسم ابنتك الثلاثي لمتابعة سجلها ومكافآتها.</p>
-                <div class="relative">
-                    <i class="fas fa-search absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></i>
-                    <input type="text" id="parentStudentName" placeholder="اكتب اسم الطالبة هنا..." class="w-full p-4 pr-12 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-lg">
-                </div>
-                <button onclick="loginParent()" class="w-full mt-8 bg-mosque-green hover:bg-green-900 text-white p-4 rounded-xl font-black text-lg shadow-md transition transform hover:-translate-y-1">
-                    متابعة السجل
+                <button onclick="loginTeacher()" class="w-full mt-8 bg-mosque-gold hover:bg-yellow-500 text-mosque-green p-4 rounded-2xl font-black text-xl shadow-lg transition transform hover:-translate-y-1">
+                    دخول للحلقة
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- شاشة الإعداد الأولية للمعلمة -->
+    <!-- -->
     <div id="teacherSetupScreen" class="hide min-h-screen bg-gray-50 p-4 pb-20">
-        <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-8 mt-10 border-t-4 border-mosque-gold">
-            <h2 class="text-3xl font-black text-mosque-green mb-3"><i class="fas fa-cog text-mosque-gold"></i> إعداد حلقة جديدة</h2>
-            <p class="text-gray-500 text-base font-bold mb-8">مرحباً بكِ <span id="setupTeacherName" class="font-black text-mosque-green"></span>. حددي اسم حلقتك وطالباتك لمرة واحدة فقط.</p>
+        <div class="max-w-2xl mx-auto bg-white rounded-3xl shadow-xl p-8 mt-6 border-t-8 border-mosque-gold animate-slide-up">
+            <button onclick="logout()" class="text-gray-400 hover:text-red-500 float-left text-xl"><i class="fas fa-times"></i></button>
+            <h2 class="text-4xl font-ruqaa text-mosque-green mb-4"><i class="fas fa-cog text-mosque-gold text-3xl"></i> إعداد حلقة جديدة</h2>
+            <p class="text-gray-500 text-lg font-bold mb-8 leading-relaxed">أهلاً بكِ أ. <span id="setupTeacherName" class="font-black text-mosque-green"></span>. حددي اسم حلقتك وطالباتك ليتم حفظهن في ملفك.</p>
             
-            <div class="mb-8">
-                <label class="block font-black text-gray-800 mb-3 text-lg">اسم الحلقة (مثال: حلقة عائشة رضي الله عنها)</label>
-                <input type="text" id="setupGroupName" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-lg">
+            <div class="mb-8 bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                <label class="block font-black text-gray-800 mb-3 text-xl font-ruqaa">اسم الحلقة</label>
+                <input type="text" id="setupGroupName" placeholder="مثال: حلقة عائشة رضي الله عنها" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-white font-bold text-lg">
             </div>
 
             <div class="mb-8">
-                <label class="block font-black text-gray-800 mb-3 text-lg">حددي طالباتك (ضعي علامة صح بجانب أسماءهن)</label>
-                <div class="bg-gray-50 p-4 rounded-xl border-2 border-gray-200 h-72 overflow-y-auto space-y-3" id="setupStudentList"></div>
+                <label class="block font-black text-gray-800 mb-3 text-xl font-ruqaa">حددي طالبات الحلقة</label>
+                <!-- مربع البحث الذكي -->
+                <div class="relative mb-4">
+                    <i class="fas fa-search absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="setupSearchStudent" onkeyup="filterSetupStudents()" placeholder="ابحثي عن اسم الطالبة هنا..." class="w-full p-4 pr-12 border-2 border-mosque-gold/30 rounded-xl focus:border-mosque-gold outline-none bg-mosque-gold-light/20 font-bold text-lg">
+                </div>
+                <div class="bg-gray-50 p-2 rounded-2xl border-2 border-gray-200 h-[400px] overflow-y-auto space-y-2" id="setupStudentList"></div>
             </div>
 
-            <button onclick="saveTeacherSetup()" class="w-full bg-mosque-green text-white font-black text-xl p-5 rounded-xl shadow-md hover:bg-green-900 transition">
-                حفظ وبدء العمل
+            <button onclick="saveTeacherSetup()" class="w-full bg-mosque-green text-white font-black text-xl p-5 rounded-2xl shadow-xl hover:bg-green-900 transition flex items-center justify-center gap-3">
+                <i class="fas fa-check-circle text-2xl text-mosque-gold"></i> حفظ والبدء
             </button>
         </div>
     </div>
 
-    <!-- بوابة المعلمات (اللوحة الإدارية) -->
+    <!-- -->
     <div id="teacherDashboard" class="hide min-h-screen bg-gray-50 pb-32">
         
-        <header class="bg-mosque-green text-white p-4 shadow-md sticky top-0 z-40 rounded-b-3xl border-b-4 border-mosque-gold">
+        <header class="bg-mosque-green text-white p-4 shadow-lg sticky top-0 z-40 rounded-b-3xl border-b-4 border-mosque-gold">
             <div class="max-w-4xl mx-auto flex justify-between items-center">
                 <div class="flex items-center gap-4">
-                    <img src="logo2.png" alt="شعار المسجد" class="w-14 h-14 object-contain bg-white rounded-full p-1 shadow-inner" onerror="this.outerHTML='<div class=\'w-12 h-12 bg-white text-mosque-green rounded-full flex items-center justify-center font-bold shadow-inner\'><i class=\'fas fa-book-open text-xl\'></i></div>'">
+                    <img src="logo2.png" alt="الشعار" class="w-14 h-14 object-contain bg-white rounded-full p-1 shadow-md" onerror="this.outerHTML='<div class=\'w-12 h-12 bg-white text-mosque-green rounded-full flex items-center justify-center font-bold shadow-md\'><i class=\'fas fa-book-open text-xl\'></i></div>'">
                     <div>
-                        <h2 id="headerTeacherName" class="font-black text-xl">بوابة المعلمات</h2>
-                        <p id="headerGroupName" class="text-sm text-mosque-gold-light opacity-90 font-bold">اسم الحلقة</p>
+                        <h2 id="headerTeacherName" class="font-ruqaa text-2xl font-bold">بوابة المعلمات</h2>
+                        <p id="headerGroupName" class="text-sm text-mosque-gold-light opacity-90 font-bold mt-1">اسم الحلقة</p>
                     </div>
                 </div>
             </div>
         </header>
 
-        <main class="max-w-4xl mx-auto p-4 mt-4">
-            
-            <!-- حاوية السجلات اليومية (الدوام، التسميع، النقاط) -->
-            <div id="view-daily-records" class="tab-content mode-attendance animate-fade-in">
-                
-                <div class="flex justify-center mb-6">
-                    <div class="bg-gray-200 p-1.5 rounded-full flex text-base font-black shadow-inner w-full md:w-auto">
-                        <button id="filterMyGroupBtn" onclick="setStudentFilter('myGroup')" class="flex-1 px-8 py-3 rounded-full bg-white text-mosque-green shadow-md transition border border-gray-200">طالبات حلقتي</button>
-                        <button id="filterAllBtn" onclick="setStudentFilter('all')" class="flex-1 px-8 py-3 rounded-full text-gray-500 hover:text-gray-700 transition">جميع الطالبات</button>
+        <main class="max-w-4xl mx-auto p-4 mt-6">
+
+            <!-- -->
+            <div id="view-attendance" class="tab-content animate-fade-in">
+                <div class="flex justify-between items-end mb-6">
+                    <div>
+                        <h2 class="text-3xl font-ruqaa text-mosque-green font-bold">سجل الحضور اليومي</h2>
+                        <p class="text-gray-500 font-bold mt-1 text-sm">تم تعيين الجميع كـ "حاضر" لتسريع عملك.</p>
+                    </div>
+                    <span class="bg-mosque-gold-light text-mosque-green font-black px-4 py-2 rounded-xl border border-mosque-gold/30"><span id="attCount">0</span> طالبة</span>
+                </div>
+
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+                    <div id="attendanceListContainer" class="divide-y divide-gray-100">
+                        <!-- يُولد عبر الجافاسكربت -->
                     </div>
                 </div>
 
-                <div id="bulkMemoBox" class="hide bg-white p-5 rounded-2xl shadow-sm border-2 border-mosque-gold/40 mb-6 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-2 h-full bg-mosque-gold"></div>
-                    <h3 class="font-black text-xl text-mosque-green mb-4 flex items-center gap-2"><i class="fas fa-bolt text-mosque-gold"></i> الإدخال السريع للتسميع</h3>
-                    <div class="flex flex-col md:flex-row gap-4">
-                        <input type="text" id="bulkMemorization" placeholder="أدخلي مقدار الحفظ الموحد (مثال: سورة النبأ)" class="flex-1 p-4 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 text-lg font-bold">
-                        <button onclick="applyBulkMemorization()" class="bg-mosque-gold text-mosque-green hover:bg-yellow-600 font-black p-4 rounded-xl shadow transition whitespace-nowrap text-lg">
-                            تطبيق على المحددات
-                        </button>
-                    </div>
-                </div>
-
-                <div class="flex justify-between items-center mb-4 px-2">
-                    <div class="flex items-center gap-3">
-                        <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" class="w-6 h-6 accent-mosque-green rounded cursor-pointer">
-                        <label for="selectAll" class="font-black text-lg text-gray-700 cursor-pointer select-none">تحديد المعروض</label>
-                    </div>
-                    <span class="text-sm font-bold text-gray-600 bg-gray-200 px-4 py-2 rounded-full"><span id="studentCount">0</span> طالبة</span>
-                </div>
-
-                <div id="studentListContainer" class="space-y-4 mb-6"></div>
+                <button onclick="saveAttendanceBulk()" class="w-full bg-mosque-green text-white font-black text-xl p-5 rounded-2xl shadow-xl hover:bg-green-900 transition flex justify-center items-center gap-3">
+                    <i class="fas fa-save text-mosque-gold text-2xl"></i> حفظ سجل الحضور اليومي
+                </button>
             </div>
 
-            <!-- لوحة الشرف -->
-            <div id="view-leaderboard" class="tab-content hide animate-fade-in">
-                <div class="bg-gradient-to-br from-mosque-green to-green-900 rounded-[2rem] p-8 shadow-2xl mb-8 text-white relative overflow-hidden border-4 border-mosque-gold mt-4">
-                    <div class="absolute top-0 right-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] opacity-10"></div>
-                    <h2 class="text-center font-black text-3xl text-mosque-gold mb-12 relative z-10 drop-shadow-md"><i class="fas fa-star"></i> نجـوم الحلقـة <i class="fas fa-star"></i></h2>
-                    <div id="topThreeContainer" class="flex justify-center items-end gap-3 md:gap-8 relative z-10 h-56"></div>
+            <!-- -->
+            <div id="view-memo" class="tab-content hide animate-fade-in">
+                <h2 class="text-3xl font-ruqaa text-mosque-green font-bold mb-6">سجل الحفظ والتسميع</h2>
+                
+                <div class="bg-white p-6 rounded-3xl shadow-sm border-2 border-mosque-gold/30 mb-6">
+                    <label class="block font-black text-gray-700 mb-3 text-lg">اختاري الطالبة لتسجيل تسميعها:</label>
+                    <div class="relative">
+                        <select id="memoStudentSelect" onchange="loadMemoForm()" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 text-xl font-bold text-mosque-green appearance-none">
+                            <!-- يولد برمجياً -->
+                        </select>
+                        <i class="fas fa-chevron-down absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl"></i>
+                    </div>
                 </div>
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+
+                <div id="memoFormArea" class="hide bg-white p-6 rounded-3xl shadow-md border border-gray-100 space-y-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-2 h-full bg-mosque-green"></div>
+                    
+                    <div>
+                        <label class="block font-black text-gray-700 mb-2 text-lg">مقدار الحفظ الذي أسمعته اليوم</label>
+                        <input type="text" id="memoInputAmount" placeholder="مثال: سورة النبأ من 1 إلى 15" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-lg">
+                    </div>
+                    
+                    <div class="flex items-center gap-4 bg-mosque-gold-light/50 p-4 rounded-xl border border-mosque-gold/30">
+                        <input type="checkbox" id="memoPerfectCheck" class="w-8 h-8 accent-mosque-gold cursor-pointer rounded">
+                        <label for="memoPerfectCheck" class="text-xl font-black text-mosque-green cursor-pointer select-none">الحفظ ممتاز ومتقن (+10 نقاط)</label>
+                    </div>
+
+                    <div>
+                        <label class="block font-black text-gray-700 mb-2 text-lg">ملاحظات وأخطاء التلاوة <span class="text-gray-400 text-sm font-normal">(يظهر للأهل)</span></label>
+                        <textarea id="memoInputNotes" rows="2" placeholder="اكتبي ملاحظاتك للأهل هنا... (اختياري)" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-base resize-none"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block font-black text-gray-700 mb-2 text-lg text-blue-700">المطلوب للقاء القادم</label>
+                        <input type="text" id="memoInputNext" placeholder="مثال: مراجعة سورة النبأ كاملة" class="w-full p-4 border-2 border-blue-200 rounded-xl focus:border-blue-500 outline-none bg-blue-50 font-bold text-lg">
+                    </div>
+
+                    <button onclick="saveStudentMemo()" class="w-full bg-mosque-green text-mosque-gold-light font-black text-xl p-5 rounded-xl shadow-md hover:bg-green-900 transition flex justify-center items-center gap-3">
+                        <i class="fas fa-check text-2xl text-mosque-gold"></i> حفظ التسميع للطالبة
+                    </button>
+                </div>
+            </div>
+
+            <!-- -->
+            <div id="view-behavior" class="tab-content hide animate-fade-in">
+                <div class="flex justify-between items-end mb-6">
+                    <div>
+                        <h2 class="text-3xl font-ruqaa text-mosque-green font-bold">السلوك والنقاط</h2>
+                        <p class="text-gray-500 font-bold mt-1 text-sm">أضيفي أو اخصمي النقاط فوراً لكل طالبة.</p>
+                    </div>
+                </div>
+
+                <div id="behaviorListContainer" class="space-y-4">
+                    <!-- يولد برمجياً -->
+                </div>
+            </div>
+
+            <!-- -->
+            <div id="view-leaderboard" class="tab-content hide animate-fade-in">
+                <div class="bg-gradient-to-b from-mosque-green to-[#052c18] rounded-[2.5rem] p-8 shadow-2xl mb-8 text-white relative overflow-hidden border-4 border-mosque-gold">
+                    <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')]"></div>
+                    <h2 class="text-center font-ruqaa font-bold text-4xl text-mosque-gold mb-12 relative z-10 drop-shadow-md">نجـوم الحلقـة</h2>
+                    
+                    <div id="topThreeContainer" class="flex justify-center items-end gap-2 md:gap-6 relative z-10 h-56">
+                        <!-- التوليد هنا -->
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl shadow-md border border-gray-100 overflow-hidden">
                     <table class="w-full text-right">
-                        <thead class="bg-gray-100 text-gray-600 text-base border-b-2 border-gray-200">
+                        <thead class="bg-gray-50 text-gray-500 text-sm border-b-2 border-gray-100">
                             <tr>
-                                <th class="p-5 font-black w-20 text-center">م</th>
-                                <th class="p-5 font-black">اسم الطالبة</th>
-                                <th class="p-5 font-black text-center">النقاط</th>
+                                <th class="p-5 font-bold w-16 text-center">م</th>
+                                <th class="p-5 font-bold text-lg">اسم الطالبة</th>
+                                <th class="p-5 font-bold text-center text-lg">الرصيد</th>
                             </tr>
                         </thead>
-                        <tbody id="leaderboardTableBody" class="divide-y divide-gray-100 text-lg"></tbody>
+                        <tbody id="leaderboardTableBody" class="divide-y divide-gray-50 text-lg"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- الإعدادات -->
-            <div id="view-settings" class="tab-content hide animate-fade-in space-y-6 mt-4">
+            <!-- -->
+            <div id="view-settings" class="tab-content hide animate-fade-in space-y-6">
                 
-                <!-- الرابط الخاص بالأهالي (الجديد والمهم) -->
-                <div class="bg-white p-6 rounded-3xl shadow-sm border-2 border-mosque-gold/40 mb-8 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-2 h-full bg-mosque-gold"></div>
-                    <h3 class="font-black text-mosque-green text-xl mb-3"><i class="fas fa-link text-mosque-gold mr-2"></i> رابط أولياء الأمور (مستقل)</h3>
-                    <p class="text-base font-bold text-gray-500 mb-6">انسخي هذا الرابط وأرسليه للأهالي ليدخلوا إلى بوابة المتابعة الخاصة بهم مباشرة بدون رؤية شاشة دخول المعلمات.</p>
-                    <button onclick="copyParentLink()" class="w-full bg-gray-50 hover:bg-gray-100 text-gray-800 font-black text-lg p-4 rounded-xl transition border-2 border-gray-300 flex justify-center items-center gap-3">
-                        <i class="fas fa-copy text-xl"></i> نسخ رابط الأهالي
+                <!-- رابط الأهالي -->
+                <div class="bg-gradient-to-r from-mosque-gold-light to-white p-6 rounded-3xl shadow-sm border-2 border-mosque-gold/40">
+                    <h3 class="font-ruqaa font-bold text-mosque-green text-2xl mb-2"><i class="fas fa-link text-mosque-gold ml-2"></i> رابط أولياء الأمور</h3>
+                    <p class="text-gray-600 font-bold mb-6 text-sm">هذا الرابط يفتح شاشة المتابعة للأهالي مباشرة بدون الدخول كمعلمة.</p>
+                    <button onclick="copyParentLink()" class="w-full bg-white hover:bg-gray-50 text-mosque-green font-black text-lg p-4 rounded-xl transition border-2 border-mosque-gold shadow-sm flex justify-center items-center gap-3">
+                        <i class="fas fa-copy text-2xl"></i> نسخ الرابط وإرساله
                     </button>
                 </div>
 
-                <div class="bg-white p-6 rounded-2xl shadow-sm border-2 border-gray-100">
-                    <h3 class="font-black text-mosque-green text-xl mb-4 border-b pb-3"><i class="fas fa-sync-alt text-mosque-gold mr-2"></i> مزامنة البيانات</h3>
-                    <button onclick="syncWithDatabase()" class="w-full bg-mosque-gold text-mosque-green hover:bg-yellow-600 font-black text-lg p-4 rounded-xl transition shadow-md flex justify-center items-center gap-3">
-                        <i class="fas fa-cloud-download-alt text-2xl"></i> مزامنة الآن
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <h3 class="font-ruqaa font-bold text-mosque-green text-2xl mb-4 border-b pb-3"><i class="fas fa-sync-alt text-mosque-gold ml-2"></i> مزامنة البيانات</h3>
+                    <button onclick="syncWithDatabase()" class="w-full bg-mosque-green text-white hover:bg-green-800 font-black text-lg p-4 rounded-xl transition shadow flex justify-center items-center gap-3">
+                        <i class="fas fa-cloud-download-alt text-2xl text-mosque-gold"></i> تحديث البيانات الآن
                     </button>
                 </div>
 
-                <div class="bg-white p-6 rounded-2xl shadow-sm border-2 border-gray-100">
-                    <h3 class="font-black text-mosque-green text-xl mb-4 border-b pb-3"><i class="fas fa-users-cog text-mosque-gold mr-2"></i> طالبات حلقتي</h3>
-                    <button onclick="openSetupScreen()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-black text-lg p-4 rounded-xl transition border-2 border-gray-300">
-                        إعادة تحديد طالبات الحلقة
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <h3 class="font-ruqaa font-bold text-mosque-green text-2xl mb-4 border-b pb-3"><i class="fas fa-users-cog text-mosque-gold ml-2"></i> إدارة الحلقة</h3>
+                    <button onclick="openSetupScreen()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-black text-lg p-4 rounded-xl transition border border-gray-300">
+                        إضافة/إزالة طالبات من حلقتي
                     </button>
                 </div>
 
-                <div class="bg-white p-6 rounded-2xl shadow-sm border-2 border-gray-100">
-                    <h3 class="font-black text-mosque-green text-xl mb-4 border-b pb-3"><i class="fas fa-user-plus text-mosque-gold mr-2"></i> تسجيل طالبة جديدة</h3>
-                    <input type="text" id="newStudentName" placeholder="الاسم الثلاثي..." class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-lg mb-4">
-                    <button onclick="addNewStudent()" class="w-full bg-mosque-green text-mosque-gold-light hover:bg-green-900 font-black text-lg p-4 rounded-xl transition shadow-md">
-                        إضافة لقاعدة البيانات
-                    </button>
-                </div>
-
-                <button onclick="logout()" class="w-full bg-red-50 text-red-600 hover:bg-red-100 font-black text-lg p-4 rounded-xl transition border-2 border-red-200 flex justify-center items-center gap-2 mb-8">
-                    <i class="fas fa-sign-out-alt"></i> تسجيل خروج من حسابي
+                <button onclick="logout()" class="w-full bg-red-50 text-red-600 hover:bg-red-100 font-black text-lg p-5 rounded-2xl transition border border-red-200 flex justify-center items-center gap-2 mb-8">
+                    <i class="fas fa-sign-out-alt text-xl"></i> تسجيل خروج
                 </button>
             </div>
 
         </main>
-        
-        <!-- زر الحفظ العائم (يظهر فقط في شاشات الإدخال) -->
-        <div id="floatingSaveBtn" class="fixed bottom-24 left-0 w-full z-40 px-4 transition-transform duration-300 transform translate-y-0">
-            <div class="max-w-4xl mx-auto">
-                <button onclick="saveAllDailyRecords()" class="w-full bg-mosque-green hover:bg-green-900 text-white text-xl font-black p-4 rounded-2xl shadow-[0_10px_20px_rgba(15,81,50,0.4)] transition flex justify-center items-center gap-3 border-2 border-mosque-gold">
-                    <i class="fas fa-save text-mosque-gold text-2xl"></i>
-                    تأكيد وحفظ الإدخالات
-                </button>
-            </div>
-        </div>
 
-        <!-- شريط التنقل السفلي (Bottom Navigation) الأسهل استخداماً -->
-        <nav class="fixed bottom-0 w-full bg-white shadow-[0_-5px_15px_rgba(0,0,0,0.08)] border-t border-gray-100 flex justify-around items-center h-20 pb-safe z-50">
-            <button onclick="switchMainTab('attendance')" id="nav-attendance" class="nav-btn active flex flex-col items-center justify-center w-full h-full text-gray-400 font-bold">
-                <i class="fas fa-clock text-2xl mb-1"></i>
-                <span class="text-xs">الدوام</span>
+        <!-- -->
+        <nav class="fixed bottom-0 w-full bg-white shadow-[0_-5px_20px_rgba(0,0,0,0.05)] border-t border-gray-100 flex justify-around items-center h-20 pb-safe z-50 rounded-t-3xl">
+            <button onclick="switchMainTab('attendance')" id="nav-attendance" class="nav-btn active flex flex-col items-center justify-center w-full h-full text-gray-400 font-bold transition-all">
+                <i class="fas fa-clipboard-list text-2xl mb-1"></i>
+                <span class="text-xs font-black">الدوام</span>
             </button>
-            <button onclick="switchMainTab('memo')" id="nav-memo" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 font-bold">
+            <button onclick="switchMainTab('memo')" id="nav-memo" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 font-bold transition-all">
                 <i class="fas fa-book-open text-2xl mb-1"></i>
-                <span class="text-xs">التسميع</span>
+                <span class="text-xs font-black">التسميع</span>
             </button>
-            <button onclick="switchMainTab('behavior')" id="nav-behavior" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 font-bold">
+            <button onclick="switchMainTab('behavior')" id="nav-behavior" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 font-bold transition-all">
                 <i class="fas fa-star text-2xl mb-1"></i>
-                <span class="text-xs">النقاط</span>
+                <span class="text-xs font-black">النقاط</span>
             </button>
-            <button onclick="switchMainTab('leaderboard')" id="nav-leaderboard" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 font-bold">
+            <button onclick="switchMainTab('leaderboard')" id="nav-leaderboard" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 font-bold transition-all">
                 <i class="fas fa-trophy text-2xl mb-1"></i>
-                <span class="text-xs">الشرف</span>
+                <span class="text-xs font-black">الشرف</span>
             </button>
-            <button onclick="switchMainTab('settings')" id="nav-settings" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 font-bold">
+            <button onclick="switchMainTab('settings')" id="nav-settings" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 font-bold transition-all">
                 <i class="fas fa-cog text-2xl mb-1"></i>
-                <span class="text-xs">المزيد</span>
+                <span class="text-xs font-black">الإعدادات</span>
             </button>
         </nav>
     </div>
 
-    <!-- بوابة أولياء الأمور (مستقلة تماماً) -->
+    <!-- -->
     <div id="parentDashboard" class="hide min-h-screen bg-mosque-gold-light pb-20 relative">
-        <div class="absolute top-0 w-full h-48 bg-mosque-green rounded-b-[40px] shadow-md z-0"></div>
+        <div class="absolute top-0 w-full h-56 bg-mosque-green rounded-b-[50px] shadow-lg z-0"></div>
         
         <div class="max-w-md mx-auto p-4 relative z-10 pt-10">
             <div class="text-center text-white mb-10">
-                <h2 class="text-base text-mosque-gold opacity-90 mb-2 font-bold">مرحباً بولي أمر الطالبة:</h2>
-                <h1 id="parentStudentTitle" class="text-3xl font-black">الاسم هنا</h1>
+                <h2 class="text-lg text-mosque-gold opacity-90 mb-2 font-bold">مرحباً بولي أمر الطالبة</h2>
+                <h1 id="parentStudentTitle" class="text-4xl font-ruqaa font-bold">الاسم هنا</h1>
             </div>
 
-            <div class="bg-white rounded-3xl p-8 shadow-xl border-b-4 border-mosque-gold mb-8 text-center relative mt-12">
-                <div class="absolute -top-12 left-1/2 transform -translate-x-1/2 w-24 h-24 bg-mosque-gold rounded-full flex items-center justify-center text-white text-4xl shadow-lg border-4 border-white">
+            <div class="bg-white rounded-[2.5rem] p-8 shadow-2xl border-b-8 border-mosque-gold mb-10 text-center relative mt-16">
+                <div class="absolute -top-14 left-1/2 transform -translate-x-1/2 w-28 h-28 bg-gradient-to-br from-mosque-gold to-yellow-600 rounded-full flex items-center justify-center text-white text-5xl shadow-xl border-4 border-white">
                     <i class="fas fa-medal"></i>
                 </div>
-                <h3 class="text-gray-500 text-lg font-bold mt-10 mb-3">الرصيد التراكمي للنقاط</h3>
-                <div class="text-6xl font-black text-mosque-green flex items-center justify-center gap-2">
+                <h3 class="text-gray-500 text-lg font-bold mt-12 mb-2">رصيد النقاط والمكافآت</h3>
+                <div class="text-7xl font-black text-mosque-green flex items-center justify-center gap-3">
                     <span id="parentStudentPoints">0</span>
-                    <i class="fas fa-star text-mosque-gold text-4xl"></i>
+                    <i class="fas fa-star text-mosque-gold text-5xl"></i>
                 </div>
             </div>
 
-            <h3 class="font-black text-xl text-mosque-green mb-5 ml-2"><i class="fas fa-history text-mosque-gold"></i> سجل المتابعة الأخير</h3>
+            <!-- لوحة الشرف المصغرة للأهالي -->
+            <div class="bg-white rounded-3xl p-6 shadow-md border border-gray-100 mb-8">
+                <h3 class="font-ruqaa font-bold text-2xl text-mosque-green border-b pb-3 mb-4"><i class="fas fa-trophy text-mosque-gold ml-2"></i> أوائل الحلقة</h3>
+                <div id="parentLeaderboardList" class="space-y-3"></div>
+            </div>
+
+            <h3 class="font-ruqaa font-bold text-2xl text-mosque-green mb-5 ml-2"><i class="fas fa-history text-mosque-gold ml-2"></i> سجل المتابعة اليومي</h3>
             <div id="parentHistoryList" class="space-y-4"></div>
             
-            <button onclick="logoutParent()" class="w-full mt-8 bg-white text-gray-600 hover:bg-gray-50 font-black text-lg p-4 rounded-xl shadow-sm border border-gray-200 transition">
-                <i class="fas fa-arrow-right ml-2"></i> العودة لشاشة البحث
+            <button onclick="logoutParent()" class="w-full mt-10 bg-white text-gray-600 hover:bg-gray-50 font-black text-lg p-4 rounded-2xl shadow-sm border border-gray-200 transition flex items-center justify-center gap-2">
+                <i class="fas fa-search"></i> بحث عن طالبة أخرى
             </button>
         </div>
     </div>
 
-    <!-- الإشعارات -->
-    <div id="toast" class="hide fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-4 z-[300] toast-animate text-lg font-black min-w-max border-2 border-gray-700">
+    <!-- -->
+    <div id="toast" class="hide fixed top-6 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-8 py-4 rounded-full shadow-2xl flex items-center gap-4 z-[300] toast-animate text-lg font-bold min-w-max border-2 border-gray-700">
         <i class="fas fa-check-circle text-green-400 text-2xl"></i>
         <span id="toastMsg">تمت العملية بنجاح</span>
     </div>
 
+    <!-- -->
     <script>
         // === رابط جوجل شيت ===
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxGbZ5ikgwPDD7pa_yLCZai6eo9qyaNbEhaamnYu9FN_VxLx1UuQEEGp5TPtjXgv1zq/exec";
         
-        // --- توجيه الروابط (أهم تحديث للرابط المنفصل) ---
-        window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const role = urlParams.get('role');
-            
-            // إذا كان الرابط يحتوي على ?role=parent سيفتح شاشة الأهالي فقط و يخفي خيارات المعلمة
-            if(role === 'parent') {
-                document.getElementById('teacherPinArea').classList.add('hide');
-                document.getElementById('parentLoginArea').classList.remove('hide');
-                document.getElementById('loginSubtitle').innerText = "بوابة أولياء الأمور والمتابعة";
-            } else {
-                document.getElementById('parentLoginArea').classList.add('hide');
-                document.getElementById('teacherPinArea').classList.remove('hide');
-                document.getElementById('loginSubtitle').innerText = "بوابة الإدارة والمعلمات";
-            }
-        };
-
-        function copyParentLink() {
-            // الحصول على الرابط الأساسي وإضافة كود الأهالي له
-            const baseUrl = window.location.href.split('?')[0];
-            const parentUrl = baseUrl + '?role=parent';
-            
-            navigator.clipboard.writeText(parentUrl).then(() => {
-                showToast("تم نسخ رابط الأهالي! يمكنك الآن لصقه وإرساله لهم.");
-            }).catch(err => {
-                // طريقة بديلة في حال فشل النسخ التلقائي
-                const dummy = document.createElement('input');
-                document.body.appendChild(dummy);
-                dummy.value = parentUrl;
-                dummy.select();
-                document.execCommand('copy');
-                document.body.removeChild(dummy);
-                showToast("تم نسخ الرابط بنجاح.");
-            });
-        }
-        
         // البيانات الأولية
         const initialNames = [
-            "أرجوان فخر الدين", "ألمى صبحي", "أوركيد فخر الدين", "إيمان حويان", "تالة حناوي",
-            "تاليا المزي", "تالين معمولي", "جنى سحلول", "جودي زرزور", "جودي سحلول",
-            "جودي سامر سحلول", "جوري عزيزية", "حلا تركماني", "حلا زرزور", "حنين دباسوا",
-            "زينة المقدمي", "سارة أبو لحية", "سارة كلول", "سدرة المقدس", "سدرة عبد الرحمن",
-            "ليلاس السيد", "لمار السيد", "لمار خليفة", "لين صبحي", "ماريا المزي",
-            "مروة السطام", "مها المقرن", "مريم الحريري", "ميرا حاطوم", "ميرا حسن",
-            "ميرال شقير", "مايا صالحة", "نبيهة سحلول", "نور الهدى العناية", "ورد عزيزية",
-            "ياسمين زقاري", "غدى السطام", "أم غدى السطام" 
+            "أرجوان فخر الدين", "ألمى صبحي", "أوركيد فخر الدين", "إيمان حويان", "تالة حناوي", "تاليا المزي", "تالين معمولي", "جنى سحلول", "جودي زرزور", "جودي سحلول", "جودي سامر سحلول", "جوري عزيزية", "حلا تركماني", "حلا زرزور", "حنين دباسوا", "زينة المقدمي", "سارة أبو لحية", "سارة كلول", "سدرة المقدس", "سدرة عبد الرحمن", "ليلاس السيد", "لمار السيد", "لمار خليفة", "لين صبحي", "ماريا المزي", "مروة السطام", "مها المقرن", "مريم الحريري", "ميرا حاطوم", "ميرا حسن", "ميرال شقير", "مايا صالحة", "نبيهة سحلول", "نور الهدى العناية", "ورد عزيزية", "ياسمين زقاري", "غدى السطام", "أم غدى السطام" 
         ];
 
         let storedData = JSON.parse(localStorage.getItem('mosqueStudents'));
@@ -403,20 +393,34 @@
             id: index + 1001, name: name, points: 0, history: [] 
         }));
 
-        let customCategories = [
-            { id: 1, name: "مشاركة في تنظيف المسجد", points: 10 },
-            { id: 2, name: "إجابة سؤال الدرس", points: 5 }
-        ];
-
         const POINTS = { ATTENDANCE_ON_TIME: 5, MEMORIZATION_PERFECT: 10 };
         
         let currentTeacher = null;
-        let viewFilter = 'myGroup'; 
-        let studentBehaviorRatings = {}; 
         let currentParentViewStudent = null;
         let teachersData = JSON.parse(localStorage.getItem('mosqueTeachersData')) || {};
+        
+        // حالة التطبيق المؤقتة للدوام والسلوك
+        let attendanceState = {}; // { studentId: 'present'|'late'|'absent' }
+        let behaviorState = {}; // { studentId: { stars: 0, counter: 0 } }
 
-        // === دوال المساعدة والنوافذ ===
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const role = urlParams.get('role');
+            if(role === 'parent') {
+                document.getElementById('teacherPinArea').classList.add('hide');
+                document.getElementById('parentLoginArea').classList.remove('hide');
+                document.getElementById('loginSubtitle').innerText = "بوابة أولياء الأمور والمتابعة";
+            }
+        };
+
+        function copyParentLink() {
+            const baseUrl = window.location.href.split('?')[0];
+            const parentUrl = baseUrl + '?role=parent';
+            navigator.clipboard.writeText(parentUrl).then(() => {
+                showToast("تم نسخ رابط الأهالي. يمكنك إرساله بالواتساب.");
+            }).catch(() => { showToast("فشل النسخ التلقائي."); });
+        }
+
         function closeModalBox() { document.getElementById('customModalBox').classList.add('hide'); }
 
         function showMessage(title, message, isError = false) {
@@ -427,28 +431,13 @@
             if(isError) {
                 icon.innerHTML = '<i class="fas fa-exclamation-triangle text-red-500"></i>';
                 icon.className = "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 bg-red-50 text-4xl";
-                document.getElementById('modalTitle').className = 'text-2xl font-black text-red-600 mb-3';
+                document.getElementById('modalTitle').className = 'text-3xl font-ruqaa text-red-600 mb-3';
             } else {
                 icon.innerHTML = '<i class="fas fa-check text-mosque-green"></i>';
                 icon.className = "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 bg-green-50 text-4xl";
-                document.getElementById('modalTitle').className = 'text-2xl font-black text-mosque-green mb-3';
+                document.getElementById('modalTitle').className = 'text-3xl font-ruqaa text-mosque-green mb-3';
             }
-            document.getElementById('modalButtons').innerHTML = `<button onclick="closeModalBox()" class="px-8 py-3 bg-mosque-green text-white rounded-xl font-black text-lg shadow hover:bg-green-800 transition w-full">حسناً، فهمت</button>`;
-            modal.classList.remove('hide');
-        }
-
-        function showConfirmDialog(title, message, onConfirmCallback) {
-            const modal = document.getElementById('customModalBox');
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalMessage').innerText = message;
-            const icon = document.getElementById('modalIcon');
-            icon.innerHTML = '<i class="fas fa-question-circle text-yellow-500"></i>';
-            icon.className = "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 bg-yellow-50 text-4xl";
-            document.getElementById('modalButtons').innerHTML = `
-                <button id="confirmYesBtn" class="px-6 py-3 bg-mosque-green text-white rounded-xl font-black text-lg shadow hover:bg-green-800 transition flex-1">نعم، أوافق</button>
-                <button onclick="closeModalBox()" class="px-6 py-3 bg-gray-200 text-gray-800 rounded-xl font-black text-lg hover:bg-gray-300 transition flex-1">إلغاء</button>
-            `;
-            document.getElementById('confirmYesBtn').onclick = () => { closeModalBox(); onConfirmCallback(); };
+            document.getElementById('modalButtons').innerHTML = `<button onclick="closeModalBox()" class="px-10 py-3 bg-mosque-green text-white rounded-2xl font-black text-lg shadow hover:bg-green-800 transition">حسناً</button>`;
             modal.classList.remove('hide');
         }
 
@@ -476,27 +465,47 @@
                         }
                     });
                     localStorage.setItem('mosqueStudents', JSON.stringify(students));
-                    renderStudentList();
-                    if(!document.getElementById('teacherDashboard').classList.contains('hide')) renderLeaderboard();
-                    showToast("تمت مزامنة البيانات بنجاح");
+                    if(currentTeacher) refreshAllViews();
+                    showToast("تمت المزامنة بنجاح");
                 }
-            } catch (err) { showToast("أنتِ في وضع عدم الاتصال - يتم استخدام البيانات المحلية."); }
+            } catch (err) { showToast("وضع عدم الاتصال: تعذر جلب التحديثات."); }
             document.getElementById('loadingOverlay').classList.add('hide');
         }
 
-        // === التنقل وتسجيل الدخول ===
+        function showTeacherLogin() {
+            document.getElementById('loginOptions').classList.add('hide');
+            document.getElementById('teacherPinArea').classList.remove('hide');
+        }
+        function showParentLogin() {
+            document.getElementById('loginOptions').classList.add('hide');
+            document.getElementById('parentLoginArea').classList.remove('hide');
+        }
+        function backToLoginOptions() {
+            document.getElementById('teacherPinArea').classList.add('hide');
+            document.getElementById('parentLoginArea').classList.add('hide');
+            document.getElementById('loginOptions').classList.remove('hide');
+        }
+
         function loginTeacher() {
             const tName = document.getElementById('teacherSelectName').value;
             const pin = document.getElementById('teacherPin').value;
-
-            if (!tName) { showMessage("تنبيه", "الرجاء اختيار اسم المعلمة أولاً من القائمة.", true); return; }
-            if (pin !== "1234") { showMessage("خطأ", "الرمز السري غير صحيح. (الرمز للتجربة هو 1234)", true); return; }
-
+            if (!tName) { showMessage("تنبيه", "اختاري اسمك أولاً.", true); return; }
+            if (pin !== "1234") { showMessage("خطأ", "الرمز السري غير صحيح. (الرمز 1234)", true); return; }
             currentTeacher = tName;
             document.getElementById('loginScreen').classList.add('hide');
-
             if (!teachersData[currentTeacher]) openSetupScreen();
             else openTeacherDashboard();
+        }
+
+        // --- إعداد المعلمة وبحث الطلاب ---
+        function filterSetupStudents() {
+            const query = document.getElementById('setupSearchStudent').value.toLowerCase();
+            const labels = document.querySelectorAll('.setup-student-item');
+            labels.forEach(label => {
+                const text = label.innerText.toLowerCase();
+                if(text.includes(query)) label.style.display = 'flex';
+                else label.style.display = 'none';
+            });
         }
 
         function openSetupScreen() {
@@ -505,380 +514,367 @@
             document.getElementById('setupTeacherName').innerText = currentTeacher;
             
             if(teachersData[currentTeacher]) document.getElementById('setupGroupName').value = teachersData[currentTeacher].groupName;
-            else document.getElementById('setupGroupName').value = "";
-
+            
             const listDiv = document.getElementById('setupStudentList');
             listDiv.innerHTML = '';
-            
             const sortedStudents = [...students].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
             const myStudentIds = teachersData[currentTeacher] ? teachersData[currentTeacher].studentIds : [];
 
             sortedStudents.forEach(s => {
                 const isChecked = myStudentIds.includes(s.id) ? 'checked' : '';
                 listDiv.innerHTML += `
-                    <div class="flex items-center gap-4 p-3 bg-white border-2 border-gray-200 rounded-xl hover:border-mosque-gold transition">
-                        <input type="checkbox" id="setup_std_${s.id}" value="${s.id}" class="setup-checkbox w-7 h-7 accent-mosque-green cursor-pointer" ${isChecked}>
-                        <label for="setup_std_${s.id}" class="cursor-pointer flex-1 font-bold text-gray-800 text-lg">
-                            ${s.name} <span class="text-sm text-gray-400 font-normal ml-2">#${s.id}</span>
-                        </label>
-                    </div>
-                `;
+                    <div class="setup-student-item flex items-center gap-4 p-3 bg-white border border-gray-200 rounded-xl hover:border-mosque-green transition">
+                        <input type="checkbox" id="setup_std_${s.id}" value="${s.id}" class="setup-checkbox w-6 h-6 accent-mosque-green cursor-pointer" ${isChecked}>
+                        <label for="setup_std_${s.id}" class="cursor-pointer flex-1 font-bold text-gray-800 text-lg">${s.name} <span class="text-gray-400 font-normal text-sm">#${s.id}</span></label>
+                    </div>`;
             });
         }
 
         function saveTeacherSetup() {
             const gName = document.getElementById('setupGroupName').value.trim();
-            if(!gName) { showMessage("بيانات مطلوبة", "يرجى كتابة اسم الحلقة لتتمكني من المتابعة.", true); return; }
-
+            if(!gName) { showMessage("بيانات مطلوبة", "اكتبي اسم الحلقة.", true); return; }
             const selectedIds = Array.from(document.querySelectorAll('.setup-checkbox:checked')).map(cb => parseInt(cb.value));
-            if(selectedIds.length === 0) {
-                showConfirmDialog("حلقة فارغة؟", "لم تقومي بتحديد أي طالبة لحلقتك. هل تريدين حفظ الحلقة فارغة؟", () => { executeSetupSave(gName, selectedIds); });
-            } else { executeSetupSave(gName, selectedIds); }
-        }
-
-        function executeSetupSave(gName, selectedIds) {
+            
             teachersData[currentTeacher] = { groupName: gName, studentIds: selectedIds };
             localStorage.setItem('mosqueTeachersData', JSON.stringify(teachersData));
             document.getElementById('teacherSetupScreen').classList.add('hide');
             openTeacherDashboard();
-            showToast("تم حفظ إعدادات حلقتك بنجاح");
-        }
-
-        // === شريط التنقل السفلي ===
-        function switchMainTab(tabName) {
-            // إخفاء المحتوى
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hide'));
-            
-            // تغيير أيقونات الشريط السفلي
-            document.querySelectorAll('.nav-btn').forEach(el => {
-                el.classList.remove('active');
-            });
-            const activeBtn = document.getElementById(`nav-${tabName}`);
-            if(activeBtn) activeBtn.classList.add('active');
-            
-            const dailyContainer = document.getElementById('view-daily-records');
-            const floatingSaveBtn = document.getElementById('floatingSaveBtn');
-            const bulkBox = document.getElementById('bulkMemoBox');
-            
-            // إظهار/إخفاء زر الحفظ العائم
-            if (['attendance', 'memo', 'behavior'].includes(tabName)) {
-                floatingSaveBtn.classList.remove('translate-y-40', 'opacity-0');
-                dailyContainer.classList.remove('hide');
-                dailyContainer.classList.remove('mode-attendance', 'mode-memo', 'mode-behavior');
-                dailyContainer.classList.add(`mode-${tabName}`);
-                
-                if (tabName === 'memo') bulkBox.classList.remove('hide');
-                else bulkBox.classList.add('hide');
-            } else {
-                floatingSaveBtn.classList.add('translate-y-40', 'opacity-0');
-                document.getElementById(`view-${tabName}`).classList.remove('hide');
-            }
-            
-            if(tabName === 'leaderboard') renderLeaderboard();
-            window.scrollTo(0,0); // الصعود لأعلى الصفحة عند تبديل التبويب
+            showToast("تم حفظ الحلقة بنجاح");
         }
 
         function openTeacherDashboard() {
-            document.getElementById('teacherSetupScreen').classList.add('hide');
             document.getElementById('teacherDashboard').classList.remove('hide');
-            
             document.getElementById('headerTeacherName').innerText = currentTeacher;
             document.getElementById('headerGroupName').innerText = teachersData[currentTeacher].groupName;
             
-            viewFilter = 'myGroup'; 
-            updateFilterButtonsUI();
+            // تهيئة الحضور الافتراضي للجميع
+            attendanceState = {};
+            teachersData[currentTeacher].studentIds.forEach(id => { attendanceState[id] = 'present'; });
             
-            syncWithDatabase().then(() => {
-                renderStudentList();
-                renderLeaderboard();
-                switchMainTab('attendance');
-            });
+            // تهيئة السلوك
+            behaviorState = {};
+            teachersData[currentTeacher].studentIds.forEach(id => { behaviorState[id] = { stars: 0, points: 0, reason: '' }; });
+
+            syncWithDatabase().then(() => { refreshAllViews(); switchMainTab('attendance'); });
         }
 
-        function setStudentFilter(filter) {
-            viewFilter = filter;
-            updateFilterButtonsUI();
-            renderStudentList();
+        function refreshAllViews() {
+            renderAttendanceList();
+            renderMemoSelect();
+            renderBehaviorList();
+            renderLeaderboard();
         }
 
-        function updateFilterButtonsUI() {
-            const myBtn = document.getElementById('filterMyGroupBtn');
-            const allBtn = document.getElementById('filterAllBtn');
+        function switchMainTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hide'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
             
-            if(viewFilter === 'myGroup') {
-                myBtn.className = "flex-1 px-8 py-3 rounded-full bg-white text-mosque-green shadow-md transition font-black border border-gray-200";
-                allBtn.className = "flex-1 px-8 py-3 rounded-full text-gray-500 hover:text-gray-700 font-bold transition";
-            } else {
-                allBtn.className = "flex-1 px-8 py-3 rounded-full bg-white text-mosque-green shadow-md transition font-black border border-gray-200";
-                myBtn.className = "flex-1 px-8 py-3 rounded-full text-gray-500 hover:text-gray-700 font-bold transition";
-            }
+            document.getElementById(`nav-${tabName}`).classList.add('active');
+            document.getElementById(`view-${tabName}`).classList.remove('hide');
+            window.scrollTo(0,0);
         }
 
-        function renderStudentList() {
-            const container = document.getElementById('studentListContainer');
+        // --- 1. قسم الدوام ---
+        function renderAttendanceList() {
+            const container = document.getElementById('attendanceListContainer');
             container.innerHTML = '';
-            
-            let displayStudents = students;
-            if (viewFilter === 'myGroup') {
-                const myIds = teachersData[currentTeacher].studentIds;
-                displayStudents = students.filter(s => myIds.includes(s.id));
-            }
-
-            displayStudents.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
-            document.getElementById('studentCount').innerText = displayStudents.length;
-
-            if(displayStudents.length === 0) {
-                container.innerHTML = `<div class="text-center p-10 text-gray-400 font-bold text-lg bg-white rounded-2xl border-2 border-gray-100">لا يوجد طالبات لعرضهن في هذه القائمة.</div>`;
-                return;
-            }
-
-            displayStudents.forEach(student => {
-                if(studentBehaviorRatings[student.id] === undefined) studentBehaviorRatings[student.id] = 0; 
-
-                const card = document.createElement('div');
-                card.className = "bg-white p-5 rounded-2xl shadow-sm border-2 border-gray-100 transition focus-within:border-mosque-gold focus-within:shadow-md";
-                
-                let extraOptions = `<option value="">+ إضافة نقاط نشاط (اختياري)</option>`;
-                customCategories.forEach(c => { extraOptions += `<option value="${c.points}">${c.name} (+${c.points})</option>`; });
-
-                card.innerHTML = `
-                    <div class="flex items-center justify-between border-b-2 border-gray-50 pb-4 mb-4">
-                        <div class="flex items-center gap-4">
-                            <input type="checkbox" class="student-checkbox w-7 h-7 accent-mosque-green cursor-pointer" data-id="${student.id}">
-                            <div>
-                                <h4 class="font-black text-xl text-mosque-green">${student.name} <span class="text-sm text-gray-400 font-bold ml-2">#${student.id}</span></h4>
-                            </div>
-                        </div>
-                        <div class="text-mosque-gold font-black bg-mosque-gold-light px-4 py-2 rounded-xl border border-yellow-200 text-base flex items-center gap-2 shadow-sm">
-                            <i class="fas fa-star"></i> ${student.points}
-                        </div>
-                    </div>
-                    
-                    <div class="sec-attendance">
-                        <label class="block text-base font-bold text-gray-500 mb-3"><i class="far fa-clock text-mosque-green"></i> حالة الدوام اليوم</label>
-                        <select id="attendance_${student.id}" class="w-full p-4 border-2 border-gray-200 rounded-xl bg-gray-50 focus:border-mosque-green outline-none text-xl font-bold text-gray-800 transition">
-                            <option value="present">حاضرة ومبكرة (+5 نقاط)</option>
-                            <option value="late">تأخير</option>
-                            <option value="absent">غائبة</option>
-                        </select>
-                    </div>
-                    
-                    <div class="sec-memo">
-                        <label class="block text-base font-bold text-gray-500 mb-3"><i class="fas fa-book-open text-mosque-green"></i> مقدار الحفظ المسمَّع</label>
-                        <input type="text" id="memo_${student.id}" class="memo-input w-full p-4 border-2 border-gray-200 rounded-xl bg-gray-50 focus:border-mosque-green outline-none text-xl font-bold text-gray-800 transition mb-4" placeholder="مثال: سورة النبأ 1-10">
-                        <div class="flex items-center gap-3 bg-mosque-gold-light/30 p-4 rounded-xl border-2 border-mosque-gold/30 hover:bg-mosque-gold-light transition cursor-pointer">
-                            <input type="checkbox" id="memoPerfect_${student.id}" class="w-7 h-7 accent-mosque-gold cursor-pointer">
-                            <label for="memoPerfect_${student.id}" class="text-lg font-black text-mosque-green cursor-pointer select-none flex-1">التسميع متقن جداً (+10 نقاط)</label>
-                        </div>
-                    </div>
-
-                    <div class="sec-behavior flex flex-col gap-5">
-                        <div class="bg-gray-50 p-5 rounded-2xl border-2 border-gray-100">
-                            <label class="block text-base font-bold text-gray-500 mb-4 text-center"><i class="far fa-star text-mosque-gold"></i> تقييم السلوك (كل نجمة = نقطة)</label>
-                            <div class="star-rating flex flex-row-reverse justify-center gap-4 text-5xl" id="starsContainer_${student.id}">
-                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 5)"></i>
-                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 4)"></i>
-                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 3)"></i>
-                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 2)"></i>
-                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 1)"></i>
-                            </div>
-                        </div>
-                        <div>
-                            <select id="extraPoint_${student.id}" class="w-full p-4 border-2 border-mosque-gold/50 rounded-xl bg-yellow-50 focus:border-mosque-gold outline-none text-lg font-black text-mosque-green transition">
-                                ${extraOptions}
-                            </select>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-                updateStarsUI(student.id, studentBehaviorRatings[student.id]);
-            });
-        }
-
-        function setBehaviorRating(studentId, rating) {
-            studentBehaviorRatings[studentId] = rating;
-            updateStarsUI(studentId, rating);
-        }
-
-        function updateStarsUI(studentId, rating) {
-            const container = document.getElementById(`starsContainer_${studentId}`);
-            if(!container) return;
-            const stars = container.querySelectorAll('i');
-            stars.forEach((star, index) => {
-                const starValue = 5 - index; 
-                if (starValue <= rating) star.className = "fas fa-star text-mosque-gold cursor-pointer";
-                else star.className = "far fa-star text-gray-300 cursor-pointer hover:text-yellow-400";
-            });
-        }
-
-        function toggleSelectAll() {
-            const isChecked = document.getElementById('selectAll').checked;
-            document.querySelectorAll('.student-checkbox').forEach(cb => cb.checked = isChecked);
-        }
-
-        function applyBulkMemorization() {
-            const bulkText = document.getElementById('bulkMemorization').value.trim();
-            if (!bulkText) { showMessage("بيانات مطلوبة", "أدخلي مقدار الحفظ الموحد في الخانة أولاً.", true); return; }
-
-            let applied = 0;
-            document.querySelectorAll('.student-checkbox:checked').forEach(cb => {
-                const id = cb.getAttribute('data-id');
-                document.getElementById(`memo_${id}`).value = bulkText;
-                applied++;
-            });
-            if (applied > 0) showToast(`تم النسخ إلى ${applied} طالبة`);
-            else showMessage("تنبيه", "لم تقومي بتحديد أي طالبة لتطبيق الحفظ عليها.", true);
-        }
-
-        function saveAllDailyRecords() {
-            let updateCount = 0;
-            let newRecordsToSave = []; 
-
-            document.querySelectorAll('.student-checkbox').forEach(cb => {
-                const id = parseInt(cb.getAttribute('data-id'));
-                const student = students.find(s => s.id === id);
-                
-                const attendance = document.getElementById(`attendance_${id}`).value;
-                const memoText = document.getElementById(`memo_${id}`).value.trim();
-                const isMemoPerfect = document.getElementById(`memoPerfect_${id}`).checked;
-                const behaviorPoints = studentBehaviorRatings[id] || 0; 
-                
-                const extraPointSelect = document.getElementById(`extraPoint_${id}`);
-                const extraPoints = extraPointSelect && extraPointSelect.value ? parseInt(extraPointSelect.value) : 0;
-                const extraPointDesc = extraPointSelect && extraPointSelect.value ? extraPointSelect.options[extraPointSelect.selectedIndex].text : "";
-
-                if (attendance !== 'absent' || memoText !== '' || behaviorPoints > 0 || extraPoints > 0) {
-                    let dailyPoints = 0;
-                    let actions = [];
-
-                    let attendanceAr = (attendance === 'present') ? 'حاضر' : (attendance === 'late' ? 'تأخير' : 'غائب');
-
-                    if (attendance === 'present') { dailyPoints += POINTS.ATTENDANCE_ON_TIME; actions.push('حضور'); }
-                    if (memoText && isMemoPerfect) { dailyPoints += POINTS.MEMORIZATION_PERFECT; actions.push('حفظ متقن'); }
-                    if (behaviorPoints > 0) { dailyPoints += behaviorPoints; actions.push(`سلوك (${behaviorPoints} نجوم)`); }
-                    if (extraPoints > 0) { dailyPoints += extraPoints; actions.push(extraPointDesc.split('(+')[0].trim()); }
-
-                    student.points += dailyPoints;
-                    const dateStr = new Date().toLocaleDateString('ar-EG');
-                    
-                    student.history.unshift({
-                        date: dateStr, memo: memoText || '-', pointsEarned: dailyPoints, details: actions.join('، ')
-                    });
-
-                    newRecordsToSave.push({
-                        id: student.id, date: dateStr, teacher: currentTeacher, name: student.name,
-                        attendance: attendanceAr, memo: memoText || '-', behavior: behaviorPoints + ' نجوم',
-                        pointsEarned: dailyPoints, details: actions.join('، ')
-                    });
-
-                    updateCount++;
-
-                    document.getElementById(`memo_${id}`).value = '';
-                    document.getElementById(`memoPerfect_${id}`).checked = false;
-                    studentBehaviorRatings[id] = 0; 
-                    updateStarsUI(id, 0);
-                    if(extraPointSelect) extraPointSelect.value = '';
-                }
-            });
-
-            if (updateCount > 0) {
-                localStorage.setItem('mosqueStudents', JSON.stringify(students));
-                showMessage("اكتمل الحفظ بنجاح", `تم تسجيل وتحديث السجلات لـ ${updateCount} طالبة وإضافتها للنظام.`);
-                renderStudentList(); 
-
-                if (GOOGLE_SCRIPT_URL) {
-                    fetch(GOOGLE_SCRIPT_URL, {
-                        method: 'POST', mode: 'no-cors', 
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: "save_records", records: newRecordsToSave })
-                    });
-                }
-                
-                document.getElementById('selectAll').checked = false; toggleSelectAll();
-                document.getElementById('bulkMemorization').value = '';
-            } else {
-                showMessage("لا يوجد بيانات جديدة", "لم يتم إدخال بيانات. يرجى تسجيل حضور أو حفظ أو سلوك لطالبة واحدة على الأقل قبل الحفظ.", true);
-            }
-        }
-
-        // === لوحة الشرف ===
-        function renderLeaderboard() {
             const myIds = teachersData[currentTeacher].studentIds;
-            const myStudents = students.filter(s => myIds.includes(s.id));
-            const sortedStudents = [...myStudents].sort((a, b) => b.points - a.points);
-            
-            const top3Container = document.getElementById('topThreeContainer');
-            top3Container.innerHTML = '';
-            
-            if (sortedStudents.length >= 3) {
-                top3Container.innerHTML = `
-                    <div class="flex flex-col items-center order-2 w-1/3">
-                        <div class="text-center font-black text-white text-base mb-2 truncate w-full px-1">${sortedStudents[1].name}</div>
-                        <div class="w-14 h-14 bg-gray-200 rounded-full border-4 border-gray-400 flex items-center justify-center font-black text-gray-600 shadow-inner mb-2 z-20 text-xl">2</div>
-                        <div class="bg-gradient-to-b from-gray-300 to-gray-400 w-full h-24 rounded-t-xl shadow-[0_-5px_15px_rgba(0,0,0,0.2)] flex items-center justify-start pt-3 flex-col border-t border-gray-200">
-                            <span class="text-gray-800 font-black text-2xl">${sortedStudents[1].points}</span>
-                        </div>
-                    </div>
-                    <div class="flex flex-col items-center order-1 z-30 w-1/3 -mb-6">
-                        <i class="fas fa-crown text-mosque-gold text-5xl mb-3 drop-shadow-[0_0_15px_rgba(212,175,55,1)]"></i>
-                        <div class="text-center font-black text-mosque-gold text-lg mb-2 truncate w-full px-1">${sortedStudents[0].name}</div>
-                        <div class="w-20 h-20 bg-yellow-100 rounded-full border-4 border-mosque-gold flex items-center justify-center font-black text-yellow-600 text-3xl shadow-[0_0_20px_rgba(212,175,55,0.6)] mb-2 z-20">1</div>
-                        <div class="bg-gradient-to-b from-mosque-gold to-yellow-600 w-full h-36 rounded-t-xl shadow-[0_-5px_20px_rgba(0,0,0,0.3)] flex items-center justify-start pt-5 flex-col border-t-2 border-yellow-300">
-                            <span class="font-black text-4xl text-yellow-900">${sortedStudents[0].points}</span>
-                        </div>
-                    </div>
-                    <div class="flex flex-col items-center order-3 w-1/3">
-                        <div class="text-center font-black text-white text-base mb-2 truncate w-full px-1">${sortedStudents[2].name}</div>
-                        <div class="w-12 h-12 bg-orange-100 rounded-full border-4 border-orange-400 flex items-center justify-center font-black text-orange-700 shadow-inner mb-2 z-20 text-lg">3</div>
-                        <div class="bg-gradient-to-b from-orange-300 to-orange-500 w-full h-16 rounded-t-xl shadow-[0_-5px_15px_rgba(0,0,0,0.2)] flex items-center justify-start pt-2 flex-col border-t border-orange-200">
-                            <span class="text-orange-900 font-black text-xl">${sortedStudents[2].points}</span>
-                        </div>
-                    </div>
-                `;
-            }
+            const myStudents = students.filter(s => myIds.includes(s.id)).sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+            document.getElementById('attCount').innerText = myStudents.length;
 
-            const tbody = document.getElementById('leaderboardTableBody');
-            tbody.innerHTML = '';
-            sortedStudents.forEach((student, index) => {
-                if(index < 3) return; 
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-green-50 transition border-b border-gray-100";
-                tr.innerHTML = `
-                    <td class="p-4"><span class="inline-block w-8 h-8 text-center leading-8 rounded-full bg-gray-100 text-gray-500 text-sm font-black">${index + 1}</span></td>
-                    <td class="p-4 font-black text-gray-800">${student.name}</td>
-                    <td class="p-4 text-center"><span class="bg-mosque-gold-light text-yellow-800 py-1 px-4 rounded-full font-black border border-yellow-200 text-sm">${student.points} نقطة</span></td>
-                `;
-                tbody.appendChild(tr);
+            myStudents.forEach(s => {
+                const state = attendanceState[s.id] || 'present';
+                container.innerHTML += `
+                    <div class="flex flex-col md:flex-row md:items-center justify-between p-4 gap-3">
+                        <div class="font-bold text-lg text-gray-800">${s.name}</div>
+                        <div class="flex gap-2 w-full md:w-auto">
+                            <button onclick="setAttendance(${s.id}, 'present')" id="btn_att_${s.id}_present" class="att-btn flex-1 md:w-20 py-2 rounded-lg font-bold text-sm border ${state==='present'?'active-present':'bg-gray-50 border-gray-200 text-gray-600'}">حاضر</button>
+                            <button onclick="setAttendance(${s.id}, 'late')" id="btn_att_${s.id}_late" class="att-btn flex-1 md:w-20 py-2 rounded-lg font-bold text-sm border ${state==='late'?'active-late':'bg-gray-50 border-gray-200 text-gray-600'}">تأخير</button>
+                            <button onclick="setAttendance(${s.id}, 'absent')" id="btn_att_${s.id}_absent" class="att-btn flex-1 md:w-20 py-2 rounded-lg font-bold text-sm border ${state==='absent'?'active-absent':'bg-gray-50 border-gray-200 text-gray-600'}">غائب</button>
+                        </div>
+                    </div>`;
             });
         }
 
-        // === الإعدادات ===
-        function addNewStudent() {
-            const name = document.getElementById('newStudentName').value.trim();
-            if (!name) { showMessage("بيانات ناقصة", "يرجى إدخال اسم الطالبة أولاً.", true); return; }
+        function setAttendance(studentId, status) {
+            attendanceState[studentId] = status;
+            ['present', 'late', 'absent'].forEach(st => {
+                const btn = document.getElementById(`btn_att_${studentId}_${st}`);
+                btn.className = `att-btn flex-1 md:w-20 py-2 rounded-lg font-bold text-sm border bg-gray-50 border-gray-200 text-gray-600`;
+            });
+            document.getElementById(`btn_att_${studentId}_${status}`).classList.add(`active-${status}`);
+            document.getElementById(`btn_att_${studentId}_${status}`).classList.remove('bg-gray-50', 'border-gray-200', 'text-gray-600');
+        }
 
-            const newId = students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1001;
-            const newStudent = { id: newId, name: name, points: 0, history: [] };
+        function saveAttendanceBulk() {
+            let saved = 0;
+            let records = [];
+            const dateStr = new Date().toLocaleDateString('ar-EG');
             
-            students.push(newStudent);
-            teachersData[currentTeacher].studentIds.push(newStudent.id);
+            Object.keys(attendanceState).forEach(idStr => {
+                const id = parseInt(idStr);
+                const s = students.find(x => x.id === id);
+                if(!s) return;
+                
+                const status = attendanceState[id];
+                let pts = status === 'present' ? POINTS.ATTENDANCE_ON_TIME : 0;
+                let statusAr = status === 'present' ? 'حاضر' : (status === 'late' ? 'تأخير' : 'غائب');
+                
+                if(status !== 'absent') { s.points += pts; }
+                
+                s.history.unshift({ date: dateStr, memo: '-', pointsEarned: pts, details: `سجل حضور: ${statusAr}` });
+                records.push({ id: id, date: dateStr, teacher: currentTeacher, name: s.name, attendance: statusAr, memo: '-', behavior: '-', pointsEarned: pts, details: 'حضور يومي' });
+                saved++;
+            });
+
+            if(saved > 0) {
+                localStorage.setItem('mosqueStudents', JSON.stringify(students));
+                showToast("تم حفظ حضور الحلقة بالكامل بنجاح");
+                sendToGoogle(records);
+            }
+        }
+
+        // --- 2. قسم التسميع ---
+        function renderMemoSelect() {
+            const select = document.getElementById('memoStudentSelect');
+            select.innerHTML = '<option value="">-- اضغطي لاختيار الطالبة --</option>';
+            const myIds = teachersData[currentTeacher].studentIds;
+            const myStudents = students.filter(s => myIds.includes(s.id)).sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+            myStudents.forEach(s => { select.innerHTML += `<option value="${s.id}">${s.name}</option>`; });
+        }
+
+        function loadMemoForm() {
+            const sId = document.getElementById('memoStudentSelect').value;
+            const form = document.getElementById('memoFormArea');
+            if(!sId) { form.classList.add('hide'); return; }
             
-            localStorage.setItem('mosqueTeachersData', JSON.stringify(teachersData));
+            form.classList.remove('hide');
+            document.getElementById('memoInputAmount').value = '';
+            document.getElementById('memoInputNotes').value = '';
+            document.getElementById('memoInputNext').value = '';
+            document.getElementById('memoPerfectCheck').checked = false;
+        }
+
+        function saveStudentMemo() {
+            const sId = parseInt(document.getElementById('memoStudentSelect').value);
+            if(!sId) return;
+            const s = students.find(x => x.id === sId);
+            
+            const amount = document.getElementById('memoInputAmount').value.trim();
+            const notes = document.getElementById('memoInputNotes').value.trim();
+            const next = document.getElementById('memoInputNext').value.trim();
+            const perfect = document.getElementById('memoPerfectCheck').checked;
+
+            if(!amount) { showMessage("تنبيه", "يرجى كتابة مقدار الحفظ أولاً.", true); return; }
+
+            let pts = perfect ? POINTS.MEMORIZATION_PERFECT : 0;
+            s.points += pts;
+            const dateStr = new Date().toLocaleDateString('ar-EG');
+            
+            let details = `تسميع`;
+            if(perfect) details += ` (متقن)`;
+            if(notes) details += ` | ملاحظات: ${notes}`;
+            if(next) details += ` | المطلوب: ${next}`;
+
+            s.history.unshift({ date: dateStr, memo: amount, pointsEarned: pts, details: details });
             localStorage.setItem('mosqueStudents', JSON.stringify(students));
-
-            showToast("تم إضافة الطالبة للحلقة بنجاح.");
             
+            showToast(`تم حفظ تسميع ${s.name}`);
+            
+            let records = [{ id: s.id, date: dateStr, teacher: currentTeacher, name: s.name, attendance: '-', memo: amount, behavior: '-', pointsEarned: pts, details: details }];
+            sendToGoogle(records);
+
+            // تصفير وتجهيز للتالية
+            document.getElementById('memoStudentSelect').value = '';
+            loadMemoForm();
+        }
+
+        // --- 3. قسم السلوك والنقاط ---
+        function renderBehaviorList() {
+            const container = document.getElementById('behaviorListContainer');
+            container.innerHTML = '';
+            const myIds = teachersData[currentTeacher].studentIds;
+            const myStudents = students.filter(s => myIds.includes(s.id)).sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+
+            myStudents.forEach(s => {
+                container.innerHTML += `
+                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex flex-col gap-4">
+                        <div class="flex justify-between items-center border-b pb-2">
+                            <h4 class="font-bold text-lg text-mosque-green">${s.name}</h4>
+                            <span class="text-mosque-gold font-black bg-mosque-gold-light px-3 py-1 rounded-full text-sm">${s.points} نقطة</span>
+                        </div>
+                        
+                        <div class="flex flex-col md:flex-row gap-4 items-center">
+                            <!-- تقييم السلوك -->
+                            <div class="bg-gray-50 p-3 rounded-2xl flex-1 w-full text-center">
+                                <label class="block text-xs font-bold text-gray-500 mb-2">نجوم السلوك</label>
+                                <div class="star-rating flex flex-row-reverse justify-center gap-2 text-3xl" id="stars_${s.id}">
+                                    <i class="far fa-star text-gray-300 cursor-pointer" onclick="toggleStar(${s.id}, 5)"></i>
+                                    <i class="far fa-star text-gray-300 cursor-pointer" onclick="toggleStar(${s.id}, 4)"></i>
+                                    <i class="far fa-star text-gray-300 cursor-pointer" onclick="toggleStar(${s.id}, 3)"></i>
+                                    <i class="far fa-star text-gray-300 cursor-pointer" onclick="toggleStar(${s.id}, 2)"></i>
+                                    <i class="far fa-star text-gray-300 cursor-pointer" onclick="toggleStar(${s.id}, 1)"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- عداد النقاط الإضافية -->
+                            <div class="bg-blue-50 p-3 rounded-2xl flex-1 w-full flex flex-col items-center">
+                                <label class="block text-xs font-bold text-gray-500 mb-2">مكافأة / خصم إضافي</label>
+                                <div class="flex items-center gap-4 bg-white rounded-xl shadow-sm p-1 border border-blue-100">
+                                    <button onclick="changePoints(${s.id}, -1)" class="w-10 h-10 rounded-lg bg-red-100 text-red-600 font-black text-xl hover:bg-red-200 transition">-</button>
+                                    <span id="pts_counter_${s.id}" class="text-2xl font-black text-blue-800 w-8 text-center" dir="ltr">0</span>
+                                    <button onclick="changePoints(${s.id}, 1)" class="w-10 h-10 rounded-lg bg-green-100 text-green-600 font-black text-xl hover:bg-green-200 transition">+</button>
+                                </div>
+                                <input type="text" id="pts_reason_${s.id}" placeholder="السبب؟" class="w-full mt-2 p-2 text-sm border rounded-lg outline-none text-center bg-white">
+                            </div>
+                        </div>
+                        
+                        <button onclick="saveStudentBehavior(${s.id})" class="w-full bg-mosque-light text-white font-bold py-3 rounded-xl hover:bg-mosque-green transition">
+                            <i class="fas fa-check mr-2"></i> حفظ التقييم لهذه الطالبة
+                        </button>
+                    </div>`;
+            });
+        }
+
+        function toggleStar(sId, rating) {
+            let current = behaviorState[sId].stars;
+            if(current === rating) behaviorState[sId].stars = 0; // مسح النجمة إذا ضغط عليها نفسها
+            else behaviorState[sId].stars = rating;
+            
+            const stars = document.getElementById(`stars_${sId}`).querySelectorAll('i');
+            stars.forEach((star, index) => {
+                const val = 5 - index;
+                star.className = val <= behaviorState[sId].stars ? "fas fa-star text-mosque-gold cursor-pointer transform scale-110" : "far fa-star text-gray-300 cursor-pointer hover:text-yellow-400";
+            });
+        }
+
+        function changePoints(sId, val) {
+            behaviorState[sId].points += val;
+            let el = document.getElementById(`pts_counter_${sId}`);
+            el.innerText = (behaviorState[sId].points > 0 ? '+' : '') + behaviorState[sId].points;
+            if(behaviorState[sId].points < 0) el.className = "text-2xl font-black text-red-600 w-8 text-center";
+            else el.className = "text-2xl font-black text-blue-800 w-8 text-center";
+        }
+
+        function saveStudentBehavior(sId) {
+            const s = students.find(x => x.id === sId);
+            const stars = behaviorState[sId].stars;
+            const extraPts = behaviorState[sId].points;
+            const reason = document.getElementById(`pts_reason_${sId}`).value.trim();
+
+            if(stars === 0 && extraPts === 0) { showToast("لا يوجد تعديل لحفظه"); return; }
+
+            let totalPts = stars + extraPts;
+            s.points += totalPts;
+            
+            const dateStr = new Date().toLocaleDateString('ar-EG');
+            let details = [];
+            if(stars > 0) details.push(`سلوك: ${stars} نجوم`);
+            if(extraPts !== 0) details.push(`${extraPts > 0 ? 'مكافأة' : 'خصم'} (${extraPts}) ${reason ? 'لسبب: '+reason : ''}`);
+
+            s.history.unshift({ date: dateStr, memo: '-', pointsEarned: totalPts, details: details.join(' | ') });
+            localStorage.setItem('mosqueStudents', JSON.stringify(students));
+            
+            showToast(`تم حفظ تقييم ${s.name}`);
+            
+            let records = [{ id: s.id, date: dateStr, teacher: currentTeacher, name: s.name, attendance: '-', memo: '-', behavior: stars+' نجوم', pointsEarned: totalPts, details: details.join(' | ') }];
+            sendToGoogle(records);
+
+            // تصفير الخانات
+            behaviorState[sId].stars = 0; toggleStar(sId, 0);
+            behaviorState[sId].points = 0; changePoints(sId, 0);
+            document.getElementById(`pts_reason_${sId}`).value = '';
+            renderBehaviorList(); // التحديث لإظهار الرصيد الجديد
+        }
+
+        // --- 4. لوحة الشرف ---
+        function renderLeaderboard() {
+            // للمعلمة (حسب الحلقة) وللأهل (حسب حلقة ابنتهم)
+            let groupIds = [];
+            if(currentTeacher && teachersData[currentTeacher]) groupIds = teachersData[currentTeacher].studentIds;
+            else if(currentParentViewStudent) groupIds = students.filter(s => s.name === currentParentViewStudent.name).map(s=>s.id); // مؤقتاً يجلب الجميع لو ولي أمر
+            
+            let pool = currentTeacher ? students.filter(s => groupIds.includes(s.id)) : students; // لولي الأمر نعرض أوائل المسجد أو ممكن تعديلها لحلقتها
+            const sorted = [...pool].sort((a, b) => b.points - a.points);
+            
+            const renderPodium = (containerId, top3) => {
+                const el = document.getElementById(containerId);
+                if(!el) return;
+                el.innerHTML = '';
+                if (top3.length >= 3) {
+                    el.innerHTML = `
+                        <div class="flex flex-col items-center justify-end order-2 w-1/3 h-full pb-0">
+                            <div class="text-center font-bold text-white text-xs md:text-sm mb-2 truncate w-full px-1">${top3[1].name}</div>
+                            <div class="w-10 h-10 bg-gray-100 rounded-full border-4 border-gray-300 flex items-center justify-center font-black text-gray-500 shadow-inner mb-[-10px] z-20">2</div>
+                            <div class="podium-2 w-full h-[60%] rounded-t-2xl shadow-lg flex items-center justify-start pt-6 flex-col border-t-2 border-gray-300">
+                                <span class="text-gray-800 font-black text-xl">${top3[1].points}</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-center justify-end order-1 z-30 w-1/3 h-full pb-0 mb-4">
+                            <i class="fas fa-crown text-mosque-gold text-4xl mb-2 drop-shadow-[0_0_10px_rgba(212,175,55,1)]"></i>
+                            <div class="text-center font-bold text-mosque-gold text-sm md:text-base mb-2 truncate w-full px-1">${top3[0].name}</div>
+                            <div class="w-14 h-14 bg-white rounded-full border-4 border-mosque-gold flex items-center justify-center font-black text-yellow-600 text-2xl shadow-[0_0_15px_rgba(212,175,55,0.8)] mb-[-15px] z-20">1</div>
+                            <div class="podium-1 w-full h-[80%] rounded-t-2xl shadow-2xl flex items-center justify-start pt-8 flex-col border-t-4 border-yellow-200">
+                                <span class="font-black text-3xl text-yellow-900">${top3[0].points}</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-center justify-end order-3 w-1/3 h-full pb-0">
+                            <div class="text-center font-bold text-white text-xs md:text-sm mb-2 truncate w-full px-1">${top3[2].name}</div>
+                            <div class="w-10 h-10 bg-orange-50 rounded-full border-4 border-orange-300 flex items-center justify-center font-black text-orange-600 shadow-inner mb-[-10px] z-20">3</div>
+                            <div class="podium-3 w-full h-[50%] rounded-t-2xl shadow-lg flex items-center justify-start pt-5 flex-col border-t-2 border-orange-300">
+                                <span class="text-orange-900 font-black text-xl">${top3[2].points}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            };
+
+            const renderTable = (tbodyId, list) => {
+                const tbody = document.getElementById(tbodyId);
+                if(!tbody) return;
+                tbody.innerHTML = '';
+                list.forEach((s, i) => {
+                    if(i < 3) return; 
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="p-4"><span class="inline-block w-8 h-8 text-center leading-8 rounded-full bg-gray-100 text-gray-500 text-sm font-black">${i + 1}</span></td>
+                            <td class="p-4 font-bold text-gray-800">${s.name}</td>
+                            <td class="p-4 text-center"><span class="bg-mosque-gold-light text-yellow-800 py-1 px-4 rounded-full font-black border border-yellow-200 text-sm">${s.points}</span></td>
+                        </tr>`;
+                });
+            };
+
+            if(currentTeacher) {
+                renderPodium('topThreeContainer', sorted);
+                renderTable('leaderboardTableBody', sorted);
+            }
+            if(currentParentViewStudent) {
+                // للأهل، سنعرض قائمة بسيطة لأفضل 5 لزيادة التحفيز دون إزعاج
+                const pl = document.getElementById('parentLeaderboardList');
+                pl.innerHTML = '';
+                sorted.slice(0, 5).forEach((s, i) => {
+                    let medal = i===0?'<i class="fas fa-medal text-yellow-500 text-xl"></i>':(i===1?'<i class="fas fa-medal text-gray-400 text-xl"></i>':(i===2?'<i class="fas fa-medal text-orange-400 text-xl"></i>':`<span class="text-gray-400 font-bold ml-1">${i+1}</span>`));
+                    let highlight = s.name === currentParentViewStudent.name ? 'bg-mosque-gold-light border-mosque-gold' : 'bg-gray-50 border-transparent';
+                    pl.innerHTML += `
+                        <div class="flex justify-between items-center p-3 rounded-xl border ${highlight}">
+                            <div class="flex items-center gap-3">${medal} <span class="font-bold text-gray-800">${s.name}</span></div>
+                            <span class="font-black text-mosque-green">${s.points}</span>
+                        </div>`;
+                });
+            }
+        }
+
+        // --- إرسال لجوجل ---
+        function sendToGoogle(records) {
             if (GOOGLE_SCRIPT_URL) {
                 fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: "add_student", student: { id: newId, name: name } })
-                });
+                    body: JSON.stringify({ action: "save_records", records: records })
+                }).catch(e=>console.log("Offline mode"));
             }
-            document.getElementById('newStudentName').value = '';
-            renderStudentList();
         }
 
-        // === أولياء الأمور ===
+        // --- أولياء الأمور ---
         function loginParent() {
             const searchName = document.getElementById('parentStudentName').value.trim();
             if (!searchName) return;
@@ -888,8 +884,9 @@
                 document.getElementById('loginScreen').classList.add('hide');
                 document.getElementById('parentDashboard').classList.remove('hide');
                 updateParentDashboard();
+                renderLeaderboard();
             } else { 
-                showMessage("غير موجود", "لم يتم العثور على طالبة بهذا الاسم. حاولي كتابة الاسم كما هو مسجل تماماً.", true); 
+                showMessage("غير موجود", "لم يتم العثور على اسم مطابق. تأكدي من كتابة الاسم كما سجلته المعلمة.", true); 
             }
         }
 
@@ -901,19 +898,26 @@
             const hList = document.getElementById('parentHistoryList');
             hList.innerHTML = '';
             if (s.history.length === 0) {
-                hList.innerHTML = `<div class="p-10 bg-white/50 rounded-3xl border-2 border-white text-gray-500 font-bold text-center shadow-sm">لم يتم تسجيل أداء بعد.</div>`;
+                hList.innerHTML = `<div class="p-10 bg-white rounded-3xl border-2 border-gray-100 text-gray-400 font-bold text-center shadow-sm"><i class="far fa-folder-open text-4xl block mb-3"></i>لم يتم تسجيل أداء بعد.</div>`;
             } else {
                 s.history.forEach(record => {
+                    let ptsClass = record.pointsEarned > 0 ? "text-yellow-600 bg-yellow-50" : (record.pointsEarned < 0 ? "text-red-600 bg-red-50" : "text-gray-500 bg-gray-50");
+                    let ptsSign = record.pointsEarned > 0 ? "+" : "";
+                    
                     hList.innerHTML += `
-                        <div class="bg-white p-5 rounded-3xl shadow-sm border border-white text-right flex justify-between items-center relative overflow-hidden group hover:shadow-md transition">
-                            <div class="absolute right-0 top-0 w-2 h-full bg-mosque-green"></div>
-                            <div class="pr-4">
-                                <div class="text-sm font-bold text-gray-400 mb-2">${record.date}</div>
-                                <div class="font-black text-mosque-green text-lg mb-2">الحفظ: <span class="text-gray-700 font-bold bg-gray-50 px-2 py-1 rounded-lg">${record.memo}</span></div>
-                                <div class="text-sm font-bold text-gray-500"><i class="fas fa-award text-mosque-gold mr-1"></i> ${record.details}</div>
+                        <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex flex-col gap-3 relative overflow-hidden group">
+                            <div class="absolute right-0 top-0 w-2 h-full bg-mosque-green opacity-80"></div>
+                            <div class="flex justify-between items-start pl-2 pr-4">
+                                <div>
+                                    <div class="text-xs font-bold text-gray-400 mb-2"><i class="far fa-calendar-alt"></i> ${record.date}</div>
+                                    <div class="font-bold text-mosque-green text-lg">الحفظ: <span class="text-gray-800 font-normal">${record.memo}</span></div>
+                                </div>
+                                <div class="flex items-center justify-center ${ptsClass} py-2 px-3 rounded-xl border border-white min-w-[70px]">
+                                    <span class="font-black text-2xl" dir="ltr">${ptsSign}${record.pointsEarned}</span>
+                                </div>
                             </div>
-                            <div class="flex flex-col items-center justify-center bg-mosque-gold-light p-4 rounded-2xl border-2 border-yellow-100 min-w-[80px]">
-                                <span class="text-yellow-700 font-black text-2xl">+${record.pointsEarned}</span>
+                            <div class="bg-gray-50 p-3 rounded-xl mr-4 text-sm font-bold text-gray-600 border border-gray-100 leading-relaxed">
+                                <i class="fas fa-info-circle text-mosque-gold mr-1"></i> ${record.details}
                             </div>
                         </div>
                     `;
