@@ -97,8 +97,8 @@
     </div>
     
     <!-- مؤشر الحفظ التلقائي الصامت -->
-    <div id="autoSaveIndicator" class="opacity-0 pointer-events-none fixed bottom-[100px] left-1/2 transform -translate-x-1/2 bg-green-800 text-white px-5 py-2.5 rounded-full shadow-lg flex items-center justify-center gap-2 z-[300] font-bold text-sm">
-        <i class="fas fa-sync-alt fa-spin"></i> تم الحفظ تلقائياً
+    <div id="autoSaveIndicator" class="opacity-0 pointer-events-none fixed bottom-[100px] left-1/2 transform -translate-x-1/2 bg-green-800/90 backdrop-blur text-white px-5 py-2.5 rounded-full shadow-lg flex items-center justify-center gap-2 z-[100] font-bold text-sm">
+        <i class="fas fa-check-circle text-green-300"></i> تم الحفظ تلقائياً
     </div>
 
     <!-- شاشة تسجيل الدخول -->
@@ -224,7 +224,10 @@
                     </div>
                 </div>
                 
-                <div class="flex gap-3">
+                <div class="flex gap-3 items-center">
+                    <!-- مؤشر الاتصال والمزامنة -->
+                    <div id="connectionStatusDot" class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_5px_green] transition-colors" title="حالة الاتصال والمزامنة"></div>
+                    
                     <button onclick="showTeacherNotifications()" class="relative w-12 h-12 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-600 transition border border-gray-200 shadow-sm">
                         <i class="fas fa-bell text-xl"></i>
                         <span id="notifBadge" class="hide absolute top-0 right-0 w-5 h-5 bg-red-500 text-white rounded-full text-xs font-black flex items-center justify-center border-2 border-white">0</span>
@@ -235,8 +238,16 @@
 
         <main class="max-w-4xl mx-auto p-4 mt-2">
 
-            <!-- 1. شاشة الدوام -->
+            <!-- 1. شاشة الدوام والدرس اليومي -->
             <div id="view-attendance" class="tab-content animate-fade-in">
+                
+                <!-- الدرس اليومي والواجب -->
+                <div class="bg-white p-5 rounded-3xl shadow-sm border-2 border-gray-100 mb-6">
+                    <h3 class="font-black text-mosque-green text-xl mb-4"><i class="fas fa-chalkboard text-mosque-gold ml-2"></i> الدرس اليومي والواجب الجماعي</h3>
+                    <input type="text" id="lessonTitle" oninput="markLessonDirty()" placeholder="عنوان الدرس المعطى (مثال: أحكام النون الساكنة)" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold mb-3 text-lg transition">
+                    <textarea id="lessonHomework" oninput="markLessonDirty()" rows="2" placeholder="المطلوب الجماعي للموعد القادم..." class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold resize-none text-lg transition"></textarea>
+                </div>
+
                 <div class="bg-blue-50 border border-blue-100 p-4 rounded-xl mb-6 flex justify-between items-center shadow-sm">
                     <div>
                         <span class="font-black text-blue-800 text-base block mb-1">افتراضياً الجميع (غائب)</span>
@@ -244,6 +255,7 @@
                     </div>
                     <span class="bg-white text-blue-800 font-black px-4 py-2 rounded-lg border border-blue-200 shadow-sm"><span id="studentCount">0</span> طالبة</span>
                 </div>
+                
                 <div class="flex justify-center mb-6">
                     <div class="bg-gray-200 p-1.5 rounded-full flex text-base font-black shadow-inner w-full md:w-auto">
                         <button id="filterMyGroupBtn" onclick="setStudentFilter('myGroup')" class="flex-1 px-8 py-3 rounded-full bg-white text-mosque-green shadow-md transition border border-gray-200">طالبات حلقتي</button>
@@ -267,10 +279,13 @@
                 <div id="memoFormArea" class="hide bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100 space-y-6 relative overflow-hidden">
                     <div class="absolute top-0 right-0 w-2 h-full bg-mosque-green"></div>
                     
-                    <!-- المُذكّر الذكي للتسميع السابق -->
-                    <div id="previousMemoInfo" class="bg-blue-50 p-5 rounded-2xl border-2 border-blue-100 mb-6 hide shadow-inner">
-                        <h4 class="font-black text-blue-800 mb-4 text-lg border-b border-blue-200 pb-2 flex items-center"><i class="fas fa-history text-blue-500 mr-2 text-xl"></i> تذكير بتسميعها السابق (<span id="prevMemoDate"></span>)</h4>
-                        <div class="space-y-3">
+                    <!-- المُذكّر الذكي المطوي (Accordion) -->
+                    <div id="previousMemoInfo" class="bg-blue-50 p-4 rounded-2xl border-2 border-blue-100 mb-6 hide shadow-sm transition-all">
+                        <div class="flex justify-between items-center cursor-pointer" onclick="document.getElementById('prevMemoContent').classList.toggle('hide')">
+                            <h4 class="font-black text-blue-800 text-lg flex items-center"><i class="fas fa-history text-blue-500 ml-2 text-xl"></i> تذكير بتسميعها السابق (<span id="prevMemoDate"></span>)</h4>
+                            <i class="fas fa-chevron-down text-blue-500 bg-white p-1.5 rounded-full shadow-sm"></i>
+                        </div>
+                        <div id="prevMemoContent" class="hide space-y-3 mt-4 border-t border-blue-200 pt-4">
                             <p class="text-base text-blue-900 bg-white p-3 rounded-xl shadow-sm border border-blue-100"><strong><i class="fas fa-book-open text-mosque-gold ml-1"></i> حفظت سابقاً:</strong> <span id="prevMemoAmount" class="font-bold"></span></p>
                             <p class="text-base text-blue-900 bg-red-50 p-3 rounded-xl shadow-sm border border-red-100"><strong><i class="fas fa-exclamation-triangle text-red-500 ml-1"></i> الأخطاء والملاحظات:</strong> <span id="prevMemoNotes" class="font-bold text-red-700"></span></p>
                             <p class="text-base text-blue-900 bg-green-50 p-3 rounded-xl shadow-sm border border-green-100"><strong><i class="fas fa-bullseye text-green-500 ml-1"></i> المطلوب لليوم:</strong> <span id="prevMemoNext" class="font-bold text-green-700"></span></p>
@@ -286,7 +301,7 @@
                         <div class="star-rating flex flex-row-reverse justify-center gap-3 text-5xl text-mosque-gold" id="memoStarsContainer"></div>
                     </div>
                     <div>
-                        <label class="block font-black text-gray-800 mb-3 text-lg">ملاحظات على التلاوة (تظهر للأهل)</label>
+                        <label class="block font-black text-gray-800 mb-3 text-lg">أخطاء وملاحظات (تظهر للأهل)</label>
                         <textarea id="memoInputNotes" oninput="markMemoDirty()" rows="2" placeholder="أخطاء التجويد، الحركات... (اختياري)" class="w-full p-4 border-2 border-gray-200 rounded-2xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-base resize-none"></textarea>
                     </div>
                     <div class="bg-blue-50/50 p-5 rounded-2xl border-2 border-blue-100">
@@ -357,16 +372,25 @@
                         <i class="fas fa-copy text-2xl"></i> نسخ الرابط للأهالي
                     </button>
                 </div>
+                
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <button onclick="syncWithDatabase()" class="w-full bg-blue-50 text-blue-700 hover:bg-blue-100 font-black text-lg p-5 rounded-2xl transition border-2 border-blue-200">مزامنة البيانات</button>
+                    <button onclick="attemptSync()" class="w-full bg-blue-50 text-blue-700 hover:bg-blue-100 font-black text-lg p-5 rounded-2xl transition border-2 border-blue-200">مزامنة يدوية</button>
                     <button onclick="openSetupScreenFromSettings()" class="w-full bg-gray-50 text-gray-700 hover:bg-gray-100 font-black text-lg p-5 rounded-2xl transition border-2 border-gray-200">تعديل طالبات الحلقة</button>
                 </div>
+
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
                     <h3 class="font-ruqaa font-bold text-mosque-green text-2xl mb-4 border-b pb-3">إضافة طالبة للمسجد</h3>
                     <input type="text" id="newStudentName" placeholder="الاسم الثلاثي..." class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-lg mb-4">
                     <input type="number" id="newStudentAge" placeholder="العمر (اختياري)..." class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-lg mb-4">
                     <button onclick="addNewStudent()" class="w-full bg-mosque-green text-mosque-gold-light font-black text-lg p-4 rounded-xl transition shadow-md">إضافة وتسجيل</button>
                 </div>
+                
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <button onclick="resetAllPoints()" class="w-full bg-orange-50 text-orange-600 hover:bg-orange-100 font-black text-lg p-4 rounded-xl transition border-2 border-orange-200 flex justify-center items-center gap-2">
+                        <i class="fas fa-undo"></i> تصفير عداد النقاط للجميع
+                    </button>
+                </div>
+
                 <button onclick="logout()" class="w-full bg-red-50 text-red-600 hover:bg-red-100 font-black text-lg p-4 rounded-2xl transition border-2 border-red-200 flex justify-center items-center gap-2">
                     <i class="fas fa-sign-out-alt text-2xl"></i> تسجيل خروج
                 </button>
@@ -407,7 +431,7 @@
 
     <script>
         // === يرجى وضع رابط جوجل شيت الجديد هنا ===
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyRnScxw_6kueY1wtMlv8Wi4tXWjk_baTfecAp3gfUP8urUiyau3Slkr5zKEE3dSsw/exec";
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyRIqFMnSt0JDPO3UmGWWQlxskKqptlYl4f2NwuYLtqJ9HQBrGH4iligiKdE2oQ0S_a/exec";
         
         const initialNames = [
             "أرجوان فخر الدين", "ألمى صبحي", "أوركيد فخر الدين", "إيمان حويان", "تالة حناوي", "تاليا المزي", "تالين معمولي", "جنى سحلول", "جودي زرزور", "جودي سحلول", "جودي سامر سحلول", "جوري عزيزية", "حلا تركماني", "حلا زرزور", "حنين دباسوا", "زينة المقدمي", "سارة أبو لحية", "سارة كلول", "سدرة المقدس", "سدرة عبد الرحمن", "ليلاس السيد", "لمار السيد", "لمار خليفة", "لين صبحي", "ماريا المزي"
@@ -418,17 +442,6 @@
             id: index + 1001, name: name, age: "", points: 0, history: [] 
         }));
         
-        // إصلاح السجلات القديمة
-        students.forEach(s => {
-            s.history.forEach(h => {
-                if(!h.type) {
-                    if(h.details && h.details.includes('تسميع')) h.type = 'memo';
-                    else if(h.details && h.details.includes('حضور')) h.type = 'attendance';
-                    else h.type = 'behavior';
-                }
-            });
-        });
-
         const POINTS = { ATTENDANCE_ON_TIME: 5, LATE: 0, ABSENT: -5 };
         
         let currentTeacher = null;
@@ -436,6 +449,7 @@
         let currentParentViewStudent = null;
         let teachersData = JSON.parse(localStorage.getItem('mosqueTeachersData')) || {};
         let parentNotesList = JSON.parse(localStorage.getItem('mosqueParentNotes')) || [];
+        let mosqueLessons = JSON.parse(localStorage.getItem('mosqueLessons')) || {};
         let setupPreviousScreen = 'login';
         
         // نظام التاريخ 
@@ -446,28 +460,60 @@
         
         function saveDraftsToLocal() { localStorage.setItem('mosqueDrafts', JSON.stringify(drafts)); }
 
-        // نظام الحفظ التلقائي الذكي (Auto-Save Engine)
-        let dirtyTimer;
-        let hasUnsavedAttendance = false;
+        // --- نظام المزامنة الذكي والحفظ التلقائي (Offline Queue) ---
+        let syncQueue = JSON.parse(localStorage.getItem('mosqueSyncQueue')) || [];
+        let isSyncing = false;
         
-        function markAttendanceDirty() { 
-            hasUnsavedAttendance = true;
-            clearTimeout(dirtyTimer);
-            dirtyTimer = setTimeout(() => { if(hasUnsavedAttendance) { saveAttendance(true); hasUnsavedAttendance = false; } }, 1500); 
-        }
-        function markMemoDirty() { 
-            saveDrafts();
-            clearTimeout(dirtyTimer);
-            dirtyTimer = setTimeout(() => { saveStudentMemo(true); }, 1500); 
-        }
-        function markBehaviorDirty() { 
-            saveDrafts();
-            clearTimeout(dirtyTimer);
-            dirtyTimer = setTimeout(() => { saveStudentBehavior(true); }, 1500); 
+        function pushToQueue(actionData) {
+            syncQueue.push(actionData);
+            localStorage.setItem('mosqueSyncQueue', JSON.stringify(syncQueue));
+            updateConnectionStatus();
+            attemptSync();
         }
 
+        async function attemptSync() {
+            if (!navigator.onLine || syncQueue.length === 0 || isSyncing || !GOOGLE_SCRIPT_URL) {
+                updateConnectionStatus(); return;
+            }
+            isSyncing = true; updateConnectionStatus();
+            try {
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: "sync_queue", queue: syncQueue })
+                });
+                syncQueue = []; localStorage.setItem('mosqueSyncQueue', JSON.stringify(syncQueue));
+            } catch(e) { console.log("Offline or sync error", e); }
+            isSyncing = false; updateConnectionStatus();
+        }
+
+        window.addEventListener('online', attemptSync);
+        window.addEventListener('offline', updateConnectionStatus);
+        setInterval(attemptSync, 15000); // محاولة كل 15 ثانية صامتة
+
+        function updateConnectionStatus() {
+            const dot = document.getElementById('connectionStatusDot');
+            if(!dot) return;
+            if (!navigator.onLine) dot.className = "w-3 h-3 rounded-full bg-red-500 shadow-[0_0_5px_red]"; 
+            else if (syncQueue.length > 0 || isSyncing) dot.className = "w-3 h-3 rounded-full bg-yellow-400 shadow-[0_0_5px_yellow] animate-pulse"; 
+            else dot.className = "w-3 h-3 rounded-full bg-green-500 shadow-[0_0_5px_green]"; 
+        }
+
+        let dirtyTimer;
+        function markAttendanceDirty() { clearTimeout(dirtyTimer); dirtyTimer = setTimeout(() => { saveAttendance(true); }, 1500); }
+        function markMemoDirty() { saveDrafts(); clearTimeout(dirtyTimer); dirtyTimer = setTimeout(() => { saveStudentMemo(true); }, 1500); }
+        function markBehaviorDirty() { saveDrafts(); clearTimeout(dirtyTimer); dirtyTimer = setTimeout(() => { saveStudentBehavior(true); }, 1500); }
+        let lessonTimer;
+        function markLessonDirty() { clearTimeout(lessonTimer); lessonTimer = setTimeout(() => { saveLesson(true); }, 1500); }
+
+        function showAutoSaveIndicator() {
+            const ind = document.getElementById('autoSaveIndicator');
+            ind.classList.remove('opacity-0');
+            setTimeout(() => { ind.classList.add('opacity-0'); }, 2000);
+        }
+
+        // --- تهيئة التطبيق ---
         window.onload = function() {
-            updateDateDisplay();
+            updateDateDisplay(); updateConnectionStatus();
             const urlParams = new URLSearchParams(window.location.search);
             if(urlParams.get('role') === 'parent') {
                 document.getElementById('teacherLoginArea').classList.add('hide');
@@ -481,7 +527,10 @@
             const display = document.getElementById('currentDateDisplay');
             if(display) display.innerText = activeDateObj.toLocaleDateString('ar-EG', dateOptions);
             const picker = document.getElementById('mainDatePicker');
-            if(picker) picker.value = activeDateObj.toISOString().split('T')[0];
+            
+            let m = activeDateObj.getMonth() + 1; let d = activeDateObj.getDate();
+            let dateString = activeDateObj.getFullYear() + '-' + (m < 10 ? '0'+m : m) + '-' + (d < 10 ? '0'+d : d);
+            if(picker) picker.value = dateString;
             
             if(!drafts[activeDateStr]) drafts[activeDateStr] = { attendance: {}, memo: {}, behavior: {} };
             saveDraftsToLocal();
@@ -489,7 +538,8 @@
 
         function changeActiveDate(val) {
             if(!val) return;
-            activeDateObj = new Date(val);
+            const parts = val.split('-');
+            activeDateObj = new Date(parts[0], parts[1]-1, parts[2]); // لحل مشكلة المنطقة الزمنية
             activeDateStr = activeDateObj.toLocaleDateString('ar-EG');
             updateDateDisplay();
             if(currentTeacher) refreshAllViews();
@@ -519,6 +569,21 @@
             modal.classList.remove('hide');
         }
 
+        function showConfirmDialog(title, message, onConfirmCallback) {
+            const modal = document.getElementById('customModalBox');
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerText = message;
+            const icon = document.getElementById('modalIcon');
+            icon.innerHTML = '<i class="fas fa-question-circle text-yellow-500"></i>';
+            icon.className = "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 bg-yellow-50 text-4xl shadow-inner";
+            document.getElementById('modalButtons').innerHTML = `
+                <button id="confirmYesBtn" class="px-6 py-3 bg-red-600 text-white rounded-xl font-black text-lg shadow hover:bg-red-800 transition flex-1">نعم، متأكد</button>
+                <button onclick="closeModalBox()" class="px-6 py-3 bg-gray-200 text-gray-800 rounded-xl font-black text-lg hover:bg-gray-300 transition flex-1">إلغاء</button>
+            `;
+            document.getElementById('confirmYesBtn').onclick = () => { closeModalBox(); onConfirmCallback(); };
+            modal.classList.remove('hide');
+        }
+
         function showToast(message) {
             const toast = document.getElementById('toast');
             document.getElementById('toastMsg').innerText = message;
@@ -526,20 +591,10 @@
             toast.style.animation = 'none'; toast.offsetHeight; toast.style.animation = null;
             setTimeout(() => { toast.classList.add('hide'); }, 3000);
         }
-        
-        function showAutoSaveIndicator() {
-            const ind = document.getElementById('autoSaveIndicator');
-            ind.classList.remove('opacity-0');
-            setTimeout(() => { ind.classList.add('opacity-0'); }, 2000);
-        }
 
         function updateReasonsDatalist() {
             let reasons = new Set();
-            students.forEach(s => {
-                s.history.forEach(h => {
-                    if (h.type === 'behavior' && h.reason) reasons.add(h.reason);
-                });
-            });
+            students.forEach(s => { s.history.forEach(h => { if (h.type === 'behavior' && h.reason) reasons.add(h.reason); }); });
             const dl = document.getElementById('reasonSuggestions');
             if(dl) dl.innerHTML = Array.from(reasons).map(r => `<option value="${r}">`).join('');
         }
@@ -558,24 +613,13 @@
                     });
                     localStorage.setItem('mosqueStudents', JSON.stringify(students));
                 }
-                if (resData.notes) {
-                    parentNotesList = resData.notes;
-                    localStorage.setItem('mosqueParentNotes', JSON.stringify(parentNotesList));
-                    updateNotificationBadge();
-                }
+                if (resData.notes) { parentNotesList = resData.notes; localStorage.setItem('mosqueParentNotes', JSON.stringify(parentNotesList)); updateNotificationBadge(); }
+                if (resData.lessons) { mosqueLessons = resData.lessons; localStorage.setItem('mosqueLessons', JSON.stringify(mosqueLessons)); }
+                
                 if(currentTeacher) refreshAllViews();
                 showToast("تمت مزامنة البيانات بنجاح");
             } catch (err) { console.log(err); }
             document.getElementById('loadingOverlay').classList.add('hide');
-        }
-
-        function sendToGoogle(action, records) {
-            if (GOOGLE_SCRIPT_URL && records.length > 0) {
-                fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: action, records: records })
-                }).catch(e => console.log("Offline mode"));
-            }
         }
 
         function updateNotificationBadge() {
@@ -611,6 +655,7 @@
         }
         function closeNotifications() { document.getElementById('notificationsPanel').classList.add('hide'); }
 
+        // --- المعلمة والإعداد ---
         function loginTeacher() {
             const tName = document.getElementById('teacherSelectName').value;
             if (!tName) { showMessage("تنبيه", "اختاري اسمك من القائمة.", true); return; }
@@ -626,9 +671,7 @@
             if(setupPreviousScreen === 'settings') { 
                 document.getElementById('teacherDashboard').classList.remove('hide'); 
                 document.getElementById('topDateBar').classList.remove('hide');
-            } else { 
-                document.getElementById('loginScreen').classList.remove('hide'); 
-            } 
+            } else { document.getElementById('loginScreen').classList.remove('hide'); } 
         }
 
         function filterSetupStudents() {
@@ -678,12 +721,12 @@
             document.getElementById('headerTeacherName').innerText = currentTeacher;
             document.getElementById('headerGroupName').innerText = teachersData[currentTeacher].groupName;
             
-            updateReasonsDatalist();
-            updateNotificationBadge();
+            updateReasonsDatalist(); updateNotificationBadge();
             syncWithDatabase().then(() => { refreshAllViews(); switchMainTab('attendance'); });
         }
 
         function refreshAllViews() {
+            loadDailyLesson();
             renderAttendanceList();
             renderMemoSelect();
             renderBehaviorSelect();
@@ -698,7 +741,24 @@
             window.scrollTo(0,0);
         }
 
-        // --- 1. الدوام (الغياب افتراضي) ---
+        // --- 1. الدوام والدرس ---
+        function loadDailyLesson() {
+            const data = drafts[activeDateStr]?.lesson || { title:'', homework:'' };
+            document.getElementById('lessonTitle').value = data.title;
+            document.getElementById('lessonHomework').value = data.homework;
+        }
+
+        function saveLesson(isSilent=false) {
+            const title = document.getElementById('lessonTitle').value.trim();
+            const homework = document.getElementById('lessonHomework').value.trim();
+            if(!drafts[activeDateStr]) drafts[activeDateStr] = { attendance:{}, memo:{}, behavior:{} };
+            drafts[activeDateStr].lesson = { title, homework };
+            saveDraftsToLocal();
+            
+            pushToQueue({ action: "save_lesson", lesson: { date: activeDateStr, teacher: currentTeacher, title, homework } });
+            if(isSilent) showAutoSaveIndicator();
+        }
+
         function setStudentFilter(filter) { viewFilter = filter; renderAttendanceList(); }
 
         function renderAttendanceList() {
@@ -724,7 +784,6 @@
             list.forEach((s, idx) => {
                 if(!drafts[activeDateStr].attendance[s.id]) drafts[activeDateStr].attendance[s.id] = 'absent';
                 const state = drafts[activeDateStr].attendance[s.id];
-                
                 const isSaved = s.history.some(h => h.date === activeDateStr && h.type === 'attendance');
                 const savedBadge = isSaved ? `<i class="fas fa-check-circle text-green-500 ml-2 text-sm" title="محفوظ"></i>` : '';
 
@@ -758,43 +817,33 @@
         }
 
         function saveAttendance(isSilent = false) {
-            let savedCount = 0; let records = [];
-            
+            let records = [];
             Object.keys(drafts[activeDateStr].attendance).forEach(idStr => {
                 const id = parseInt(idStr); const s = students.find(x => x.id === id);
                 if(!s) return;
-                
                 const status = drafts[activeDateStr].attendance[id];
                 let newPts = status === 'present' ? POINTS.ATTENDANCE_ON_TIME : (status === 'late' ? POINTS.LATE : POINTS.ABSENT);
                 let statusAr = status === 'present' ? 'حاضر' : (status === 'late' ? 'تأخير' : 'غائب');
                 
                 let existingRecord = s.history.find(h => h.date === activeDateStr && h.type === 'attendance');
                 let diff = 0;
-
                 if (existingRecord) {
-                    diff = newPts - existingRecord.pointsEarned;
-                    s.points += diff;
-                    existingRecord.pointsEarned = newPts;
-                    existingRecord.status = status;
+                    diff = newPts - existingRecord.pointsEarned; s.points += diff;
+                    existingRecord.pointsEarned = newPts; existingRecord.status = status;
                 } else {
-                    diff = newPts;
-                    s.points += diff;
+                    diff = newPts; s.points += diff;
                     s.history.unshift({ date: activeDateStr, type: 'attendance', status: status, pointsEarned: newPts });
                 }
-                
                 if(diff !== 0 || !existingRecord) {
                    records.push({ id: id, date: activeDateStr, diff: diff, recordType: 'attendance', row: [activeDateStr, id, s.name, currentTeacher, statusAr, newPts] });
-                   savedCount++;
                 }
             });
 
-            if(savedCount > 0) {
+            if(records.length > 0) {
                 localStorage.setItem('mosqueStudents', JSON.stringify(students));
                 if(isSilent) showAutoSaveIndicator();
-                
-                renderMemoSelect();
-                renderBehaviorSelect();
-                sendToGoogle("save_attendance", records);
+                renderMemoSelect(); renderBehaviorSelect();
+                pushToQueue({ action: "save_attendance", records: records });
             }
         }
 
@@ -803,19 +852,9 @@
             const select = document.getElementById('memoStudentSelect');
             select.innerHTML = '<option value="">-- اضغطي لاختيار الطالبة للتسميع --</option>';
             const myIds = teachersData[currentTeacher].studentIds;
-            
-            const presentStudents = students.filter(s => {
-                return myIds.includes(s.id) && drafts[activeDateStr] && drafts[activeDateStr].attendance[s.id] !== 'absent';
-            }).sort((a, b) => a.name.localeCompare(b.name, 'ar'));
-
-            if(presentStudents.length === 0) {
-                select.innerHTML = '<option value="">-- لم يتم تسجيل حضور أي طالبة بعد --</option>';
-            } else {
-                presentStudents.forEach(s => {
-                    let isSaved = s.history.some(h => h.date === activeDateStr && h.type === 'memo');
-                    select.innerHTML += `<option value="${s.id}">${s.name}${isSaved ? ' ✅' : ''}</option>`; 
-                });
-            }
+            const presentStudents = students.filter(s => { return myIds.includes(s.id) && drafts[activeDateStr] && drafts[activeDateStr].attendance[s.id] !== 'absent'; }).sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+            if(presentStudents.length === 0) select.innerHTML = '<option value="">-- لم يتم تسجيل حضور أي طالبة بعد --</option>';
+            else presentStudents.forEach(s => { let isSaved = s.history.some(h => h.date === activeDateStr && h.type === 'memo'); select.innerHTML += `<option value="${s.id}">${s.name}${isSaved ? ' ✅' : ''}</option>`; });
         }
 
         function loadMemoForm() {
@@ -823,7 +862,6 @@
             const form = document.getElementById('memoFormArea');
             const prevInfo = document.getElementById('previousMemoInfo');
             if(!sId) { form.classList.add('hide'); prevInfo.classList.add('hide'); return; }
-            
             form.classList.remove('hide');
             const data = drafts[activeDateStr].memo[sId] || { amount:'', stars:0, notes:'', next:'' };
             const s = students.find(x => x.id === sId);
@@ -834,10 +872,9 @@
                document.getElementById('prevMemoAmount').innerText = prevMemo.memo;
                document.getElementById('prevMemoNotes').innerText = prevMemo.notes || 'لا يوجد';
                document.getElementById('prevMemoNext').innerText = prevMemo.next || 'لا يوجد';
+               document.getElementById('prevMemoContent').classList.add('hide'); // مطوي افتراضياً
                prevInfo.classList.remove('hide');
-            } else {
-               prevInfo.classList.add('hide');
-            }
+            } else { prevInfo.classList.add('hide'); }
 
             document.getElementById('memoInputAmount').value = data.amount;
             document.getElementById('memoInputNotes').value = data.notes;
@@ -859,8 +896,7 @@
             if(!drafts[activeDateStr].memo[sId]) drafts[activeDateStr].memo[sId] = { amount:'', stars:0, notes:'', next:'' };
             if(drafts[activeDateStr].memo[sId].stars === rating) drafts[activeDateStr].memo[sId].stars = 0; 
             else drafts[activeDateStr].memo[sId].stars = rating;
-            saveDraftsToLocal(); renderMemoStars(sId);
-            markMemoDirty();
+            saveDraftsToLocal(); renderMemoStars(sId); markMemoDirty();
         }
 
         function saveDrafts() {
@@ -883,14 +919,12 @@
             const sId = parseInt(document.getElementById('memoStudentSelect').value);
             if(!sId) return;
             const s = students.find(x => x.id === sId);
-            
             const data = drafts[activeDateStr].memo[sId] || { amount:'', stars:0, notes:'', next:'' };
             const amount = document.getElementById('memoInputAmount').value.trim();
             const notes = document.getElementById('memoInputNotes').value.trim();
             const next = document.getElementById('memoInputNext').value.trim();
             const stars = data.stars;
 
-            if(!amount && isSilent) return;
             if(!amount) return;
 
             drafts[activeDateStr].memo[sId] = { amount, stars, notes, next }; saveDraftsToLocal();
@@ -900,29 +934,19 @@
             let diff = 0;
 
             if (existingRecord) {
-                diff = pts - existingRecord.pointsEarned;
-                s.points += diff;
-                existingRecord.pointsEarned = pts;
-                existingRecord.memo = amount;
-                existingRecord.notes = notes;
-                existingRecord.next = next;
-                existingRecord.stars = stars;
+                diff = pts - existingRecord.pointsEarned; s.points += diff;
+                existingRecord.pointsEarned = pts; existingRecord.memo = amount; existingRecord.notes = notes; existingRecord.next = next; existingRecord.stars = stars;
             } else {
-                diff = pts;
-                s.points += diff;
+                diff = pts; s.points += diff;
                 s.history.unshift({ date: activeDateStr, type: 'memo', memo: amount, notes: notes, next: next, stars: stars, pointsEarned: pts });
             }
 
             localStorage.setItem('mosqueStudents', JSON.stringify(students));
-            
-            if(isSilent) {
-               showAutoSaveIndicator();
-            }
-            
+            if(isSilent) showAutoSaveIndicator();
             renderMemoSelect(); document.getElementById('memoStudentSelect').value = sId; 
             
             let records = [{ id: s.id, date: activeDateStr, diff: diff, recordType: 'memo', memoText: amount, nextTarget: next, row: [activeDateStr, s.id, s.name, currentTeacher, amount, stars, notes, next, pts] }];
-            sendToGoogle("save_memo", records);
+            pushToQueue({ action: "save_memo", records: records });
         }
 
         // --- 3. السلوك ---
@@ -930,29 +954,17 @@
             const select = document.getElementById('behaviorStudentSelect');
             select.innerHTML = '<option value="">-- اختاري اسم الطالبة للتقييم --</option>';
             const myIds = teachersData[currentTeacher].studentIds;
-            
-            const presentStudents = students.filter(s => {
-                return myIds.includes(s.id) && drafts[activeDateStr] && drafts[activeDateStr].attendance[s.id] !== 'absent';
-            }).sort((a, b) => a.name.localeCompare(b.name, 'ar'));
-
-            if(presentStudents.length === 0) {
-                select.innerHTML = '<option value="">-- لم يتم تسجيل حضور أي طالبة بعد --</option>';
-            } else {
-                presentStudents.forEach(s => { 
-                    let isSaved = s.history.some(h => h.date === activeDateStr && h.type === 'behavior');
-                    select.innerHTML += `<option value="${s.id}">${s.name}${isSaved ? ' ✅' : ''}</option>`; 
-                });
-            }
+            const presentStudents = students.filter(s => { return myIds.includes(s.id) && drafts[activeDateStr] && drafts[activeDateStr].attendance[s.id] !== 'absent'; }).sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+            if(presentStudents.length === 0) select.innerHTML = '<option value="">-- لم يتم تسجيل حضور أي طالبة بعد --</option>';
+            else presentStudents.forEach(s => { let isSaved = s.history.some(h => h.date === activeDateStr && h.type === 'behavior'); select.innerHTML += `<option value="${s.id}">${s.name}${isSaved ? ' ✅' : ''}</option>`; });
         }
 
         function loadBehaviorForm() {
             const sId = parseInt(document.getElementById('behaviorStudentSelect').value);
             const form = document.getElementById('behaviorFormArea');
             if(!sId) { form.classList.add('hide'); return; }
-            
             form.classList.remove('hide');
             const data = drafts[activeDateStr].behavior[sId] || { stars:0, points:0, reason:'' };
-            
             document.getElementById('behaviorInputReason').value = data.reason;
             renderBehaviorStars(sId); updateBehaviorPointsUI(sId);
         }
@@ -971,8 +983,7 @@
             if(!drafts[activeDateStr].behavior[sId]) drafts[activeDateStr].behavior[sId] = { stars:0, points:0, reason:'' };
             if(drafts[activeDateStr].behavior[sId].stars === rating) drafts[activeDateStr].behavior[sId].stars = 0;
             else drafts[activeDateStr].behavior[sId].stars = rating;
-            saveDraftsToLocal(); renderBehaviorStars(sId);
-            markBehaviorDirty();
+            saveDraftsToLocal(); renderBehaviorStars(sId); markBehaviorDirty();
         }
 
         function changePoints(val) {
@@ -980,8 +991,7 @@
             if(!sId) return;
             if(!drafts[activeDateStr].behavior[sId]) drafts[activeDateStr].behavior[sId] = { stars:0, points:0, reason:'' };
             drafts[activeDateStr].behavior[sId].points += val;
-            saveDraftsToLocal(); updateBehaviorPointsUI(sId);
-            markBehaviorDirty();
+            saveDraftsToLocal(); updateBehaviorPointsUI(sId); markBehaviorDirty();
         }
 
         function updateBehaviorPointsUI(sId) {
@@ -998,47 +1008,128 @@
             if(!sId) return;
             const s = students.find(x => x.id === sId);
             const data = drafts[activeDateStr].behavior[sId] || { stars:0, points:0, reason:'' };
-            
             const reason = document.getElementById('behaviorInputReason').value.trim();
             drafts[activeDateStr].behavior[sId].reason = reason; saveDraftsToLocal();
 
             let totalPts = data.stars + data.points; 
-
             let existingRecord = s.history.find(h => h.date === activeDateStr && h.type === 'behavior');
             let diff = 0;
 
             if (existingRecord) {
-                diff = totalPts - existingRecord.pointsEarned;
-                s.points += diff;
-                existingRecord.pointsEarned = totalPts;
-                existingRecord.reason = reason; 
-                existingRecord.stars = data.stars;
-                existingRecord.extraPoints = data.points;
+                diff = totalPts - existingRecord.pointsEarned; s.points += diff;
+                existingRecord.pointsEarned = totalPts; existingRecord.reason = reason; existingRecord.stars = data.stars; existingRecord.extraPoints = data.points;
             } else {
-                diff = totalPts;
-                s.points += diff;
+                diff = totalPts; s.points += diff;
                 s.history.unshift({ date: activeDateStr, type: 'behavior', pointsEarned: totalPts, reason: reason, stars: data.stars, extraPoints: data.points });
             }
 
             localStorage.setItem('mosqueStudents', JSON.stringify(students));
-            
-            if(isSilent) {
-               showAutoSaveIndicator();
-               updateReasonsDatalist();
-            }
-            
+            if(isSilent) { showAutoSaveIndicator(); updateReasonsDatalist(); }
             renderBehaviorSelect(); document.getElementById('behaviorStudentSelect').value = sId;
             
             let records = [{ id: s.id, date: activeDateStr, diff: diff, recordType: 'behavior', row: [activeDateStr, s.id, s.name, currentTeacher, data.stars, data.points, reason, totalPts] }];
-            sendToGoogle("save_behavior", records);
+            pushToQueue({ action: "save_behavior", records: records });
+        }
+
+        // --- 4. لوحة التميز ---
+        function renderLeaderboard() {
+            let groupIds = [];
+            if (currentTeacher && teachersData[currentTeacher]) groupIds = teachersData[currentTeacher].studentIds;
+            else if (currentParentViewStudent) {
+                let parentTeacher = null;
+                for (const tName in teachersData) {
+                    if (teachersData[tName].studentIds.includes(currentParentViewStudent.id)) { parentTeacher = tName; break; }
+                }
+                groupIds = parentTeacher ? teachersData[parentTeacher].studentIds : students.map(s=>s.id);
+            }
+            
+            let pool = students.filter(s => groupIds.includes(s.id)); 
+            const sorted = pool.sort((a, b) => b.points - a.points);
+            
+            if(currentTeacher) {
+                const el = document.getElementById('topThreeContainer'); el.innerHTML = '';
+                if (sorted.length >= 3) {
+                    el.innerHTML = `
+                        <div class="flex flex-col items-center justify-end order-2 w-1/3 h-full pb-0 relative">
+                            <div class="bg-white text-gray-800 text-sm font-bold px-3 py-1 rounded-full mb-3 shadow-md whitespace-nowrap z-30">${sorted[1].name}</div>
+                            <div class="podium-2 w-full h-[60%] rounded-t-[2rem] shadow-lg flex items-center justify-start pt-6 flex-col relative z-10"><span class="text-white font-black text-2xl drop-shadow-md">2</span><span class="text-gray-800 font-black text-xl mt-2 bg-white/50 px-3 rounded-full">${sorted[1].points}</span></div>
+                        </div>
+                        <div class="flex flex-col items-center justify-end order-1 z-30 w-1/3 h-full pb-0 mb-6 relative">
+                            <i class="fas fa-crown text-white text-5xl mb-2 drop-shadow-[0_4px_10px_rgba(212,175,55,1)] z-40 relative -bottom-2"></i>
+                            <div class="bg-mosque-gold text-white text-base md:text-lg font-black px-4 py-1.5 rounded-full mb-3 shadow-xl whitespace-nowrap z-30">${sorted[0].name}</div>
+                            <div class="podium-1 w-full h-[80%] rounded-t-[2rem] shadow-2xl flex items-center justify-start pt-8 flex-col relative z-10"><span class="text-white font-black text-4xl drop-shadow-lg">1</span><span class="text-yellow-900 font-black text-2xl mt-3 bg-white/50 px-4 rounded-full">${sorted[0].points}</span></div>
+                        </div>
+                        <div class="flex flex-col items-center justify-end order-3 w-1/3 h-full pb-0 relative">
+                            <div class="bg-white text-gray-800 text-sm font-bold px-3 py-1 rounded-full mb-3 shadow-md whitespace-nowrap z-30">${sorted[2].name}</div>
+                            <div class="podium-3 w-full h-[50%] rounded-t-[2rem] shadow-lg flex items-center justify-start pt-5 flex-col relative z-10"><span class="text-white font-black text-2xl drop-shadow-md">3</span><span class="text-orange-900 font-black text-xl mt-2 bg-white/50 px-3 rounded-full">${sorted[2].points}</span></div>
+                        </div>`;
+                }
+                const tbody = document.getElementById('leaderboardTableBody'); tbody.innerHTML = '';
+                sorted.forEach((s, i) => {
+                    if(i < 3) return; 
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-gray-50 transition border-b border-gray-50">
+                            <td class="p-4"><span class="inline-block w-8 h-8 text-center leading-8 rounded-full bg-gray-100 text-gray-500 text-sm font-black">${i + 1}</span></td>
+                            <td class="p-4 font-black text-gray-800 text-lg">${s.name}</td>
+                            <td class="p-4 text-center"><span class="bg-mosque-gold-light text-yellow-800 py-1.5 px-4 rounded-full font-black border border-yellow-200 text-sm shadow-sm">${s.points}</span></td>
+                        </tr>`;
+                });
+            }
+
+            if(currentParentViewStudent) {
+                const pl = document.getElementById('parentLeaderboardList'); pl.innerHTML = '';
+                sorted.slice(0, 5).forEach((s, i) => {
+                    let medal = i===0?'<i class="fas fa-medal text-yellow-500 text-2xl"></i>':(i===1?'<i class="fas fa-medal text-gray-400 text-2xl"></i>':(i===2?'<i class="fas fa-medal text-orange-400 text-2xl"></i>':`<span class="text-gray-400 font-black text-lg ml-2">${i+1}</span>`));
+                    let highlight = s.name === currentParentViewStudent.name ? 'bg-mosque-gold-light border-mosque-gold shadow-md' : 'bg-gray-50 border-transparent';
+                    pl.innerHTML += `
+                        <div class="flex justify-between items-center p-4 rounded-2xl border-2 ${highlight} mb-2">
+                            <div class="flex items-center gap-4">${medal} <span class="font-bold text-gray-800 text-lg">${s.name}</span></div>
+                            <span class="font-black text-xl text-mosque-green">${s.points}</span>
+                        </div>`;
+                });
+            }
+        }
+
+        // --- 5. الإعدادات ---
+        function addNewStudent() {
+            const name = document.getElementById('newStudentName').value.trim();
+            const age = document.getElementById('newStudentAge').value.trim();
+            if (!name) { showMessage("بيانات ناقصة", "اكتبي الاسم الثلاثي للطالبة الجديدة.", true); return; }
+
+            const newId = students.length > 0 ? Math.max(...students.map(s => parseInt(s.id))) + 1 : 1001;
+            const newStudent = { id: newId, name: name, age: age, points: 0, history: [] };
+            
+            students.push(newStudent);
+            if(!teachersData[currentTeacher]) teachersData[currentTeacher] = { studentIds: [] };
+            teachersData[currentTeacher].studentIds.push(newStudent.id);
+            
+            localStorage.setItem('mosqueTeachersData', JSON.stringify(teachersData));
+            localStorage.setItem('mosqueStudents', JSON.stringify(students));
+
+            showToast("تم إضافة الطالبة للمسجد ولحلقتك بنجاح.");
+            
+            pushToQueue({ action: "add_student", student: { id: newId, name: name, age: age } });
+            
+            document.getElementById('newStudentName').value = '';
+            document.getElementById('newStudentAge').value = '';
+            refreshAllViews();
+        }
+
+        function resetAllPoints() {
+            showConfirmDialog("تصفير العداد؟", "هل أنتِ متأكدة من تصفير نقاط جميع الطالبات للبدء من جديد؟ هذا الإجراء لا يمكن التراجع عنه.", () => {
+                students.forEach(s => s.points = 0);
+                localStorage.setItem('mosqueStudents', JSON.stringify(students));
+                pushToQueue({ action: 'reset_points' });
+                showToast("تم تصفير جميع النقاط بنجاح.");
+                refreshAllViews();
+            });
         }
 
         // --- أولياء الأمور ---
         function initParentFlow() {
             let saved = JSON.parse(localStorage.getItem('mosqueParentStudents'));
-            if(saved && saved.length > 0) {
-                currentParentStudentIds = saved; openParentDashboard();
-            } else { filterParentSetupStudents(); }
+            if(saved && saved.length > 0) { currentParentStudentIds = saved; openParentDashboard(); } 
+            else { filterParentSetupStudents(); }
         }
 
         let currentParentStudentIds = [];
@@ -1099,68 +1190,77 @@
 
             const hList = document.getElementById('parentHistoryList');
             hList.innerHTML = '';
+            
+            let parentTeacher = null;
+            for (const tName in teachersData) {
+                if (teachersData[tName].studentIds.includes(currentParentViewStudent.id)) { parentTeacher = tName; break; }
+            }
+
             if (s.history.length === 0) {
                 hList.innerHTML = `<div class="p-10 bg-white/50 rounded-3xl border-2 border-white text-gray-500 font-bold text-center shadow-sm">لم يتم تسجيل أداء بعد.</div>`;
             } else {
+                const groupedHistory = {};
                 s.history.forEach(record => {
-                    let ptsClass = record.pointsEarned > 0 ? "text-green-600 bg-green-50 border-green-100" : (record.pointsEarned < 0 ? "text-red-600 bg-red-50 border-red-100" : "text-gray-500 bg-gray-50 border-gray-100");
-                    let ptsSign = record.pointsEarned > 0 ? "+" : "";
+                    if(!groupedHistory[record.date]) groupedHistory[record.date] = { points:0, att:null, memo:null, behavior:null };
+                    groupedHistory[record.date].points += record.pointsEarned;
+                    if(record.type === 'attendance') groupedHistory[record.date].att = record;
+                    if(record.type === 'memo') groupedHistory[record.date].memo = record;
+                    if(record.type === 'behavior') groupedHistory[record.date].behavior = record;
+                });
+
+                Object.keys(groupedHistory).forEach(date => {
+                    const day = groupedHistory[date];
+                    let ptsClass = day.points > 0 ? "text-green-600 bg-green-50 border-green-100" : (day.points < 0 ? "text-red-600 bg-red-50 border-red-100" : "text-gray-500 bg-gray-50 border-gray-100");
+                    let ptsSign = day.points > 0 ? "+" : "";
                     
-                    if(record.type === 'memo') {
-                        let starsHtml = '';
-                        for(let i=0; i<record.stars; i++) starsHtml += '<i class="fas fa-star text-mosque-gold text-sm"></i>';
-                        
-                        hList.innerHTML += `
-                            <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 mb-4 relative overflow-hidden group">
-                                <div class="absolute right-0 top-0 w-2 h-full bg-mosque-gold"></div>
-                                <div class="flex justify-between items-center mb-4 pl-2 pr-4 border-b pb-3">
-                                    <span class="text-sm font-bold text-gray-400"><i class="far fa-calendar-alt ml-1"></i> ${record.date}</span>
-                                    <span class="${ptsClass} border px-3 py-1 rounded-xl text-xl font-black shadow-sm" dir="ltr">${ptsSign}${record.pointsEarned}</span>
-                                </div>
-                                <div class="pr-4 space-y-2">
-                                    <div class="font-bold text-mosque-green bg-green-50 p-3 rounded-xl border border-green-100">
-                                        <div class="text-xs text-green-700 mb-1">الحفظ المنجز:</div>
-                                        <span class="text-gray-800 text-lg">${record.memo}</span> ${starsHtml}
-                                    </div>
-                                    <div class="font-bold text-red-600 bg-red-50 p-3 rounded-xl border border-red-100">
-                                        <div class="text-xs text-red-700 mb-1">الأخطاء والملاحظات:</div>
-                                        <span class="text-gray-800">${record.notes || 'لا يوجد'}</span>
-                                    </div>
-                                    <div class="font-bold text-blue-700 bg-blue-50 p-3 rounded-xl border border-blue-100">
-                                        <div class="text-xs text-blue-700 mb-1">المطلوب للقاء القادم:</div>
-                                        <span class="text-gray-800">${record.next || 'لا يوجد'}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    } else if (record.type === 'attendance') {
-                        let statusAr = record.status === 'present' ? 'حاضر' : (record.status === 'late' ? 'تأخير' : 'غائب');
-                        hList.innerHTML += `
-                            <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 mb-4 relative overflow-hidden group">
-                                <div class="absolute right-0 top-0 w-2 h-full bg-mosque-green opacity-50"></div>
-                                <div class="flex justify-between items-center pl-2 pr-4">
-                                    <div>
-                                       <span class="text-sm font-bold text-gray-400 block mb-1"><i class="far fa-calendar-alt ml-1"></i> ${record.date}</span>
-                                       <span class="font-bold text-gray-800 text-lg">الدوام: ${statusAr}</span>
-                                    </div>
-                                    <span class="${ptsClass} border px-3 py-1 rounded-xl text-xl font-black shadow-sm" dir="ltr">${ptsSign}${record.pointsEarned}</span>
-                                </div>
-                            </div>
-                        `;
-                    } else {
-                         hList.innerHTML += `
-                            <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 mb-4 relative overflow-hidden group">
-                                <div class="absolute right-0 top-0 w-2 h-full bg-blue-500 opacity-50"></div>
-                                <div class="flex justify-between items-center pl-2 pr-4">
-                                    <div>
-                                       <span class="text-sm font-bold text-gray-400 block mb-1"><i class="far fa-calendar-alt ml-1"></i> ${record.date}</span>
-                                       <span class="font-bold text-gray-800 text-lg">سلوك: ${record.reason || 'إضافي/خصم'}</span>
-                                    </div>
-                                    <span class="${ptsClass} border px-3 py-1 rounded-xl text-xl font-black shadow-sm" dir="ltr">${ptsSign}${record.pointsEarned}</span>
-                                </div>
-                            </div>
-                        `;
+                    let lessonHtml = '';
+                    if (parentTeacher && mosqueLessons[date] && mosqueLessons[date][parentTeacher]) {
+                        const lesson = mosqueLessons[date][parentTeacher];
+                        if(lesson.title || lesson.homework) {
+                            lessonHtml = `
+                            <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 mb-3">
+                                <div class="font-black text-blue-800 text-sm mb-1"><i class="fas fa-chalkboard text-blue-500 ml-1"></i> درس اليوم: <span class="font-bold text-gray-700">${lesson.title || '-'}</span></div>
+                                <div class="font-black text-blue-800 text-sm"><i class="fas fa-tasks text-blue-500 ml-1"></i> المطلوب الجماعي: <span class="font-bold text-gray-700">${lesson.homework || '-'}</span></div>
+                            </div>`;
+                        }
                     }
+
+                    let detailsHtml = '';
+                    if(day.att) {
+                        let statusAr = day.att.status === 'present' ? 'حاضرة' : (day.att.status === 'late' ? 'متأخرة' : 'غائبة');
+                        let attColor = day.att.status === 'present' ? 'text-green-600' : 'text-red-600';
+                        detailsHtml += `<div class="mb-2 font-bold text-gray-700 text-sm"><i class="far fa-clock text-gray-400 ml-1"></i> الدوام: <span class="${attColor}">${statusAr}</span></div>`;
+                    }
+                    if(day.memo) {
+                        let starsHtml = ''; for(let i=0; i<day.memo.stars; i++) starsHtml += '<i class="fas fa-star text-mosque-gold text-xs"></i>';
+                        detailsHtml += `
+                            <div class="font-bold text-mosque-green bg-green-50/50 p-2 rounded-lg border border-green-100 mb-2">
+                                <div class="text-xs text-green-700 mb-1">الحفظ المنجز:</div><span class="text-gray-800 text-base">${day.memo.memo}</span> ${starsHtml}
+                            </div>
+                            <div class="font-bold text-red-600 bg-red-50/50 p-2 rounded-lg border border-red-100 mb-2">
+                                <div class="text-xs text-red-700 mb-1">الأخطاء والملاحظات:</div><span class="text-gray-800 text-sm">${day.memo.notes || 'لا يوجد'}</span>
+                            </div>
+                            <div class="font-bold text-blue-700 bg-blue-50/50 p-2 rounded-lg border border-blue-100 mb-2">
+                                <div class="text-xs text-blue-700 mb-1">المطلوب للقاء القادم:</div><span class="text-gray-800 text-sm">${day.memo.next || 'لا يوجد'}</span>
+                            </div>`;
+                    }
+                    if(day.behavior) {
+                        detailsHtml += `<div class="font-bold text-gray-600 bg-gray-50 p-2 rounded-lg border border-gray-100 text-sm"><i class="far fa-star text-mosque-gold ml-1"></i> تقييم سلوك: ${day.behavior.reason || 'إضافي/خصم'}</div>`;
+                    }
+
+                    hList.innerHTML += `
+                        <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 mb-4 relative overflow-hidden group">
+                            <div class="absolute right-0 top-0 w-2 h-full bg-mosque-green opacity-50"></div>
+                            <div class="flex justify-between items-center mb-3 pl-2 pr-4 border-b pb-3">
+                                <span class="text-sm font-bold text-gray-400"><i class="far fa-calendar-alt ml-1"></i> ${date}</span>
+                                <span class="${ptsClass} border px-3 py-1 rounded-xl text-xl font-black shadow-sm" dir="ltr">${ptsSign}${day.points}</span>
+                            </div>
+                            <div class="pr-3">
+                                ${lessonHtml}
+                                ${detailsHtml}
+                            </div>
+                        </div>
+                    `;
                 });
             }
             renderLeaderboard(); 
@@ -1172,69 +1272,20 @@
             const noteData = { date: new Date().toLocaleDateString('ar-EG', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}), studentId: currentParentViewStudent.id, studentName: currentParentViewStudent.name, text: text };
             parentNotesList.push(noteData);
             localStorage.setItem('mosqueParentNotes', JSON.stringify(parentNotesList));
-            if (GOOGLE_SCRIPT_URL) fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: "add_parent_note", note: noteData }) });
+            pushToQueue({ action: "add_parent_note", note: noteData });
             document.getElementById('parentNoteText').value = '';
             document.getElementById('parentNoteArea').classList.add('hide');
             showToast("تم إرسال الملاحظة للمعلمة بنجاح!");
         }
 
-        // --- لوحة التميز (الشرف) ---
-        function renderLeaderboard() {
-            let groupIds = [];
-            if (currentTeacher && teachersData[currentTeacher]) groupIds = teachersData[currentTeacher].studentIds;
-            else if (currentParentViewStudent) {
-                let parentTeacher = null;
-                for (const tName in teachersData) {
-                    if (teachersData[tName].studentIds.includes(currentParentViewStudent.id)) { parentTeacher = tName; break; }
-                }
-                groupIds = parentTeacher ? teachersData[parentTeacher].studentIds : students.map(s=>s.id);
-            }
-            
-            let pool = students.filter(s => groupIds.includes(s.id)); 
-            const sorted = pool.sort((a, b) => b.points - a.points);
-            
-            if(currentTeacher) {
-                const el = document.getElementById('topThreeContainer'); el.innerHTML = '';
-                if (sorted.length >= 3) {
-                    el.innerHTML = `
-                        <div class="flex flex-col items-center justify-end order-2 w-1/3 h-full pb-0 relative">
-                            <div class="bg-white text-gray-800 text-sm font-bold px-3 py-1 rounded-full mb-3 shadow-md whitespace-nowrap z-30">${sorted[1].name}</div>
-                            <div class="podium-2 w-full h-[60%] rounded-t-[2rem] shadow-lg flex items-center justify-start pt-6 flex-col relative z-10"><span class="text-white font-black text-2xl drop-shadow-md">2</span><span class="text-gray-800 font-black text-xl mt-2 bg-white/50 px-3 rounded-full">${sorted[1].points}</span></div>
-                        </div>
-                        <div class="flex flex-col items-center justify-end order-1 z-30 w-1/3 h-full pb-0 mb-6 relative">
-                            <i class="fas fa-crown text-white text-5xl mb-2 drop-shadow-[0_4px_10px_rgba(212,175,55,1)] z-40 relative -bottom-2"></i>
-                            <div class="bg-mosque-gold text-white text-base md:text-lg font-black px-4 py-1.5 rounded-full mb-3 shadow-xl whitespace-nowrap z-30">${sorted[0].name}</div>
-                            <div class="podium-1 w-full h-[80%] rounded-t-[2rem] shadow-2xl flex items-center justify-start pt-8 flex-col relative z-10"><span class="text-white font-black text-4xl drop-shadow-lg">1</span><span class="text-yellow-900 font-black text-2xl mt-3 bg-white/50 px-4 rounded-full">${sorted[0].points}</span></div>
-                        </div>
-                        <div class="flex flex-col items-center justify-end order-3 w-1/3 h-full pb-0 relative">
-                            <div class="bg-white text-gray-800 text-sm font-bold px-3 py-1 rounded-full mb-3 shadow-md whitespace-nowrap z-30">${sorted[2].name}</div>
-                            <div class="podium-3 w-full h-[50%] rounded-t-[2rem] shadow-lg flex items-center justify-start pt-5 flex-col relative z-10"><span class="text-white font-black text-2xl drop-shadow-md">3</span><span class="text-orange-900 font-black text-xl mt-2 bg-white/50 px-3 rounded-full">${sorted[2].points}</span></div>
-                        </div>`;
-                }
-                const tbody = document.getElementById('leaderboardTableBody'); tbody.innerHTML = '';
-                sorted.forEach((s, i) => {
-                    if(i < 3) return; 
-                    tbody.innerHTML += `
-                        <tr class="hover:bg-gray-50 transition border-b border-gray-50">
-                            <td class="p-4"><span class="inline-block w-8 h-8 text-center leading-8 rounded-full bg-gray-100 text-gray-500 text-sm font-black">${i + 1}</span></td>
-                            <td class="p-4 font-black text-gray-800 text-lg">${s.name}</td>
-                            <td class="p-4 text-center"><span class="bg-mosque-gold-light text-yellow-800 py-1.5 px-4 rounded-full font-black border border-yellow-200 text-sm shadow-sm">${s.points}</span></td>
-                        </tr>`;
-                });
-            }
-
-            if(currentParentViewStudent) {
-                const pl = document.getElementById('parentLeaderboardList'); pl.innerHTML = '';
-                sorted.slice(0, 5).forEach((s, i) => {
-                    let medal = i===0?'<i class="fas fa-medal text-yellow-500 text-2xl"></i>':(i===1?'<i class="fas fa-medal text-gray-400 text-2xl"></i>':(i===2?'<i class="fas fa-medal text-orange-400 text-2xl"></i>':`<span class="text-gray-400 font-black text-lg ml-2">${i+1}</span>`));
-                    let highlight = s.name === currentParentViewStudent.name ? 'bg-mosque-gold-light border-mosque-gold shadow-md' : 'bg-gray-50 border-transparent';
-                    pl.innerHTML += `
-                        <div class="flex justify-between items-center p-4 rounded-2xl border-2 ${highlight} mb-2">
-                            <div class="flex items-center gap-4">${medal} <span class="font-bold text-gray-800 text-lg">${s.name}</span></div>
-                            <span class="font-black text-xl text-mosque-green">${s.points}</span>
-                        </div>`;
-                });
-            }
+        function logout() {
+            document.getElementById('teacherDashboard').classList.add('hide');
+            document.getElementById('teacherSetupScreen').classList.add('hide');
+            document.getElementById('topDateBar').classList.add('hide');
+            document.getElementById('loginScreen').classList.remove('hide');
+            document.getElementById('teacherSelectName').value = '';
+            currentTeacher = null;
+            window.scrollTo(0,0);
         }
     </script>
 </body>
