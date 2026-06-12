@@ -27,17 +27,10 @@
     </script>
     <style>
         .hide { display: none !important; }
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
         
-        /* إخفاء شريط التمرير للتبويبات مع بقاء القدرة على السحب */
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #0f5132; }
-
+        ::-webkit-scrollbar { display: none; } /* إخفاء شريط التمرير بالكامل لجمالية أفضل على الجوال */
+        
         @keyframes slideIn {
             from { transform: translateY(100%); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
@@ -54,43 +47,41 @@
         .star-rating i { transition: color 0.2s, transform 0.1s; }
         .star-rating i:active { transform: scale(0.8); }
 
-        /* شاشة التحميل */
         .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #d4af37;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            border: 4px solid #f3f3f3; border-top: 4px solid #d4af37;
+            border-radius: 50%; width: 40px; height: 40px;
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* CSS السحري للتحكم بظهور الأقسام حسب التبويب النشط */
+        /* التحكم بظهور الأقسام حسب التبويب النشط */
         .mode-attendance .sec-memo, .mode-attendance .sec-behavior { display: none !important; }
         .mode-memo .sec-attendance, .mode-memo .sec-behavior { display: none !important; }
         .mode-behavior .sec-attendance, .mode-behavior .sec-memo { display: none !important; }
+        
+        /* تنسيق شريط التنقل السفلي */
+        .nav-btn.active { color: #0f5132; }
+        .nav-btn.active i { transform: translateY(-2px); color: #d4af37; }
+        .nav-btn i { transition: all 0.3s ease; }
     </style>
 </head>
-<body class="text-gray-800 antialiased selection:bg-mosque-gold selection:text-white">
+<body class="text-gray-800 antialiased selection:bg-mosque-gold selection:text-white pb-24">
 
-    <!-- شاشة التحميل للمزامنة -->
-    <div id="loadingOverlay" class="hide fixed inset-0 z-[200] flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm">
+    <!-- شاشة التحميل -->
+    <div id="loadingOverlay" class="hide fixed inset-0 z-[200] flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm">
         <div class="loader mb-4"></div>
         <p class="text-mosque-green font-bold text-lg animate-pulse">جاري مزامنة السجلات...</p>
     </div>
 
-    <!-- نافذة الرسائل المخصصة -->
-    <div id="customModalBox" class="hide fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity">
+    <!-- نافذة الرسائل (Modal) -->
+    <div id="customModalBox" class="hide fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 modal-animate border-t-4 border-mosque-gold text-center relative overflow-hidden">
             <div id="modalIcon" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 bg-gray-100 text-gray-500 text-3xl">
                 <i class="fas fa-info-circle"></i>
             </div>
             <h3 id="modalTitle" class="text-2xl font-black text-gray-800 mb-3">تنبيه</h3>
-            <p id="modalMessage" class="text-gray-600 mb-8 text-base font-medium"></p>
-            
-            <div id="modalButtons" class="flex gap-4 justify-center">
-                <!-- الأزرار ستضاف عبر الجافاسكربت -->
-            </div>
+            <p id="modalMessage" class="text-gray-600 mb-8 text-base font-medium leading-relaxed"></p>
+            <div id="modalButtons" class="flex gap-4 justify-center"></div>
         </div>
     </div>
 
@@ -103,34 +94,17 @@
 
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 relative z-10 border-t-4 border-mosque-gold">
             <div class="text-center mb-8">
-                <!-- مكان الشعار (اللوجو) الرئيسي -->
                 <img src="logo2.png" alt="شعار مسجد حسين الخطاب" class="w-32 h-32 object-contain mx-auto mb-4 drop-shadow-xl" onerror="this.outerHTML='<div class=\'w-24 h-24 bg-mosque-green text-mosque-gold rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg\'><i class=\'fas fa-book-quran text-4xl\'></i></div>'">
-                
                 <h1 class="text-3xl font-black text-mosque-green">مسجد حسين الخطاب</h1>
-                <p class="text-gray-500 mt-2 font-bold">نظام المتابعة للحلقات القرآنية</p>
-            </div>
-
-            <div id="loginOptions" class="space-y-4">
-                <button onclick="showTeacherLogin()" class="w-full flex items-center justify-center gap-3 bg-mosque-green hover:bg-green-900 text-white p-4 rounded-xl font-bold text-lg transition duration-300 shadow-md">
-                    <i class="fas fa-chalkboard-teacher text-2xl text-mosque-gold"></i>
-                    دخول الإدارة والمعلمات
-                </button>
-                <button onclick="showParentLogin()" class="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-50 text-mosque-green border-2 border-mosque-gold p-4 rounded-xl font-bold text-lg transition duration-300 shadow-sm">
-                    <i class="fas fa-home text-2xl"></i>
-                    دخول أولياء الأمور
-                </button>
+                <p id="loginSubtitle" class="text-gray-500 mt-2 font-bold bg-gray-100 py-1 px-4 rounded-full inline-block">بوابة الإدارة والمعلمات</p>
             </div>
 
             <!-- تسجيل دخول المعلمة -->
-            <div id="teacherPinArea" class="hide mt-6 animate-fade-in">
-                <button onclick="backToLoginOptions()" class="text-gray-500 hover:text-gray-800 mb-6 font-bold flex items-center gap-2">
-                    <i class="fas fa-arrow-right"></i> رجوع
-                </button>
-                
+            <div id="teacherPinArea" class="animate-fade-in">
                 <label class="block font-black text-mosque-green mb-2">اسم المعلمة</label>
                 <div class="relative mb-6">
                     <select id="teacherSelectName" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-mosque-gold outline-none bg-gray-50 text-gray-800 font-bold text-lg appearance-none">
-                        <option value="">-- اختاري اسمك --</option>
+                        <option value="">-- اضغطي لاختيار اسمك --</option>
                         <option value="آ.نهى">آ.نهى</option>
                         <option value="آ.منال">آ.منال</option>
                         <option value="آ.سدرة">آ.سدرة</option>
@@ -145,24 +119,22 @@
                 <label class="block font-black text-mosque-green mb-2">الرمز السري</label>
                 <div class="relative">
                     <i class="fas fa-lock absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></i>
-                    <input type="password" id="teacherPin" placeholder="أدخل الرمز (1234)" class="w-full p-4 pr-12 border-2 border-gray-200 rounded-xl focus:border-mosque-gold outline-none text-center text-2xl tracking-widest bg-gray-50 font-bold">
+                    <input type="password" id="teacherPin" placeholder="أدخلي الرمز (1234)" class="w-full p-4 pr-12 border-2 border-gray-200 rounded-xl focus:border-mosque-gold outline-none text-center text-2xl tracking-widest bg-gray-50 font-bold">
                 </div>
-                <button onclick="loginTeacher()" class="w-full mt-8 bg-mosque-gold hover:bg-yellow-600 text-mosque-green p-4 rounded-xl font-black text-lg shadow-md transition">
-                    متابعة
+                <button onclick="loginTeacher()" class="w-full mt-8 bg-mosque-gold hover:bg-yellow-600 text-mosque-green p-4 rounded-xl font-black text-lg shadow-md transition transform hover:-translate-y-1">
+                    دخول للمعسكر
                 </button>
             </div>
 
-            <!-- تسجيل دخول ولي الأمر -->
-            <div id="parentLoginArea" class="hide mt-6 animate-fade-in">
-                <button onclick="backToLoginOptions()" class="text-gray-500 hover:text-gray-800 mb-6 font-bold flex items-center gap-2">
-                    <i class="fas fa-arrow-right"></i> رجوع
-                </button>
-                <label class="block font-black text-mosque-green mb-2">اسم الطالبة الثلاثي</label>
+            <!-- تسجيل دخول ولي الأمر (مخفي افتراضياً، يظهر فقط عبر الرابط الخاص) -->
+            <div id="parentLoginArea" class="hide animate-fade-in">
+                <label class="block font-black text-mosque-green mb-2 text-center">أهلاً بك ولي الأمر الكريم</label>
+                <p class="text-sm text-gray-500 text-center mb-6 font-bold">الرجاء إدخال اسم ابنتك الثلاثي لمتابعة سجلها ومكافآتها.</p>
                 <div class="relative">
                     <i class="fas fa-search absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></i>
-                    <input type="text" id="parentStudentName" placeholder="ابحث عن اسم ابنتك..." class="w-full p-4 pr-12 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-lg">
+                    <input type="text" id="parentStudentName" placeholder="اكتب اسم الطالبة هنا..." class="w-full p-4 pr-12 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-lg">
                 </div>
-                <button onclick="loginParent()" class="w-full mt-8 bg-mosque-green hover:bg-green-900 text-white p-4 rounded-xl font-black text-lg shadow-md transition">
+                <button onclick="loginParent()" class="w-full mt-8 bg-mosque-green hover:bg-green-900 text-white p-4 rounded-xl font-black text-lg shadow-md transition transform hover:-translate-y-1">
                     متابعة السجل
                 </button>
             </div>
@@ -173,7 +145,7 @@
     <div id="teacherSetupScreen" class="hide min-h-screen bg-gray-50 p-4 pb-20">
         <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-8 mt-10 border-t-4 border-mosque-gold">
             <h2 class="text-3xl font-black text-mosque-green mb-3"><i class="fas fa-cog text-mosque-gold"></i> إعداد حلقة جديدة</h2>
-            <p class="text-gray-500 text-base font-bold mb-8">مرحباً بكِ <span id="setupTeacherName" class="font-black text-mosque-green"></span>. يرجى تحديد اسم حلقتك واختيار طالباتك لمرة واحدة.</p>
+            <p class="text-gray-500 text-base font-bold mb-8">مرحباً بكِ <span id="setupTeacherName" class="font-black text-mosque-green"></span>. حددي اسم حلقتك وطالباتك لمرة واحدة فقط.</p>
             
             <div class="mb-8">
                 <label class="block font-black text-gray-800 mb-3 text-lg">اسم الحلقة (مثال: حلقة عائشة رضي الله عنها)</label>
@@ -181,10 +153,8 @@
             </div>
 
             <div class="mb-8">
-                <label class="block font-black text-gray-800 mb-3 text-lg">حددي طالباتك من قاعدة البيانات</label>
-                <div class="bg-gray-50 p-4 rounded-xl border-2 border-gray-200 h-72 overflow-y-auto space-y-3" id="setupStudentList">
-                    <!-- سيتم التوليد هنا -->
-                </div>
+                <label class="block font-black text-gray-800 mb-3 text-lg">حددي طالباتك (ضعي علامة صح بجانب أسماءهن)</label>
+                <div class="bg-gray-50 p-4 rounded-xl border-2 border-gray-200 h-72 overflow-y-auto space-y-3" id="setupStudentList"></div>
             </div>
 
             <button onclick="saveTeacherSetup()" class="w-full bg-mosque-green text-white font-black text-xl p-5 rounded-xl shadow-md hover:bg-green-900 transition">
@@ -196,55 +166,23 @@
     <!-- بوابة المعلمات (اللوحة الإدارية) -->
     <div id="teacherDashboard" class="hide min-h-screen bg-gray-50 pb-32">
         
-        <header class="bg-mosque-green text-white p-4 shadow-lg sticky top-0 z-50 rounded-b-2xl border-b-4 border-mosque-gold">
+        <header class="bg-mosque-green text-white p-4 shadow-md sticky top-0 z-40 rounded-b-3xl border-b-4 border-mosque-gold">
             <div class="max-w-4xl mx-auto flex justify-between items-center">
                 <div class="flex items-center gap-4">
-                    <!-- اللوجو المصغر -->
                     <img src="logo2.png" alt="شعار المسجد" class="w-14 h-14 object-contain bg-white rounded-full p-1 shadow-inner" onerror="this.outerHTML='<div class=\'w-12 h-12 bg-white text-mosque-green rounded-full flex items-center justify-center font-bold shadow-inner\'><i class=\'fas fa-book-open text-xl\'></i></div>'">
                     <div>
                         <h2 id="headerTeacherName" class="font-black text-xl">بوابة المعلمات</h2>
                         <p id="headerGroupName" class="text-sm text-mosque-gold-light opacity-90 font-bold">اسم الحلقة</p>
                     </div>
                 </div>
-                <button onclick="logout()" class="text-white hover:text-red-300 transition text-sm font-bold flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl">
-                    <i class="fas fa-sign-out-alt"></i> خروج
-                </button>
             </div>
         </header>
 
-        <main class="max-w-4xl mx-auto p-4 mt-6">
+        <main class="max-w-4xl mx-auto p-4 mt-4">
             
-            <!-- شريط التبويبات الجديد (كبير وواضح وقابل للسحب) -->
-            <div class="flex overflow-x-auto bg-white rounded-2xl shadow-sm border-2 border-gray-100 p-2 mb-6 hide-scrollbar gap-2">
-                <button id="tab-attendance" onclick="switchMainTab('attendance')" class="tab-btn flex-1 min-w-[100px] py-3 px-2 text-center font-black text-mosque-green border-b-4 border-mosque-gold rounded-xl bg-mosque-green/5 transition text-lg">
-                    <i class="fas fa-clock block text-xl mb-1"></i> الدوام
-                </button>
-                <button id="tab-memo" onclick="switchMainTab('memo')" class="tab-btn flex-1 min-w-[100px] py-3 px-2 text-center font-bold text-gray-400 border-b-4 border-transparent hover:bg-gray-50 rounded-xl transition text-lg">
-                    <i class="fas fa-book-open block text-xl mb-1"></i> التسميع
-                </button>
-                <button id="tab-behavior" onclick="switchMainTab('behavior')" class="tab-btn flex-1 min-w-[100px] py-3 px-2 text-center font-bold text-gray-400 border-b-4 border-transparent hover:bg-gray-50 rounded-xl transition text-lg">
-                    <i class="fas fa-star block text-xl mb-1"></i> النقاط
-                </button>
-                <button id="tab-leaderboard" onclick="switchMainTab('leaderboard')" class="tab-btn flex-1 min-w-[100px] py-3 px-2 text-center font-bold text-gray-400 border-b-4 border-transparent hover:bg-gray-50 rounded-xl transition text-lg">
-                    <i class="fas fa-trophy block text-xl mb-1"></i> الشرف
-                </button>
-                <button id="tab-settings" onclick="switchMainTab('settings')" class="tab-btn flex-1 min-w-[100px] py-3 px-2 text-center font-bold text-gray-400 border-b-4 border-transparent hover:bg-gray-50 rounded-xl transition text-lg">
-                    <i class="fas fa-cog block text-xl mb-1"></i> الإعدادات
-                </button>
-            </div>
-
-            <!-- ==========================================
-                 حاوية السجلات اليومية (تتغير داخلياً حسب التبويب)
-                 ========================================== -->
+            <!-- حاوية السجلات اليومية (الدوام، التسميع، النقاط) -->
             <div id="view-daily-records" class="tab-content mode-attendance animate-fade-in">
                 
-                <!-- رسالة مساعدة -->
-                <div class="bg-blue-50 text-blue-800 p-4 rounded-xl mb-6 font-bold text-sm border border-blue-100 flex items-start gap-3">
-                    <i class="fas fa-lightbulb text-xl text-blue-500 mt-0.5"></i>
-                    <p>يمكنك التنقل بين تبويبات (الدوام، التسميع، النقاط) وتعبئتها، ثم الضغط على الزر الأخضر بالأسفل مرة واحدة لحفظ كل التحديثات.</p>
-                </div>
-
-                <!-- تبديل العرض (طالباتي / الجميع) -->
                 <div class="flex justify-center mb-6">
                     <div class="bg-gray-200 p-1.5 rounded-full flex text-base font-black shadow-inner w-full md:w-auto">
                         <button id="filterMyGroupBtn" onclick="setStudentFilter('myGroup')" class="flex-1 px-8 py-3 rounded-full bg-white text-mosque-green shadow-md transition border border-gray-200">طالبات حلقتي</button>
@@ -252,7 +190,6 @@
                     </div>
                 </div>
 
-                <!-- أداة الحفظ الجماعي (تظهر في تبويب التسميع فقط) -->
                 <div id="bulkMemoBox" class="hide bg-white p-5 rounded-2xl shadow-sm border-2 border-mosque-gold/40 mb-6 relative overflow-hidden">
                     <div class="absolute top-0 right-0 w-2 h-full bg-mosque-gold"></div>
                     <h3 class="font-black text-xl text-mosque-green mb-4 flex items-center gap-2"><i class="fas fa-bolt text-mosque-gold"></i> الإدخال السريع للتسميع</h3>
@@ -272,130 +209,122 @@
                     <span class="text-sm font-bold text-gray-600 bg-gray-200 px-4 py-2 rounded-full"><span id="studentCount">0</span> طالبة</span>
                 </div>
 
-                <!-- القائمة الأساسية للطالبات -->
-                <div id="studentListContainer" class="space-y-4 mb-6">
-                    <!-- التوليد بواسطة الجافاسكربت -->
-                </div>
-
-                <!-- زر الحفظ العائم -->
-                <div class="fixed bottom-0 left-0 w-full z-40 bg-white/90 backdrop-blur p-4 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] border-t-4 border-mosque-green">
-                    <div class="max-w-4xl mx-auto">
-                        <button onclick="saveAllDailyRecords()" class="w-full bg-mosque-green hover:bg-green-900 text-white text-xl font-black p-5 rounded-2xl shadow-xl transition flex justify-center items-center gap-3 transform hover:-translate-y-1">
-                            <i class="fas fa-save text-mosque-gold text-2xl"></i>
-                            حفظ جميع السجلات وإرسالها
-                        </button>
-                    </div>
-                </div>
+                <div id="studentListContainer" class="space-y-4 mb-6"></div>
             </div>
 
-            <!-- ==========================================
-                 لوحة الشرف 
-                 ========================================== -->
+            <!-- لوحة الشرف -->
             <div id="view-leaderboard" class="tab-content hide animate-fade-in">
-                <div class="text-center mb-4 text-gray-500 font-bold">
-                    * يتم عرض طالبات حلقتك فقط لتسهيل التكريم الأسبوعي.
-                </div>
-                <div class="bg-gradient-to-br from-mosque-green to-green-900 rounded-[2rem] p-8 shadow-2xl mb-8 text-white relative overflow-hidden border-4 border-mosque-gold">
+                <div class="bg-gradient-to-br from-mosque-green to-green-900 rounded-[2rem] p-8 shadow-2xl mb-8 text-white relative overflow-hidden border-4 border-mosque-gold mt-4">
                     <div class="absolute top-0 right-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] opacity-10"></div>
                     <h2 class="text-center font-black text-3xl text-mosque-gold mb-12 relative z-10 drop-shadow-md"><i class="fas fa-star"></i> نجـوم الحلقـة <i class="fas fa-star"></i></h2>
-                    
-                    <div id="topThreeContainer" class="flex justify-center items-end gap-3 md:gap-8 relative z-10 h-56">
-                        <!-- التوليد هنا -->
-                    </div>
+                    <div id="topThreeContainer" class="flex justify-center items-end gap-3 md:gap-8 relative z-10 h-56"></div>
                 </div>
-
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                     <table class="w-full text-right">
                         <thead class="bg-gray-100 text-gray-600 text-base border-b-2 border-gray-200">
                             <tr>
-                                <th class="p-5 font-black w-20 text-center">المركز</th>
+                                <th class="p-5 font-black w-20 text-center">م</th>
                                 <th class="p-5 font-black">اسم الطالبة</th>
                                 <th class="p-5 font-black text-center">النقاط</th>
                             </tr>
                         </thead>
-                        <tbody id="leaderboardTableBody" class="divide-y divide-gray-100 text-lg">
-                            <!-- التوليد هنا -->
-                        </tbody>
+                        <tbody id="leaderboardTableBody" class="divide-y divide-gray-100 text-lg"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- ==========================================
-                 الإعدادات
-                 ========================================== -->
-            <div id="view-settings" class="tab-content hide animate-fade-in space-y-6">
+            <!-- الإعدادات -->
+            <div id="view-settings" class="tab-content hide animate-fade-in space-y-6 mt-4">
                 
+                <!-- الرابط الخاص بالأهالي (الجديد والمهم) -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm border-2 border-mosque-gold/40 mb-8 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-2 h-full bg-mosque-gold"></div>
+                    <h3 class="font-black text-mosque-green text-xl mb-3"><i class="fas fa-link text-mosque-gold mr-2"></i> رابط أولياء الأمور (مستقل)</h3>
+                    <p class="text-base font-bold text-gray-500 mb-6">انسخي هذا الرابط وأرسليه للأهالي ليدخلوا إلى بوابة المتابعة الخاصة بهم مباشرة بدون رؤية شاشة دخول المعلمات.</p>
+                    <button onclick="copyParentLink()" class="w-full bg-gray-50 hover:bg-gray-100 text-gray-800 font-black text-lg p-4 rounded-xl transition border-2 border-gray-300 flex justify-center items-center gap-3">
+                        <i class="fas fa-copy text-xl"></i> نسخ رابط الأهالي
+                    </button>
+                </div>
+
                 <div class="bg-white p-6 rounded-2xl shadow-sm border-2 border-gray-100">
-                    <div class="flex justify-between items-center mb-4 border-b pb-3">
-                        <h3 class="font-black text-mosque-green text-xl"><i class="fas fa-sync-alt text-mosque-gold mr-2"></i> مزامنة البيانات</h3>
-                    </div>
-                    <p class="text-base font-bold text-gray-500 mb-6">اضغطي هنا لجلب أحدث الأسماء والنقاط من الإدارة (جوجل شيت).</p>
+                    <h3 class="font-black text-mosque-green text-xl mb-4 border-b pb-3"><i class="fas fa-sync-alt text-mosque-gold mr-2"></i> مزامنة البيانات</h3>
                     <button onclick="syncWithDatabase()" class="w-full bg-mosque-gold text-mosque-green hover:bg-yellow-600 font-black text-lg p-4 rounded-xl transition shadow-md flex justify-center items-center gap-3">
                         <i class="fas fa-cloud-download-alt text-2xl"></i> مزامنة الآن
                     </button>
                 </div>
 
                 <div class="bg-white p-6 rounded-2xl shadow-sm border-2 border-gray-100">
-                    <h3 class="font-black text-mosque-green text-xl mb-4 border-b pb-3"><i class="fas fa-users-cog text-mosque-gold mr-2"></i> تعديل طالبات حلقتي</h3>
-                    <p class="text-base font-bold text-gray-500 mb-6">في حال انضمام طالبة جديدة لحلقتك، يمكنك إعادة التحديد.</p>
+                    <h3 class="font-black text-mosque-green text-xl mb-4 border-b pb-3"><i class="fas fa-users-cog text-mosque-gold mr-2"></i> طالبات حلقتي</h3>
                     <button onclick="openSetupScreen()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-black text-lg p-4 rounded-xl transition border-2 border-gray-300">
                         إعادة تحديد طالبات الحلقة
                     </button>
                 </div>
 
                 <div class="bg-white p-6 rounded-2xl shadow-sm border-2 border-gray-100">
-                    <h3 class="font-black text-mosque-green text-xl mb-4 border-b pb-3"><i class="fas fa-user-plus text-mosque-gold mr-2"></i> تسجيل طالبة جديدة للمسجد</h3>
-                    <div class="mb-4">
-                        <label class="block text-base font-bold text-gray-700 mb-2">اسم الطالبة الثلاثي</label>
-                        <input type="text" id="newStudentName" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-lg">
-                    </div>
+                    <h3 class="font-black text-mosque-green text-xl mb-4 border-b pb-3"><i class="fas fa-user-plus text-mosque-gold mr-2"></i> تسجيل طالبة جديدة</h3>
+                    <input type="text" id="newStudentName" placeholder="الاسم الثلاثي..." class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-lg mb-4">
                     <button onclick="addNewStudent()" class="w-full bg-mosque-green text-mosque-gold-light hover:bg-green-900 font-black text-lg p-4 rounded-xl transition shadow-md">
                         إضافة لقاعدة البيانات
                     </button>
                 </div>
 
-                <div class="bg-white p-6 rounded-2xl shadow-sm border-2 border-gray-100 mb-8">
-                    <h3 class="font-black text-mosque-green text-xl mb-4 border-b pb-3"><i class="fas fa-plus-circle text-mosque-gold mr-2"></i> إضافة معايير نقاط إضافية</h3>
-                    <div class="flex flex-col md:flex-row gap-4">
-                        <div class="flex-1">
-                            <input type="text" id="customPointName" placeholder="مثال: إحضار دفتر المتابعة" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-lg">
-                        </div>
-                        <div class="w-full md:w-32">
-                            <input type="number" id="customPointValue" placeholder="النقاط" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 text-center font-bold text-lg">
-                        </div>
-                        <button onclick="addCustomPointCategory()" class="bg-mosque-light text-white font-black text-lg p-4 rounded-xl hover:bg-green-700 transition">
-                            إضافة
-                        </button>
-                    </div>
-                    <div id="customCategoriesList" class="mt-6 space-y-3">
-                        <!-- التوليد هنا -->
-                    </div>
-                </div>
-            </div>
-
-        </main>
-    </div>
-
-    <!-- بوابة أولياء الأمور -->
-    <div id="parentDashboard" class="hide min-h-screen bg-mosque-gold-light pb-20 relative">
-        <div class="absolute top-0 w-full h-40 bg-mosque-green rounded-b-[40px] shadow-md z-0"></div>
-        
-        <div class="max-w-md mx-auto p-4 relative z-10 pt-8">
-            <div class="flex justify-between items-start text-white mb-8">
-                <div>
-                    <h2 class="text-sm text-mosque-gold opacity-90 mb-1 font-bold">مرحباً بولي أمر الطالبة:</h2>
-                    <h1 id="parentStudentTitle" class="text-3xl font-black">الاسم هنا</h1>
-                </div>
-                <button onclick="logout()" class="w-12 h-12 bg-white/10 hover:bg-red-500/80 rounded-full flex items-center justify-center transition shadow-sm border border-white/20 text-xl">
-                    <i class="fas fa-times"></i>
+                <button onclick="logout()" class="w-full bg-red-50 text-red-600 hover:bg-red-100 font-black text-lg p-4 rounded-xl transition border-2 border-red-200 flex justify-center items-center gap-2 mb-8">
+                    <i class="fas fa-sign-out-alt"></i> تسجيل خروج من حسابي
                 </button>
             </div>
 
-            <div class="bg-white rounded-3xl p-8 shadow-xl border-b-4 border-mosque-gold mb-8 text-center relative mt-10">
-                <div class="absolute -top-10 left-1/2 transform -translate-x-1/2 w-20 h-20 bg-mosque-gold rounded-full flex items-center justify-center text-white text-3xl shadow-lg border-4 border-white">
+        </main>
+        
+        <!-- زر الحفظ العائم (يظهر فقط في شاشات الإدخال) -->
+        <div id="floatingSaveBtn" class="fixed bottom-24 left-0 w-full z-40 px-4 transition-transform duration-300 transform translate-y-0">
+            <div class="max-w-4xl mx-auto">
+                <button onclick="saveAllDailyRecords()" class="w-full bg-mosque-green hover:bg-green-900 text-white text-xl font-black p-4 rounded-2xl shadow-[0_10px_20px_rgba(15,81,50,0.4)] transition flex justify-center items-center gap-3 border-2 border-mosque-gold">
+                    <i class="fas fa-save text-mosque-gold text-2xl"></i>
+                    تأكيد وحفظ الإدخالات
+                </button>
+            </div>
+        </div>
+
+        <!-- شريط التنقل السفلي (Bottom Navigation) الأسهل استخداماً -->
+        <nav class="fixed bottom-0 w-full bg-white shadow-[0_-5px_15px_rgba(0,0,0,0.08)] border-t border-gray-100 flex justify-around items-center h-20 pb-safe z-50">
+            <button onclick="switchMainTab('attendance')" id="nav-attendance" class="nav-btn active flex flex-col items-center justify-center w-full h-full text-gray-400 font-bold">
+                <i class="fas fa-clock text-2xl mb-1"></i>
+                <span class="text-xs">الدوام</span>
+            </button>
+            <button onclick="switchMainTab('memo')" id="nav-memo" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 font-bold">
+                <i class="fas fa-book-open text-2xl mb-1"></i>
+                <span class="text-xs">التسميع</span>
+            </button>
+            <button onclick="switchMainTab('behavior')" id="nav-behavior" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 font-bold">
+                <i class="fas fa-star text-2xl mb-1"></i>
+                <span class="text-xs">النقاط</span>
+            </button>
+            <button onclick="switchMainTab('leaderboard')" id="nav-leaderboard" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 font-bold">
+                <i class="fas fa-trophy text-2xl mb-1"></i>
+                <span class="text-xs">الشرف</span>
+            </button>
+            <button onclick="switchMainTab('settings')" id="nav-settings" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 font-bold">
+                <i class="fas fa-cog text-2xl mb-1"></i>
+                <span class="text-xs">المزيد</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- بوابة أولياء الأمور (مستقلة تماماً) -->
+    <div id="parentDashboard" class="hide min-h-screen bg-mosque-gold-light pb-20 relative">
+        <div class="absolute top-0 w-full h-48 bg-mosque-green rounded-b-[40px] shadow-md z-0"></div>
+        
+        <div class="max-w-md mx-auto p-4 relative z-10 pt-10">
+            <div class="text-center text-white mb-10">
+                <h2 class="text-base text-mosque-gold opacity-90 mb-2 font-bold">مرحباً بولي أمر الطالبة:</h2>
+                <h1 id="parentStudentTitle" class="text-3xl font-black">الاسم هنا</h1>
+            </div>
+
+            <div class="bg-white rounded-3xl p-8 shadow-xl border-b-4 border-mosque-gold mb-8 text-center relative mt-12">
+                <div class="absolute -top-12 left-1/2 transform -translate-x-1/2 w-24 h-24 bg-mosque-gold rounded-full flex items-center justify-center text-white text-4xl shadow-lg border-4 border-white">
                     <i class="fas fa-medal"></i>
                 </div>
-                <h3 class="text-gray-500 text-base font-bold mt-8 mb-3">الرصيد التراكمي للنقاط</h3>
+                <h3 class="text-gray-500 text-lg font-bold mt-10 mb-3">الرصيد التراكمي للنقاط</h3>
                 <div class="text-6xl font-black text-mosque-green flex items-center justify-center gap-2">
                     <span id="parentStudentPoints">0</span>
                     <i class="fas fa-star text-mosque-gold text-4xl"></i>
@@ -404,6 +333,10 @@
 
             <h3 class="font-black text-xl text-mosque-green mb-5 ml-2"><i class="fas fa-history text-mosque-gold"></i> سجل المتابعة الأخير</h3>
             <div id="parentHistoryList" class="space-y-4"></div>
+            
+            <button onclick="logoutParent()" class="w-full mt-8 bg-white text-gray-600 hover:bg-gray-50 font-black text-lg p-4 rounded-xl shadow-sm border border-gray-200 transition">
+                <i class="fas fa-arrow-right ml-2"></i> العودة لشاشة البحث
+            </button>
         </div>
     </div>
 
@@ -415,7 +348,43 @@
 
     <script>
         // === رابط جوجل شيت ===
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_CFbHGARSjL2bNsC6rqCg3cJblMQHGyXHVNd6Ih_Z8-l-s822QcoQJK9_sb5qheF1/exec";
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxGbZ5ikgwPDD7pa_yLCZai6eo9qyaNbEhaamnYu9FN_VxLx1UuQEEGp5TPtjXgv1zq/exec";
+        
+        // --- توجيه الروابط (أهم تحديث للرابط المنفصل) ---
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const role = urlParams.get('role');
+            
+            // إذا كان الرابط يحتوي على ?role=parent سيفتح شاشة الأهالي فقط و يخفي خيارات المعلمة
+            if(role === 'parent') {
+                document.getElementById('teacherPinArea').classList.add('hide');
+                document.getElementById('parentLoginArea').classList.remove('hide');
+                document.getElementById('loginSubtitle').innerText = "بوابة أولياء الأمور والمتابعة";
+            } else {
+                document.getElementById('parentLoginArea').classList.add('hide');
+                document.getElementById('teacherPinArea').classList.remove('hide');
+                document.getElementById('loginSubtitle').innerText = "بوابة الإدارة والمعلمات";
+            }
+        };
+
+        function copyParentLink() {
+            // الحصول على الرابط الأساسي وإضافة كود الأهالي له
+            const baseUrl = window.location.href.split('?')[0];
+            const parentUrl = baseUrl + '?role=parent';
+            
+            navigator.clipboard.writeText(parentUrl).then(() => {
+                showToast("تم نسخ رابط الأهالي! يمكنك الآن لصقه وإرساله لهم.");
+            }).catch(err => {
+                // طريقة بديلة في حال فشل النسخ التلقائي
+                const dummy = document.createElement('input');
+                document.body.appendChild(dummy);
+                dummy.value = parentUrl;
+                dummy.select();
+                document.execCommand('copy');
+                document.body.removeChild(dummy);
+                showToast("تم نسخ الرابط بنجاح.");
+            });
+        }
         
         // البيانات الأولية
         const initialNames = [
@@ -431,10 +400,7 @@
 
         let storedData = JSON.parse(localStorage.getItem('mosqueStudents'));
         let students = storedData || initialNames.map((name, index) => ({
-            id: index + 1001,
-            name: name,
-            points: 0,
-            history: [] 
+            id: index + 1001, name: name, points: 0, history: [] 
         }));
 
         let customCategories = [
@@ -450,29 +416,24 @@
         let currentParentViewStudent = null;
         let teachersData = JSON.parse(localStorage.getItem('mosqueTeachersData')) || {};
 
-        // === دوال المساعدة ===
+        // === دوال المساعدة والنوافذ ===
         function closeModalBox() { document.getElementById('customModalBox').classList.add('hide'); }
 
         function showMessage(title, message, isError = false) {
             const modal = document.getElementById('customModalBox');
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalMessage').innerText = message;
-            
             const icon = document.getElementById('modalIcon');
             if(isError) {
                 icon.innerHTML = '<i class="fas fa-exclamation-triangle text-red-500"></i>';
                 icon.className = "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 bg-red-50 text-4xl";
-                document.getElementById('modalTitle').classList.add('text-red-600');
+                document.getElementById('modalTitle').className = 'text-2xl font-black text-red-600 mb-3';
             } else {
                 icon.innerHTML = '<i class="fas fa-check text-mosque-green"></i>';
                 icon.className = "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 bg-green-50 text-4xl";
-                document.getElementById('modalTitle').classList.remove('text-red-600');
-                document.getElementById('modalTitle').classList.add('text-mosque-green');
+                document.getElementById('modalTitle').className = 'text-2xl font-black text-mosque-green mb-3';
             }
-
-            const btns = document.getElementById('modalButtons');
-            btns.innerHTML = `<button onclick="closeModalBox()" class="px-8 py-3 bg-mosque-green text-white rounded-xl font-black text-lg shadow hover:bg-green-800 transition">حسناً، فهمت</button>`;
-            
+            document.getElementById('modalButtons').innerHTML = `<button onclick="closeModalBox()" class="px-8 py-3 bg-mosque-green text-white rounded-xl font-black text-lg shadow hover:bg-green-800 transition w-full">حسناً، فهمت</button>`;
             modal.classList.remove('hide');
         }
 
@@ -480,22 +441,14 @@
             const modal = document.getElementById('customModalBox');
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalMessage').innerText = message;
-            
             const icon = document.getElementById('modalIcon');
             icon.innerHTML = '<i class="fas fa-question-circle text-yellow-500"></i>';
             icon.className = "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 bg-yellow-50 text-4xl";
-
-            const btns = document.getElementById('modalButtons');
-            btns.innerHTML = `
+            document.getElementById('modalButtons').innerHTML = `
                 <button id="confirmYesBtn" class="px-6 py-3 bg-mosque-green text-white rounded-xl font-black text-lg shadow hover:bg-green-800 transition flex-1">نعم، أوافق</button>
                 <button onclick="closeModalBox()" class="px-6 py-3 bg-gray-200 text-gray-800 rounded-xl font-black text-lg hover:bg-gray-300 transition flex-1">إلغاء</button>
             `;
-            
-            document.getElementById('confirmYesBtn').onclick = () => {
-                closeModalBox();
-                onConfirmCallback();
-            };
-
+            document.getElementById('confirmYesBtn').onclick = () => { closeModalBox(); onConfirmCallback(); };
             modal.classList.remove('hide');
         }
 
@@ -503,66 +456,40 @@
             const toast = document.getElementById('toast');
             document.getElementById('toastMsg').innerText = message;
             toast.classList.remove('hide');
-            toast.style.animation = 'none';
-            toast.offsetHeight; 
-            toast.style.animation = null;
+            toast.style.animation = 'none'; toast.offsetHeight; toast.style.animation = null;
             setTimeout(() => { toast.classList.add('hide'); }, 4000);
         }
 
         async function syncWithDatabase() {
             if (!GOOGLE_SCRIPT_URL) return;
             document.getElementById('loadingOverlay').classList.remove('hide');
-            
             try {
                 const response = await fetch(GOOGLE_SCRIPT_URL + "?action=get_students");
                 const data = await response.json();
-                
                 if (data && data.length > 0) {
                     data.forEach(dbStudent => {
                         let localStudent = students.find(s => s.id === dbStudent.id);
                         if (localStudent) {
-                            localStudent.name = dbStudent.name;
-                            localStudent.points = dbStudent.points;
+                            localStudent.name = dbStudent.name; localStudent.points = dbStudent.points;
                         } else {
                             students.push({ id: dbStudent.id, name: dbStudent.name, points: dbStudent.points, history: [] });
                         }
                     });
-                    
                     localStorage.setItem('mosqueStudents', JSON.stringify(students));
                     renderStudentList();
-                    if(!document.getElementById('teacherDashboard').classList.contains('hide')) {
-                         renderLeaderboard();
-                    }
+                    if(!document.getElementById('teacherDashboard').classList.contains('hide')) renderLeaderboard();
                     showToast("تمت مزامنة البيانات بنجاح");
                 }
-            } catch (err) {
-                showToast("أنتِ في وضع عدم الاتصال - يتم استخدام البيانات المحلية.");
-            }
+            } catch (err) { showToast("أنتِ في وضع عدم الاتصال - يتم استخدام البيانات المحلية."); }
             document.getElementById('loadingOverlay').classList.add('hide');
         }
 
         // === التنقل وتسجيل الدخول ===
-        function showTeacherLogin() {
-            document.getElementById('loginOptions').classList.add('hide');
-            document.getElementById('teacherPinArea').classList.remove('hide');
-        }
-
-        function showParentLogin() {
-            document.getElementById('loginOptions').classList.add('hide');
-            document.getElementById('parentLoginArea').classList.remove('hide');
-        }
-
-        function backToLoginOptions() {
-            document.getElementById('teacherPinArea').classList.add('hide');
-            document.getElementById('parentLoginArea').classList.add('hide');
-            document.getElementById('loginOptions').classList.remove('hide');
-        }
-
         function loginTeacher() {
             const tName = document.getElementById('teacherSelectName').value;
             const pin = document.getElementById('teacherPin').value;
 
-            if (!tName) { showMessage("تنبيه", "الرجاء اختيار اسم المعلمة أولاً.", true); return; }
+            if (!tName) { showMessage("تنبيه", "الرجاء اختيار اسم المعلمة أولاً من القائمة.", true); return; }
             if (pin !== "1234") { showMessage("خطأ", "الرمز السري غير صحيح. (الرمز للتجربة هو 1234)", true); return; }
 
             currentTeacher = tName;
@@ -572,7 +499,6 @@
             else openTeacherDashboard();
         }
 
-        // === إعداد المعلمة لأول مرة ===
         function openSetupScreen() {
             document.getElementById('teacherDashboard').classList.add('hide');
             document.getElementById('teacherSetupScreen').classList.remove('hide');
@@ -591,7 +517,7 @@
                 const isChecked = myStudentIds.includes(s.id) ? 'checked' : '';
                 listDiv.innerHTML += `
                     <div class="flex items-center gap-4 p-3 bg-white border-2 border-gray-200 rounded-xl hover:border-mosque-gold transition">
-                        <input type="checkbox" id="setup_std_${s.id}" value="${s.id}" class="setup-checkbox w-6 h-6 accent-mosque-green cursor-pointer" ${isChecked}>
+                        <input type="checkbox" id="setup_std_${s.id}" value="${s.id}" class="setup-checkbox w-7 h-7 accent-mosque-green cursor-pointer" ${isChecked}>
                         <label for="setup_std_${s.id}" class="cursor-pointer flex-1 font-bold text-gray-800 text-lg">
                             ${s.name} <span class="text-sm text-gray-400 font-normal ml-2">#${s.id}</span>
                         </label>
@@ -605,26 +531,53 @@
             if(!gName) { showMessage("بيانات مطلوبة", "يرجى كتابة اسم الحلقة لتتمكني من المتابعة.", true); return; }
 
             const selectedIds = Array.from(document.querySelectorAll('.setup-checkbox:checked')).map(cb => parseInt(cb.value));
-            
             if(selectedIds.length === 0) {
-                showConfirmDialog("حلقة فارغة؟", "لم تقومي بتحديد أي طالبة لحلقتك. هل تريدين حفظ الحلقة فارغة؟", () => {
-                    executeSetupSave(gName, selectedIds);
-                });
-            } else {
-                executeSetupSave(gName, selectedIds);
-            }
+                showConfirmDialog("حلقة فارغة؟", "لم تقومي بتحديد أي طالبة لحلقتك. هل تريدين حفظ الحلقة فارغة؟", () => { executeSetupSave(gName, selectedIds); });
+            } else { executeSetupSave(gName, selectedIds); }
         }
 
         function executeSetupSave(gName, selectedIds) {
             teachersData[currentTeacher] = { groupName: gName, studentIds: selectedIds };
             localStorage.setItem('mosqueTeachersData', JSON.stringify(teachersData));
-
             document.getElementById('teacherSetupScreen').classList.add('hide');
             openTeacherDashboard();
             showToast("تم حفظ إعدادات حلقتك بنجاح");
         }
 
-        // === بوابة المعلمة (السجل اليومي) ===
+        // === شريط التنقل السفلي ===
+        function switchMainTab(tabName) {
+            // إخفاء المحتوى
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hide'));
+            
+            // تغيير أيقونات الشريط السفلي
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('active');
+            });
+            const activeBtn = document.getElementById(`nav-${tabName}`);
+            if(activeBtn) activeBtn.classList.add('active');
+            
+            const dailyContainer = document.getElementById('view-daily-records');
+            const floatingSaveBtn = document.getElementById('floatingSaveBtn');
+            const bulkBox = document.getElementById('bulkMemoBox');
+            
+            // إظهار/إخفاء زر الحفظ العائم
+            if (['attendance', 'memo', 'behavior'].includes(tabName)) {
+                floatingSaveBtn.classList.remove('translate-y-40', 'opacity-0');
+                dailyContainer.classList.remove('hide');
+                dailyContainer.classList.remove('mode-attendance', 'mode-memo', 'mode-behavior');
+                dailyContainer.classList.add(`mode-${tabName}`);
+                
+                if (tabName === 'memo') bulkBox.classList.remove('hide');
+                else bulkBox.classList.add('hide');
+            } else {
+                floatingSaveBtn.classList.add('translate-y-40', 'opacity-0');
+                document.getElementById(`view-${tabName}`).classList.remove('hide');
+            }
+            
+            if(tabName === 'leaderboard') renderLeaderboard();
+            window.scrollTo(0,0); // الصعود لأعلى الصفحة عند تبديل التبويب
+        }
+
         function openTeacherDashboard() {
             document.getElementById('teacherSetupScreen').classList.add('hide');
             document.getElementById('teacherDashboard').classList.remove('hide');
@@ -634,47 +587,12 @@
             
             viewFilter = 'myGroup'; 
             updateFilterButtonsUI();
-            renderCustomCategories();
             
             syncWithDatabase().then(() => {
                 renderStudentList();
                 renderLeaderboard();
-                switchMainTab('attendance'); // الافتراضي عند الدخول هو شاشة الدوام
+                switchMainTab('attendance');
             });
-        }
-
-        function switchMainTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hide'));
-            
-            document.querySelectorAll('.tab-btn').forEach(el => {
-                el.classList.remove('text-mosque-green', 'border-mosque-gold', 'bg-mosque-green/5', 'font-black');
-                el.classList.add('text-gray-400', 'border-transparent', 'font-bold');
-            });
-            
-            const activeBtn = document.getElementById(`tab-${tabName}`);
-            if(activeBtn) {
-                activeBtn.classList.remove('text-gray-400', 'border-transparent', 'font-bold');
-                activeBtn.classList.add('text-mosque-green', 'border-mosque-gold', 'bg-mosque-green/5', 'font-black');
-                activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-            }
-            
-            const dailyContainer = document.getElementById('view-daily-records');
-            const bulkBox = document.getElementById('bulkMemoBox');
-            
-            // إدارة التبويبات الثلاثة الأولى التي تتشارك في نفس القائمة
-            if (['attendance', 'memo', 'behavior'].includes(tabName)) {
-                dailyContainer.classList.remove('hide');
-                dailyContainer.classList.remove('mode-attendance', 'mode-memo', 'mode-behavior');
-                dailyContainer.classList.add(`mode-${tabName}`);
-                
-                if (tabName === 'memo') bulkBox.classList.remove('hide');
-                else bulkBox.classList.add('hide');
-                
-            } else {
-                document.getElementById(`view-${tabName}`).classList.remove('hide');
-            }
-            
-            if(tabName === 'leaderboard') renderLeaderboard();
         }
 
         function setStudentFilter(filter) {
@@ -726,7 +644,7 @@
                 card.innerHTML = `
                     <div class="flex items-center justify-between border-b-2 border-gray-50 pb-4 mb-4">
                         <div class="flex items-center gap-4">
-                            <input type="checkbox" class="student-checkbox w-6 h-6 accent-mosque-green cursor-pointer" data-id="${student.id}">
+                            <input type="checkbox" class="student-checkbox w-7 h-7 accent-mosque-green cursor-pointer" data-id="${student.id}">
                             <div>
                                 <h4 class="font-black text-xl text-mosque-green">${student.name} <span class="text-sm text-gray-400 font-bold ml-2">#${student.id}</span></h4>
                             </div>
@@ -736,7 +654,6 @@
                         </div>
                     </div>
                     
-                    <!-- قسم الدوام -->
                     <div class="sec-attendance">
                         <label class="block text-base font-bold text-gray-500 mb-3"><i class="far fa-clock text-mosque-green"></i> حالة الدوام اليوم</label>
                         <select id="attendance_${student.id}" class="w-full p-4 border-2 border-gray-200 rounded-xl bg-gray-50 focus:border-mosque-green outline-none text-xl font-bold text-gray-800 transition">
@@ -746,26 +663,24 @@
                         </select>
                     </div>
                     
-                    <!-- قسم التسميع -->
                     <div class="sec-memo">
                         <label class="block text-base font-bold text-gray-500 mb-3"><i class="fas fa-book-open text-mosque-green"></i> مقدار الحفظ المسمَّع</label>
                         <input type="text" id="memo_${student.id}" class="memo-input w-full p-4 border-2 border-gray-200 rounded-xl bg-gray-50 focus:border-mosque-green outline-none text-xl font-bold text-gray-800 transition mb-4" placeholder="مثال: سورة النبأ 1-10">
                         <div class="flex items-center gap-3 bg-mosque-gold-light/30 p-4 rounded-xl border-2 border-mosque-gold/30 hover:bg-mosque-gold-light transition cursor-pointer">
                             <input type="checkbox" id="memoPerfect_${student.id}" class="w-7 h-7 accent-mosque-gold cursor-pointer">
-                            <label for="memoPerfect_${student.id}" class="text-lg font-black text-mosque-green cursor-pointer select-none flex-1">التسميع ممتاز ومتقن جداً (+10 نقاط)</label>
+                            <label for="memoPerfect_${student.id}" class="text-lg font-black text-mosque-green cursor-pointer select-none flex-1">التسميع متقن جداً (+10 نقاط)</label>
                         </div>
                     </div>
 
-                    <!-- قسم السلوك والنقاط -->
                     <div class="sec-behavior flex flex-col gap-5">
                         <div class="bg-gray-50 p-5 rounded-2xl border-2 border-gray-100">
                             <label class="block text-base font-bold text-gray-500 mb-4 text-center"><i class="far fa-star text-mosque-gold"></i> تقييم السلوك (كل نجمة = نقطة)</label>
                             <div class="star-rating flex flex-row-reverse justify-center gap-4 text-5xl" id="starsContainer_${student.id}">
-                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400 transition-transform hover:scale-110" onclick="setBehaviorRating(${student.id}, 5)"></i>
-                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400 transition-transform hover:scale-110" onclick="setBehaviorRating(${student.id}, 4)"></i>
-                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400 transition-transform hover:scale-110" onclick="setBehaviorRating(${student.id}, 3)"></i>
-                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400 transition-transform hover:scale-110" onclick="setBehaviorRating(${student.id}, 2)"></i>
-                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400 transition-transform hover:scale-110" onclick="setBehaviorRating(${student.id}, 1)"></i>
+                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 5)"></i>
+                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 4)"></i>
+                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 3)"></i>
+                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 2)"></i>
+                                <i class="far fa-star text-gray-300 cursor-pointer hover:text-yellow-400" onclick="setBehaviorRating(${student.id}, 1)"></i>
                             </div>
                         </div>
                         <div>
@@ -789,7 +704,6 @@
             const container = document.getElementById(`starsContainer_${studentId}`);
             if(!container) return;
             const stars = container.querySelectorAll('i');
-            
             stars.forEach((star, index) => {
                 const starValue = 5 - index; 
                 if (starValue <= rating) star.className = "fas fa-star text-mosque-gold cursor-pointer";
@@ -833,7 +747,6 @@
                 const extraPoints = extraPointSelect && extraPointSelect.value ? parseInt(extraPointSelect.value) : 0;
                 const extraPointDesc = extraPointSelect && extraPointSelect.value ? extraPointSelect.options[extraPointSelect.selectedIndex].text : "";
 
-                // نتحقق إذا تم تسجيل أي شيء مفيد
                 if (attendance !== 'absent' || memoText !== '' || behaviorPoints > 0 || extraPoints > 0) {
                     let dailyPoints = 0;
                     let actions = [];
@@ -849,27 +762,17 @@
                     const dateStr = new Date().toLocaleDateString('ar-EG');
                     
                     student.history.unshift({
-                        date: dateStr,
-                        memo: memoText || '-',
-                        pointsEarned: dailyPoints,
-                        details: actions.join('، ')
+                        date: dateStr, memo: memoText || '-', pointsEarned: dailyPoints, details: actions.join('، ')
                     });
 
                     newRecordsToSave.push({
-                        id: student.id,
-                        date: dateStr,
-                        teacher: currentTeacher,
-                        name: student.name,
-                        attendance: attendanceAr,
-                        memo: memoText || '-',
-                        behavior: behaviorPoints + ' نجوم',
-                        pointsEarned: dailyPoints,
-                        details: actions.join('، ')
+                        id: student.id, date: dateStr, teacher: currentTeacher, name: student.name,
+                        attendance: attendanceAr, memo: memoText || '-', behavior: behaviorPoints + ' نجوم',
+                        pointsEarned: dailyPoints, details: actions.join('، ')
                     });
 
                     updateCount++;
 
-                    // تصفير الخانات استعداداً لليوم القادم
                     document.getElementById(`memo_${id}`).value = '';
                     document.getElementById(`memoPerfect_${id}`).checked = false;
                     studentBehaviorRatings[id] = 0; 
@@ -880,21 +783,18 @@
 
             if (updateCount > 0) {
                 localStorage.setItem('mosqueStudents', JSON.stringify(students));
-                
                 showMessage("اكتمل الحفظ بنجاح", `تم تسجيل وتحديث السجلات لـ ${updateCount} طالبة وإضافتها للنظام.`);
                 renderStudentList(); 
 
                 if (GOOGLE_SCRIPT_URL) {
                     fetch(GOOGLE_SCRIPT_URL, {
-                        method: 'POST',
-                        mode: 'no-cors', 
+                        method: 'POST', mode: 'no-cors', 
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ action: "save_records", records: newRecordsToSave })
                     });
                 }
                 
-                document.getElementById('selectAll').checked = false;
-                toggleSelectAll();
+                document.getElementById('selectAll').checked = false; toggleSelectAll();
                 document.getElementById('bulkMemorization').value = '';
             } else {
                 showMessage("لا يوجد بيانات جديدة", "لم يتم إدخال بيانات. يرجى تسجيل حضور أو حفظ أو سلوك لطالبة واحدة على الأقل قبل الحفظ.", true);
@@ -941,7 +841,6 @@
             tbody.innerHTML = '';
             sortedStudents.forEach((student, index) => {
                 if(index < 3) return; 
-                
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-green-50 transition border-b border-gray-100";
                 tr.innerHTML = `
@@ -971,47 +870,12 @@
             
             if (GOOGLE_SCRIPT_URL) {
                 fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: "add_student", student: { id: newId, name: name } })
                 });
             }
-
             document.getElementById('newStudentName').value = '';
             renderStudentList();
-        }
-
-        function addCustomPointCategory() {
-            const name = document.getElementById('customPointName').value.trim();
-            const val = parseInt(document.getElementById('customPointValue').value);
-
-            if (!name || isNaN(val)) {
-                showMessage("خطأ", "يرجى إدخال اسم المعيار وعدد النقاط بشكل صحيح", true);
-                return;
-            }
-
-            customCategories.push({ id: customCategories.length + 1, name: name, points: val });
-            showToast("تمت إضافة المعيار، سيظهر الآن في قائمة النقاط.");
-            
-            document.getElementById('customPointName').value = '';
-            document.getElementById('customPointValue').value = '';
-            
-            renderCustomCategories();
-            renderStudentList(); 
-        }
-
-        function renderCustomCategories() {
-            const list = document.getElementById('customCategoriesList');
-            list.innerHTML = '';
-            customCategories.forEach(c => {
-                list.innerHTML += `
-                    <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl border-2 border-gray-100">
-                        <span class="font-black text-gray-700 text-lg"><i class="fas fa-check text-mosque-green ml-3"></i>${c.name}</span>
-                        <span class="bg-mosque-light text-white px-3 py-1 rounded-lg text-sm font-black shadow-sm">+${c.points}</span>
-                    </div>
-                `;
-            });
         }
 
         // === أولياء الأمور ===
@@ -1057,16 +921,21 @@
             }
         }
 
+        function logoutParent() {
+            document.getElementById('parentDashboard').classList.add('hide');
+            document.getElementById('loginScreen').classList.remove('hide');
+            document.getElementById('parentStudentName').value = '';
+            currentParentViewStudent = null;
+        }
+
         function logout() {
             document.getElementById('teacherDashboard').classList.add('hide');
-            document.getElementById('parentDashboard').classList.add('hide');
             document.getElementById('teacherSetupScreen').classList.add('hide');
             document.getElementById('loginScreen').classList.remove('hide');
             document.getElementById('teacherPin').value = '';
-            document.getElementById('parentStudentName').value = '';
             document.getElementById('teacherSelectName').value = '';
             currentTeacher = null;
-            backToLoginOptions();
+            window.scrollTo(0,0);
         }
     </script>
 </body>
