@@ -65,7 +65,7 @@
 </head>
 <body class="text-gray-800 antialiased">
 
-    <!-- شريط التاريخ الثابت مع التقويم للوصول السريع -->
+    <!-- شريط التاريخ الثابت مع التقويم -->
     <div id="topDateBar" class="hide sticky top-0 z-50 bg-mosque-green text-white text-center py-2.5 shadow-md border-b-2 border-mosque-gold relative">
         <label for="mainDatePicker" class="cursor-pointer flex items-center justify-center gap-2 hover:opacity-80 transition w-full h-full">
             <i class="far fa-calendar-alt text-mosque-gold text-lg"></i> 
@@ -442,7 +442,7 @@
 
     <script>
         // === يرجى وضع رابط جوجل شيت الجديد هنا ===
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwOko8Om_YAIfdmMcAGiWkil-wESsnMaAKBdmFtcPlrOISkLV8JGHT-UYdy3tcev8N7/exec";
+        const GOOGLE_SCRIPT_URL = "";
         
         const initialNames = [
             "أرجوان فخر الدين", "ألمى صبحي", "أوركيد فخر الدين", "إيمان حويان", "تالة حناوي", "تاليا المزي", "تالين معمولي", "جنى سحلول", "جودي زرزور", "جودي سحلول", "جودي سامر سحلول", "جوري عزيزية", "حلا تركماني", "حلا زرزور", "حنين دباسوا", "زينة المقدمي", "سارة أبو لحية", "سارة كلول", "سدرة المقدس", "سدرة عبد الرحمن", "ليلاس السيد", "لمار السيد", "لمار خليفة", "لين صبحي", "ماريا المزي"
@@ -479,27 +479,60 @@
             syncQueue.push(actionData);
             localStorage.setItem('mosqueSyncQueue', JSON.stringify(syncQueue));
             updateConnectionStatus();
-            attemptSync();
+            attemptSync(); // المحاولة فوراً
         }
 
+        // المزامنة الحقيقية ذات الاتجاهين
         async function attemptSync() {
-            if (!navigator.onLine || syncQueue.length === 0 || isSyncing || !GOOGLE_SCRIPT_URL) {
+            if (!navigator.onLine || !GOOGLE_SCRIPT_URL || isSyncing) {
                 updateConnectionStatus(); return;
             }
+            
             isSyncing = true; updateConnectionStatus();
-            try {
-                await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: "sync_queue", queue: syncQueue })
-                });
-                syncQueue = []; localStorage.setItem('mosqueSyncQueue', JSON.stringify(syncQueue));
-            } catch(e) { console.log("Offline or sync error", e); }
+            
+            // 1. إرسال الطابور المحلي أولاً
+            if (syncQueue.length > 0) {
+                try {
+                    await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: "sync_queue", queue: syncQueue })
+                    });
+                    syncQueue = []; localStorage.setItem('mosqueSyncQueue', JSON.stringify(syncQueue));
+                } catch(e) { console.log("Offline or sync error", e); }
+            }
+
+            // 2. جلب البيانات وتحديث الذاكرة (إحلال كامل)
+            if (syncQueue.length === 0) {
+                try {
+                    const response = await fetch(GOOGLE_SCRIPT_URL + "?action=get_data");
+                    const resData = await response.json();
+                    
+                    if (resData.students && resData.students.length > 0) {
+                        students = resData.students; 
+                        localStorage.setItem('mosqueStudents', JSON.stringify(students));
+                    }
+                    if (resData.notes) { 
+                        parentNotesList = resData.notes; 
+                        localStorage.setItem('mosqueParentNotes', JSON.stringify(parentNotesList)); 
+                        updateNotificationBadge(); 
+                    }
+                    if (resData.lessons) { 
+                        mosqueLessons = resData.lessons; 
+                        localStorage.setItem('mosqueLessons', JSON.stringify(mosqueLessons)); 
+                    }
+                    
+                    if(currentTeacher && !document.getElementById('teacherDashboard').classList.contains('hide')) refreshAllViews();
+                    if(currentParentViewStudent && !document.getElementById('parentDashboard').classList.contains('hide')) updateParentDashboardUI();
+                    
+                } catch (err) { console.log(err); }
+            }
+            
             isSyncing = false; updateConnectionStatus();
         }
 
         window.addEventListener('online', attemptSync);
         window.addEventListener('offline', updateConnectionStatus);
-        setInterval(attemptSync, 15000); // محاولة صامتة كل 15 ثانية
+        setInterval(attemptSync, 15000); 
 
         function updateConnectionStatus() {
             const dot = document.getElementById('connectionStatusDot');
@@ -610,29 +643,6 @@
             if(dl) dl.innerHTML = Array.from(reasons).map(r => `<option value="${r}">`).join('');
         }
 
-        async function syncWithDatabase() {
-            if (!GOOGLE_SCRIPT_URL) return;
-            document.getElementById('loadingOverlay').classList.remove('hide');
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL + "?action=get_data");
-                const resData = await response.json();
-                if (resData.students && resData.students.length > 0) {
-                    resData.students.forEach(dbStudent => {
-                        let local = students.find(s => s.id === dbStudent.id);
-                        if (local) { local.name = dbStudent.name; local.points = dbStudent.points; } 
-                        else { students.push({ id: dbStudent.id, name: dbStudent.name, points: dbStudent.points, history: [] }); }
-                    });
-                    localStorage.setItem('mosqueStudents', JSON.stringify(students));
-                }
-                if (resData.notes) { parentNotesList = resData.notes; localStorage.setItem('mosqueParentNotes', JSON.stringify(parentNotesList)); updateNotificationBadge(); }
-                if (resData.lessons) { mosqueLessons = resData.lessons; localStorage.setItem('mosqueLessons', JSON.stringify(mosqueLessons)); }
-                
-                if(currentTeacher) refreshAllViews();
-                showToast("تمت مزامنة البيانات بنجاح");
-            } catch (err) { console.log(err); }
-            document.getElementById('loadingOverlay').classList.add('hide');
-        }
-
         function updateNotificationBadge() {
             const badge = document.getElementById('notifBadge');
             if(!badge) return;
@@ -733,7 +743,8 @@
             document.getElementById('headerGroupName').innerText = teachersData[currentTeacher].groupName;
             
             updateReasonsDatalist(); updateNotificationBadge();
-            syncWithDatabase().then(() => { refreshAllViews(); switchMainTab('attendance'); });
+            refreshAllViews(); switchMainTab('attendance'); 
+            attemptSync(); // مزامنة فورية
         }
 
         function refreshAllViews() {
@@ -841,9 +852,10 @@
                 if (existingRecord) {
                     diff = newPts - existingRecord.pointsEarned; s.points += diff;
                     existingRecord.pointsEarned = newPts; existingRecord.status = status;
+                    existingRecord.details = `سجل حضور: ${statusAr}`;
                 } else {
                     diff = newPts; s.points += diff;
-                    s.history.unshift({ date: activeDateStr, type: 'attendance', status: status, pointsEarned: newPts });
+                    s.history.unshift({ date: activeDateStr, type: 'attendance', status: status, pointsEarned: newPts, details: `سجل حضور: ${statusAr}`, teacher: currentTeacher });
                 }
                 if(diff !== 0 || !existingRecord) {
                    records.push({ id: id, date: activeDateStr, diff: diff, recordType: 'attendance', row: [activeDateStr, id, s.name, currentTeacher, statusAr, newPts] });
@@ -941,15 +953,17 @@
             drafts[activeDateStr].memo[sId] = { amount, stars, notes, next }; saveDraftsToLocal();
 
             let pts = stars * 2; 
+            let details = `تسميع (${stars} نجوم) | أخطاء: ${notes||'لا يوجد'} | المطلوب: ${next||'لا يوجد'}`;
             let existingRecord = s.history.find(h => h.date === activeDateStr && h.type === 'memo');
             let diff = 0;
 
             if (existingRecord) {
                 diff = pts - existingRecord.pointsEarned; s.points += diff;
                 existingRecord.pointsEarned = pts; existingRecord.memo = amount; existingRecord.notes = notes; existingRecord.next = next; existingRecord.stars = stars;
+                existingRecord.details = details;
             } else {
                 diff = pts; s.points += diff;
-                s.history.unshift({ date: activeDateStr, type: 'memo', memo: amount, notes: notes, next: next, stars: stars, pointsEarned: pts });
+                s.history.unshift({ date: activeDateStr, type: 'memo', memo: amount, notes: notes, next: next, stars: stars, pointsEarned: pts, details: details, teacher: currentTeacher });
             }
 
             localStorage.setItem('mosqueStudents', JSON.stringify(students));
@@ -1029,9 +1043,10 @@
             if (existingRecord) {
                 diff = totalPts - existingRecord.pointsEarned; s.points += diff;
                 existingRecord.pointsEarned = totalPts; existingRecord.reason = reason; existingRecord.stars = data.stars; existingRecord.extraPoints = data.points;
+                existingRecord.details = "سلوك: " + reason;
             } else {
                 diff = totalPts; s.points += diff;
-                s.history.unshift({ date: activeDateStr, type: 'behavior', pointsEarned: totalPts, reason: reason, stars: data.stars, extraPoints: data.points });
+                s.history.unshift({ date: activeDateStr, type: 'behavior', pointsEarned: totalPts, reason: reason, stars: data.stars, extraPoints: data.points, details: "سلوك: " + reason, teacher: currentTeacher });
             }
 
             localStorage.setItem('mosqueStudents', JSON.stringify(students));
@@ -1203,20 +1218,35 @@
             hList.innerHTML = '';
             
             let parentTeacher = null;
-            for (const tName in teachersData) {
-                if (teachersData[tName].studentIds.includes(currentParentViewStudent.id)) { parentTeacher = tName; break; }
+            if(s.history && s.history.length > 0) {
+               for(let i=0; i<s.history.length; i++) {
+                 if(s.history[i].teacher) { parentTeacher = s.history[i].teacher; break; }
+               }
             }
 
-            if (s.history.length === 0) {
+            if (!s.history || s.history.length === 0) {
                 hList.innerHTML = `<div class="p-10 bg-white/50 rounded-3xl border-2 border-white text-gray-500 font-bold text-center shadow-sm">لم يتم تسجيل أداء بعد.</div>`;
             } else {
                 const groupedHistory = {};
                 s.history.forEach(record => {
-                    if(!groupedHistory[record.date]) groupedHistory[record.date] = { points:0, att:null, memo:null, behavior:null };
+                    if(!groupedHistory[record.date]) groupedHistory[record.date] = { points:0, acts:[], notes:[], teacher: record.teacher };
                     groupedHistory[record.date].points += record.pointsEarned;
-                    if(record.type === 'attendance') groupedHistory[record.date].att = record;
-                    if(record.type === 'memo') groupedHistory[record.date].memo = record;
-                    if(record.type === 'behavior') groupedHistory[record.date].behavior = record;
+                    
+                    if(record.type === 'attendance') {
+                        let statusAr = record.details.includes('حاضر') ? 'حاضرة' : (record.details.includes('تأخير') ? 'متأخرة' : 'غائبة');
+                        let bgClass = statusAr==='حاضرة'?'bg-green-100 text-green-800':(statusAr==='متأخرة'?'bg-yellow-100 text-yellow-800':'bg-red-100 text-red-800');
+                        groupedHistory[record.date].acts.push(`<span class="${bgClass} px-3 py-1 rounded-lg text-sm font-bold shadow-sm">الدوام: ${statusAr}</span>`);
+                    }
+                    if(record.type === 'memo') {
+                        let starsText = record.details.match(/\((.*?)\)/);
+                        let sText = starsText ? starsText[1] : '';
+                        groupedHistory[record.date].acts.push(`<span class="bg-mosque-gold-light text-yellow-800 border border-yellow-200 px-3 py-1 rounded-lg text-sm font-bold shadow-sm">تسميع: ${record.memo} <span class="text-xs">(${sText})</span></span>`);
+                        if(record.details.includes('أخطاء:')) groupedHistory[record.date].notes.push("ملاحظة التسميع: " + record.details.split('أخطاء:')[1].split('|')[0].trim());
+                        if(record.details.includes('المطلوب:')) groupedHistory[record.date].notes.push("المطلوب القادم: " + record.details.split('المطلوب:')[1].trim());
+                    }
+                    if(record.type === 'behavior') {
+                        groupedHistory[record.date].acts.push(`<span class="bg-blue-50 text-blue-800 border border-blue-100 px-3 py-1 rounded-lg text-sm font-bold shadow-sm">${record.details}</span>`);
+                    }
                 });
 
                 Object.keys(groupedHistory).forEach(date => {
@@ -1225,8 +1255,8 @@
                     let ptsSign = day.points > 0 ? "+" : "";
                     
                     let lessonHtml = '';
-                    if (parentTeacher && mosqueLessons[date] && mosqueLessons[date][parentTeacher]) {
-                        const lesson = mosqueLessons[date][parentTeacher];
+                    if (day.teacher && mosqueLessons[date] && mosqueLessons[date][day.teacher]) {
+                        const lesson = mosqueLessons[date][day.teacher];
                         if(lesson.title || lesson.homework) {
                             lessonHtml = `
                             <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 mb-3">
@@ -1235,40 +1265,20 @@
                             </div>`;
                         }
                     }
-
-                    let detailsHtml = '';
-                    if(day.att) {
-                        let statusAr = day.att.status === 'present' ? 'حاضرة' : (day.att.status === 'late' ? 'متأخرة' : 'غائبة');
-                        let attColor = day.att.status === 'present' ? 'text-green-600' : 'text-red-600';
-                        detailsHtml += `<div class="mb-2 font-bold text-gray-700 text-sm"><i class="far fa-clock text-gray-400 ml-1"></i> الدوام: <span class="${attColor}">${statusAr}</span></div>`;
-                    }
-                    if(day.memo) {
-                        let starsHtml = ''; for(let i=0; i<day.memo.stars; i++) starsHtml += '<i class="fas fa-star text-mosque-gold text-xs"></i>';
-                        detailsHtml += `
-                            <div class="font-bold text-mosque-green bg-green-50/50 p-2 rounded-lg border border-green-100 mb-2">
-                                <div class="text-xs text-green-700 mb-1">الحفظ المنجز:</div><span class="text-gray-800 text-base">${day.memo.memo}</span> ${starsHtml}
-                            </div>
-                            <div class="font-bold text-red-600 bg-red-50/50 p-2 rounded-lg border border-red-100 mb-2">
-                                <div class="text-xs text-red-700 mb-1">الأخطاء والملاحظات:</div><span class="text-gray-800 text-sm">${day.memo.notes || 'لا يوجد'}</span>
-                            </div>
-                            <div class="font-bold text-blue-700 bg-blue-50/50 p-2 rounded-lg border border-blue-100 mb-2">
-                                <div class="text-xs text-blue-700 mb-1">المطلوب للقاء القادم:</div><span class="text-gray-800 text-sm">${day.memo.next || 'لا يوجد'}</span>
-                            </div>`;
-                    }
-                    if(day.behavior) {
-                        detailsHtml += `<div class="font-bold text-gray-600 bg-gray-50 p-2 rounded-lg border border-gray-100 text-sm"><i class="far fa-star text-mosque-gold ml-1"></i> تقييم سلوك: ${day.behavior.reason || 'إضافي/خصم'}</div>`;
-                    }
+                    
+                    let notesHtml = day.notes.length > 0 ? `<div class="bg-gray-50 p-3 rounded-xl mt-3 text-sm font-bold text-gray-700 border border-gray-200"><ul class="list-disc list-inside pr-2 space-y-1">${day.notes.map(n=>`<li>${n}</li>`).join('')}</ul></div>` : '';
 
                     hList.innerHTML += `
                         <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 mb-4 relative overflow-hidden group">
-                            <div class="absolute right-0 top-0 w-2 h-full bg-mosque-green opacity-50"></div>
+                            <div class="absolute right-0 top-0 w-2 h-full bg-mosque-gold opacity-50"></div>
                             <div class="flex justify-between items-center mb-3 pl-2 pr-4 border-b pb-3">
                                 <span class="text-sm font-bold text-gray-400"><i class="far fa-calendar-alt ml-1"></i> ${date}</span>
                                 <span class="${ptsClass} border px-3 py-1 rounded-xl text-xl font-black shadow-sm" dir="ltr">${ptsSign}${day.points}</span>
                             </div>
                             <div class="pr-3">
                                 ${lessonHtml}
-                                ${detailsHtml}
+                                <div class="flex flex-wrap gap-2 mb-2">${day.acts.join('')}</div>
+                                ${notesHtml}
                             </div>
                         </div>
                     `;
@@ -1287,6 +1297,13 @@
             document.getElementById('parentNoteText').value = '';
             document.getElementById('parentNoteArea').classList.add('hide');
             showToast("تم إرسال الملاحظة للمعلمة بنجاح!");
+        }
+
+        function logoutParent() {
+            localStorage.removeItem('mosqueParentStudents');
+            document.getElementById('parentDashboard').classList.add('hide');
+            document.getElementById('loginScreen').classList.remove('hide');
+            currentParentStudentIds = []; currentParentViewStudent = null;
         }
 
         function logout() {
