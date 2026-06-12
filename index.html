@@ -40,7 +40,6 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .animate-fade-in { animation: fadeIn 0.2s ease-out forwards; }
 
-        /* أزرار الحضور التفاعلية */
         .att-btn { transition: all 0.2s; border: 2px solid transparent; }
         .att-btn.active-present { background-color: #10b981; color: white; border-color: #059669; }
         .att-btn.active-late { background-color: #f59e0b; color: white; border-color: #d97706; }
@@ -66,8 +65,8 @@
 <body class="text-gray-800 antialiased">
 
     <!-- شريط التاريخ الثابت مع التقويم -->
-    <div id="topDateBar" class="hide sticky top-0 z-50 bg-mosque-green text-white text-center py-2.5 shadow-md border-b-2 border-mosque-gold relative">
-        <label for="mainDatePicker" class="cursor-pointer flex items-center justify-center gap-2 hover:opacity-80 transition w-full h-full">
+    <div id="topDateBar" class="hide sticky top-0 z-50 bg-mosque-green text-white text-center py-3 shadow-md border-b-2 border-mosque-gold relative">
+        <label for="mainDatePicker" class="cursor-pointer flex items-center justify-center gap-2 hover:opacity-80 transition">
             <i class="far fa-calendar-alt text-mosque-gold text-lg"></i> 
             <span id="currentDateDisplay" class="font-black text-lg font-ruqaa tracking-wide"></span>
             <i class="fas fa-caret-down text-xs opacity-70"></i>
@@ -112,7 +111,6 @@
                 <p id="loginSubtitle" class="text-gray-500 mt-3 font-bold text-sm bg-gray-100 py-1.5 px-5 rounded-full inline-block border border-gray-200">بوابة الإدارة والمعلمات</p>
             </div>
 
-            <!-- بوابة المعلمة -->
             <div id="teacherLoginArea" class="space-y-6">
                 <div>
                     <label class="block font-black text-mosque-green mb-3 text-lg">اختر اسم المعلمة للدخول</label>
@@ -165,7 +163,7 @@
             </div>
 
             <div class="mb-8">
-                <label class="block font-black text-gray-800 mb-3 text-lg">حددي طالبات الحلقة</label>
+                <label class="block font-black text-gray-800 mb-3 text-lg">حددي طالبات الحلقة <span class="text-sm text-gray-400 font-normal">(الطالبات المسجلات في حلقات أخرى لن يظهرن هنا)</span></label>
                 <div class="relative mb-4">
                     <i class="fas fa-search absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></i>
                     <input type="text" id="setupSearchStudent" onkeyup="filterSetupStudents()" placeholder="ابحثي عن اسم الطالبة سريعاً..." class="w-full p-4 pr-14 border-2 border-mosque-gold/50 rounded-2xl focus:border-mosque-gold outline-none bg-mosque-gold-light/30 font-bold text-lg">
@@ -185,9 +183,9 @@
         <div class="max-w-md mx-auto p-4 relative z-10 pt-6">
             
             <div class="flex justify-between items-center mb-6">
-                <div id="parentChildSwitcher" class="flex gap-2 overflow-x-auto hide-scrollbar pb-2 flex-1"></div>
-                <button onclick="logoutParent()" class="bg-white/20 text-white px-4 py-2 rounded-full font-bold text-sm border border-white/30 hover:bg-white/30 transition shadow-sm mr-2 whitespace-nowrap">
-                    تسجيل خروج
+                <div id="parentChildSwitcher" class="flex gap-2 overflow-x-auto hide-scrollbar pb-2"></div>
+                <button onclick="logoutParent()" class="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition flex items-center justify-center border border-white/30 w-10 h-10" title="تسجيل خروج">
+                    <i class="fas fa-sign-out-alt"></i>
                 </button>
             </div>
 
@@ -211,7 +209,7 @@
                 <div id="parentLeaderboardList" class="space-y-3"></div>
             </div>
 
-            <h3 class="font-ruqaa font-bold text-2xl text-mosque-green mb-4 ml-2"><i class="fas fa-history text-mosque-gold ml-2"></i> السجل اليومي الشامل</h3>
+            <h3 class="font-ruqaa font-bold text-2xl text-mosque-green mb-4 ml-2"><i class="fas fa-history text-mosque-gold ml-2"></i> سجل المتابعة التفصيلي</h3>
             <div id="parentHistoryList" class="space-y-4 mb-8"></div>
             
         </div>
@@ -219,25 +217,23 @@
 
     <!-- بوابة المعلمات (الرئيسية) -->
     <div id="teacherDashboard" class="hide min-h-screen bg-gray-50 pb-32 relative">
-        <header class="bg-white p-3 shadow-sm relative z-40 border-b border-gray-200">
+        <header class="bg-white p-4 shadow-sm relative z-40 border-b border-gray-200">
             <div class="max-w-4xl mx-auto flex justify-between items-center pr-2 pl-2">
                 <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center border border-gray-200 overflow-hidden shadow-inner p-1">
-                        <img src="logo2.png" alt="شعار" class="w-10 h-10 object-contain" onerror="this.outerHTML='<i class=\'fas fa-mosque text-mosque-green text-xl\'></i>'">
-                    </div>
+                    <img src="logo2.png" alt="شعار المسجد" class="w-12 h-12 object-contain bg-mosque-green/5 rounded-full p-1 shadow-inner border border-mosque-green/10" onerror="this.outerHTML='<div class=\'w-12 h-12 bg-mosque-green/10 text-mosque-green rounded-full flex items-center justify-center text-xl border border-mosque-green/20\'><i class=\'fas fa-book-open\'></i></div>'">
                     <div>
                         <h2 id="headerTeacherName" class="font-black text-lg text-gray-800"></h2>
-                        <p id="headerGroupName" class="text-xs text-gray-500 font-bold"></p>
+                        <p id="headerGroupName" class="text-sm text-gray-500 font-bold"></p>
                     </div>
                 </div>
                 
-                <div class="flex gap-4 items-center">
+                <div class="flex gap-3 items-center">
                     <!-- مؤشر الاتصال والمزامنة -->
-                    <div id="connectionStatusDot" class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_5px_green] transition-colors" title="حالة الاتصال"></div>
+                    <div id="connectionStatusDot" class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_5px_green] transition-colors" title="حالة الاتصال والمزامنة"></div>
                     
-                    <button onclick="showTeacherNotifications()" class="relative w-10 h-10 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-600 transition border border-gray-200 shadow-sm">
-                        <i class="fas fa-bell text-lg"></i>
-                        <span id="notifBadge" class="hide absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs font-black flex items-center justify-center border-2 border-white shadow-sm">0</span>
+                    <button onclick="showTeacherNotifications()" class="relative w-12 h-12 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-600 transition border border-gray-200 shadow-sm">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span id="notifBadge" class="hide absolute top-0 right-0 w-5 h-5 bg-red-500 text-white rounded-full text-xs font-black flex items-center justify-center border-2 border-white">0</span>
                     </button>
                 </div>
             </div>
@@ -245,80 +241,81 @@
 
         <main class="max-w-4xl mx-auto p-4 mt-2">
 
-            <!-- 1. شاشة الدوام -->
+            <!-- 1. شاشة الدوام والدرس اليومي -->
             <div id="view-attendance" class="tab-content animate-fade-in">
                 
-                <!-- الدرس اليومي والواجب المطوي (للحلقة فقط) -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-5 overflow-hidden">
-                    <button onclick="document.getElementById('lessonContent').classList.toggle('hide')" class="w-full p-4 flex justify-between items-center bg-gray-50 hover:bg-gray-100 transition text-mosque-green font-black text-lg">
-                        <span><i class="fas fa-chalkboard text-mosque-gold ml-2"></i> درس اليوم والواجب (لحلقتي)</span>
-                        <i class="fas fa-chevron-down text-gray-400"></i>
-                    </button>
-                    <div id="lessonContent" class="hide p-4 space-y-3 bg-white">
-                        <input type="text" id="lessonTitle" oninput="markLessonDirty()" placeholder="عنوان الدرس المعطى اليوم (مثال: أحكام النون الساكنة)" class="w-full p-4 border border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-base transition">
-                        <textarea id="lessonHomework" oninput="markLessonDirty()" rows="2" placeholder="المطلوب الجماعي للموعد القادم..." class="w-full p-4 border border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold resize-none text-base transition"></textarea>
+                <!-- الدرس اليومي والواجب -->
+                <div class="bg-white p-5 rounded-3xl shadow-sm border-2 border-gray-100 mb-6 transition-all">
+                    <div class="flex justify-between items-center cursor-pointer mb-2" onclick="document.getElementById('lessonBody').classList.toggle('hide')">
+                        <h3 class="font-black text-mosque-green text-xl"><i class="fas fa-chalkboard text-mosque-gold ml-2"></i> الدرس اليومي والواجب الجماعي</h3>
+                        <i class="fas fa-chevron-down text-mosque-green bg-gray-100 p-2 rounded-full shadow-sm"></i>
+                    </div>
+                    <div id="lessonBody" class="hide mt-4 border-t border-gray-100 pt-4">
+                        <p class="text-sm text-gray-500 mb-3 font-bold">* يُحفظ هذا الدرس ويظهر لطالبات حلقتك فقط.</p>
+                        <input type="text" id="lessonTitle" oninput="markLessonDirty()" placeholder="عنوان الدرس المعطى (مثال: أحكام النون الساكنة)" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold mb-3 text-lg transition">
+                        <textarea id="lessonHomework" oninput="markLessonDirty()" rows="2" placeholder="المطلوب الجماعي للموعد القادم..." class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold resize-none text-lg transition"></textarea>
                     </div>
                 </div>
 
-                <div class="bg-blue-50 border border-blue-100 p-4 rounded-xl mb-5 flex justify-between items-center shadow-sm">
+                <div class="bg-blue-50 border border-blue-100 p-4 rounded-xl mb-6 flex justify-between items-center shadow-sm">
                     <div>
-                        <span class="font-black text-blue-800 text-base block mb-1">الجميع (غائب) افتراضياً</span>
-                        <span class="text-xs text-blue-600 font-bold">حددي فقط الطالبات الحاضرات لتسريع الإنجاز.</span>
+                        <span class="font-black text-blue-800 text-base block mb-1">افتراضياً الجميع (غائب)</span>
+                        <span class="text-sm text-blue-600 font-bold">حددي فقط الحاضرات لتسريع العمل.</span>
                     </div>
-                    <span class="bg-white text-blue-800 font-black px-4 py-2 rounded-lg border border-blue-200 shadow-sm"><span id="studentCount">0</span></span>
+                    <span class="bg-white text-blue-800 font-black px-4 py-2 rounded-lg border border-blue-200 shadow-sm"><span id="studentCount">0</span> طالبة</span>
                 </div>
                 
-                <div class="flex justify-center mb-5">
-                    <div class="bg-gray-200 p-1 rounded-xl flex text-sm font-black shadow-inner w-full">
-                        <button id="filterMyGroupBtn" onclick="setStudentFilter('myGroup')" class="flex-1 py-2.5 rounded-lg bg-white text-mosque-green shadow-sm transition">طالبات حلقتي</button>
-                        <button id="filterAllBtn" onclick="setStudentFilter('all')" class="flex-1 py-2.5 rounded-lg text-gray-500 hover:text-gray-700 transition">الجميع</button>
+                <div class="flex justify-center mb-6">
+                    <div class="bg-gray-200 p-1.5 rounded-full flex text-base font-black shadow-inner w-full md:w-auto">
+                        <button id="filterMyGroupBtn" onclick="setStudentFilter('myGroup')" class="flex-1 px-8 py-3 rounded-full bg-white text-mosque-green shadow-md transition border border-gray-200">طالبات حلقتي</button>
+                        <button id="filterAllBtn" onclick="setStudentFilter('all')" class="flex-1 px-8 py-3 rounded-full text-gray-500 hover:text-gray-700 transition">جميع الطالبات</button>
                     </div>
                 </div>
-                <div id="attendanceListContainer" class="space-y-3 mb-6"></div>
+                <div id="attendanceListContainer" class="space-y-4 mb-6"></div>
             </div>
 
             <!-- 2. شاشة التسميع -->
             <div id="view-memo" class="tab-content hide animate-fade-in">
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-mosque-gold/40 mb-5 relative overflow-visible z-20">
-                    <label class="block font-black text-gray-800 mb-2 text-base">اختاري اسم الطالبة للتسميع:</label>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border-2 border-mosque-gold/30 mb-6 relative overflow-visible z-20">
+                    <label class="block font-black text-gray-800 mb-3 text-lg">اختاري اسم الطالبة للتسميع:</label>
                     <div class="relative">
-                        <select id="memoStudentSelect" onchange="loadMemoForm()" class="w-full p-3 border border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 text-lg font-bold text-mosque-green appearance-none"></select>
-                        <i class="fas fa-chevron-down absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></i>
+                        <select id="memoStudentSelect" onchange="loadMemoForm()" class="w-full p-4 border-2 border-gray-200 rounded-2xl focus:border-mosque-green outline-none bg-gray-50 text-xl font-bold text-mosque-green appearance-none"></select>
+                        <i class="fas fa-chevron-down absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl"></i>
                     </div>
-                    <p class="text-xs text-gray-400 mt-2 font-bold">* تظهر فقط الطالبات الحاضرات اليوم.</p>
+                    <p class="text-sm text-gray-400 mt-3 font-bold">* تظهر هنا فقط الطالبات المسجل حضورهن اليوم.</p>
                 </div>
 
-                <div id="memoFormArea" class="hide bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-5 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-1.5 h-full bg-mosque-green"></div>
+                <div id="memoFormArea" class="hide bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100 space-y-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-2 h-full bg-mosque-green"></div>
                     
                     <!-- المُذكّر الذكي المطوي (Accordion) -->
-                    <div id="previousMemoInfo" class="bg-blue-50 rounded-xl border border-blue-100 mb-4 hide shadow-sm overflow-hidden">
-                        <button onclick="document.getElementById('prevMemoContent').classList.toggle('hide')" class="w-full p-3 flex justify-between items-center text-blue-800 font-black text-base hover:bg-blue-100 transition">
-                            <span><i class="fas fa-history text-blue-500 ml-2"></i> تذكير بتسميعها السابق (<span id="prevMemoDate"></span>)</span>
-                            <i class="fas fa-chevron-down text-blue-500"></i>
-                        </button>
-                        <div id="prevMemoContent" class="hide p-4 bg-white border-t border-blue-100 space-y-2">
-                            <p class="text-sm text-gray-800 bg-gray-50 p-2 rounded-lg border border-gray-100"><strong><i class="fas fa-book-open text-mosque-gold ml-1"></i> حفظت سابقاً:</strong> <span id="prevMemoAmount" class="font-bold"></span></p>
-                            <p class="text-sm text-gray-800 bg-red-50 p-2 rounded-lg border border-red-100"><strong><i class="fas fa-exclamation-triangle text-red-500 ml-1"></i> الأخطاء والملاحظات:</strong> <span id="prevMemoNotes" class="font-bold text-red-700"></span></p>
-                            <p class="text-sm text-gray-800 bg-green-50 p-2 rounded-lg border border-green-100"><strong><i class="fas fa-bullseye text-green-500 ml-1"></i> المطلوب لليوم:</strong> <span id="prevMemoNext" class="font-bold text-green-700"></span></p>
+                    <div id="previousMemoInfo" class="bg-blue-50 p-4 rounded-2xl border-2 border-blue-100 mb-6 hide shadow-sm transition-all">
+                        <div class="flex justify-between items-center cursor-pointer" onclick="document.getElementById('prevMemoContent').classList.toggle('hide')">
+                            <h4 class="font-black text-blue-800 text-lg flex items-center"><i class="fas fa-history text-blue-500 ml-2 text-xl"></i> تذكير بتسميعها السابق (<span id="prevMemoDate"></span>)</h4>
+                            <i class="fas fa-chevron-down text-blue-500 bg-white p-1.5 rounded-full shadow-sm"></i>
+                        </div>
+                        <div id="prevMemoContent" class="hide space-y-3 mt-4 border-t border-blue-200 pt-4">
+                            <p class="text-base text-blue-900 bg-white p-3 rounded-xl shadow-sm border border-blue-100"><strong><i class="fas fa-book-open text-mosque-gold ml-1"></i> حفظت سابقاً:</strong> <span id="prevMemoAmount" class="font-bold"></span></p>
+                            <p class="text-base text-blue-900 bg-red-50 p-3 rounded-xl shadow-sm border border-red-100"><strong><i class="fas fa-exclamation-triangle text-red-500 ml-1"></i> الأخطاء والملاحظات:</strong> <span id="prevMemoNotes" class="font-bold text-red-700"></span></p>
+                            <p class="text-base text-blue-900 bg-green-50 p-3 rounded-xl shadow-sm border border-green-100"><strong><i class="fas fa-bullseye text-green-500 ml-1"></i> المطلوب لليوم:</strong> <span id="prevMemoNext" class="font-bold text-green-700"></span></p>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block font-black text-gray-800 mb-2 text-base">مقدار الحفظ الذي أسمعته</label>
-                        <input type="text" id="memoInputAmount" oninput="markMemoDirty()" placeholder="مثال: سورة النبأ 1-15" class="w-full p-3 border border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-base">
+                        <label class="block font-black text-gray-800 mb-3 text-lg">مقدار الحفظ الذي أسمعته</label>
+                        <input type="text" id="memoInputAmount" oninput="markMemoDirty()" placeholder="مثال: سورة النبأ 1-15" class="w-full p-4 border-2 border-gray-200 rounded-2xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-lg">
                     </div>
-                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 text-center">
-                        <label class="block font-black text-gray-800 mb-3 text-base">تقييم الإتقان (نجوم)</label>
-                        <div class="star-rating flex flex-row-reverse justify-center gap-3 text-4xl text-mosque-gold" id="memoStarsContainer"></div>
+                    <div class="bg-gray-50 p-5 rounded-2xl border-2 border-gray-100 text-center">
+                        <label class="block font-black text-gray-800 mb-4 text-lg">تقييم الإتقان (نجوم)</label>
+                        <div class="star-rating flex flex-row-reverse justify-center gap-3 text-5xl text-mosque-gold" id="memoStarsContainer"></div>
                     </div>
                     <div>
-                        <label class="block font-black text-gray-800 mb-2 text-base">أخطاء وملاحظات (تظهر للأهل)</label>
-                        <textarea id="memoInputNotes" oninput="markMemoDirty()" rows="2" placeholder="أخطاء التجويد، الحركات... (اختياري)" class="w-full p-3 border border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-sm resize-none"></textarea>
+                        <label class="block font-black text-gray-800 mb-3 text-lg">أخطاء وملاحظات (تظهر للأهل)</label>
+                        <textarea id="memoInputNotes" oninput="markMemoDirty()" rows="2" placeholder="أخطاء التجويد، الحركات... (اختياري)" class="w-full p-4 border-2 border-gray-200 rounded-2xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-base resize-none"></textarea>
                     </div>
-                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                        <label class="block font-black text-blue-800 mb-2 text-base">المطلوب للموعد القادم</label>
-                        <input type="text" id="memoInputNext" oninput="markMemoDirty()" placeholder="مثال: مراجعة سورة النبأ" class="w-full p-3 border border-white rounded-lg focus:border-blue-400 outline-none bg-white font-bold text-sm shadow-sm">
+                    <div class="bg-blue-50/50 p-5 rounded-2xl border-2 border-blue-100">
+                        <label class="block font-black text-blue-800 mb-3 text-lg">المطلوب للموعد القادم</label>
+                        <input type="text" id="memoInputNext" oninput="markMemoDirty()" placeholder="مثال: مراجعة سورة النبأ" class="w-full p-4 border-2 border-white rounded-xl focus:border-blue-400 outline-none bg-white font-bold text-lg shadow-sm">
                     </div>
                 </div>
             </div>
@@ -326,105 +323,109 @@
             <!-- 3. شاشة السلوك والنقاط -->
             <div id="view-behavior" class="tab-content hide animate-fade-in">
                 <datalist id="reasonSuggestions"></datalist>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 mb-5 relative z-20">
-                    <label class="block font-black text-gray-800 mb-2 text-base">اختاري اسم الطالبة للتقييم:</label>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border-2 border-gray-200 mb-6 relative z-20">
+                    <label class="block font-black text-gray-800 mb-3 text-lg">اختاري اسم الطالبة للتقييم:</label>
                     <div class="relative">
-                        <select id="behaviorStudentSelect" onchange="loadBehaviorForm()" class="w-full p-3 border border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 text-lg font-bold text-mosque-green appearance-none"></select>
-                        <i class="fas fa-chevron-down absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></i>
+                        <select id="behaviorStudentSelect" onchange="loadBehaviorForm()" class="w-full p-4 border-2 border-gray-200 rounded-2xl focus:border-mosque-green outline-none bg-gray-50 text-xl font-bold text-mosque-green appearance-none"></select>
+                        <i class="fas fa-chevron-down absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl"></i>
                     </div>
+                    <p class="text-sm text-gray-400 mt-3 font-bold">* تظهر هنا فقط الطالبات المسجل حضورهن اليوم.</p>
                 </div>
 
-                <div id="behaviorFormArea" class="hide bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-5 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-1.5 h-full bg-mosque-gold"></div>
-                    <div class="bg-gray-50 p-5 rounded-xl border border-gray-100 text-center">
-                        <label class="block font-black text-gray-800 mb-3 text-lg">تقييم السلوك العام</label>
-                        <div class="star-rating flex flex-row-reverse justify-center gap-3 text-4xl text-mosque-gold" id="behaviorStarsContainer"></div>
+                <div id="behaviorFormArea" class="hide bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100 space-y-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-2 h-full bg-mosque-gold"></div>
+                    <div class="bg-gray-50 p-6 rounded-3xl border-2 border-gray-100 text-center">
+                        <label class="block font-black text-gray-800 mb-4 text-xl">تقييم السلوك العام</label>
+                        <div class="star-rating flex flex-row-reverse justify-center gap-4 text-5xl text-mosque-gold" id="behaviorStarsContainer"></div>
                     </div>
-                    <div class="bg-white p-5 rounded-xl border border-blue-100 text-center shadow-sm">
-                        <label class="block font-black text-blue-900 mb-4 text-lg">إضافة أو خصم نقاط</label>
-                        <div class="flex items-center justify-center gap-4 mb-4">
-                            <button onclick="changePoints(-1)" class="w-12 h-12 rounded-xl bg-red-50 border border-red-200 text-red-600 font-black text-2xl hover:bg-red-100 shadow-sm">-</button>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-5 py-2 min-w-[80px]">
-                                <span id="behaviorPointsCounter" class="text-3xl font-black text-gray-800" dir="ltr">0</span>
+                    <div class="bg-white p-6 rounded-3xl border-2 border-blue-100 text-center shadow-sm">
+                        <label class="block font-black text-blue-900 mb-6 text-xl">إضافة أو خصم نقاط</label>
+                        <div class="flex items-center justify-center gap-6 mb-6">
+                            <button onclick="changePoints(-1)" class="w-16 h-16 rounded-2xl bg-red-50 border-2 border-red-200 text-red-600 font-black text-4xl hover:bg-red-100 transition shadow-sm">-</button>
+                            <div class="bg-gray-50 border-2 border-gray-200 rounded-2xl px-6 py-4 min-w-[100px]">
+                                <span id="behaviorPointsCounter" class="text-4xl font-black text-gray-800" dir="ltr">0</span>
                             </div>
-                            <button onclick="changePoints(1)" class="w-12 h-12 rounded-xl bg-green-50 border border-green-200 text-green-600 font-black text-2xl hover:bg-green-100 shadow-sm">+</button>
+                            <button onclick="changePoints(1)" class="w-16 h-16 rounded-2xl bg-green-50 border-2 border-green-200 text-green-600 font-black text-4xl hover:bg-green-100 transition shadow-sm">+</button>
                         </div>
-                        <input type="text" id="behaviorInputReason" list="reasonSuggestions" oninput="markBehaviorDirty()" placeholder="السبب (مثال: إجابة متميزة)" class="w-full p-3 border border-gray-200 rounded-lg focus:border-blue-400 outline-none bg-gray-50 font-bold text-sm text-center">
+                        <input type="text" id="behaviorInputReason" list="reasonSuggestions" oninput="markBehaviorDirty()" placeholder="السبب (مثال: إجابة متميزة)" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-400 outline-none bg-gray-50 font-bold text-lg text-center">
                     </div>
                 </div>
             </div>
 
             <!-- 4. لوحة التميز -->
             <div id="view-leaderboard" class="tab-content hide animate-fade-in">
-                <div class="bg-gradient-to-b from-mosque-green to-[#052c18] rounded-[2rem] p-6 shadow-xl mb-6 text-white relative overflow-hidden border-4 border-mosque-gold">
+                <div class="bg-gradient-to-b from-mosque-green to-[#052c18] rounded-[2rem] p-8 shadow-2xl mb-8 text-white relative overflow-hidden border-4 border-mosque-gold">
                     <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')]"></div>
-                    <h2 class="text-center font-ruqaa font-bold text-3xl text-mosque-gold mb-12 relative z-10 drop-shadow-md">لوحة التميّـز والأوائـل</h2>
-                    <div id="topThreeContainer" class="flex justify-center items-end gap-2 md:gap-6 relative z-10 h-48"></div>
+                    <h2 class="text-center font-ruqaa font-bold text-4xl text-mosque-gold mb-16 relative z-10 drop-shadow-md">لوحة التميّـز والأوائـل</h2>
+                    <div id="topThreeContainer" class="flex justify-center items-end gap-3 md:gap-8 relative z-10 h-64"></div>
                 </div>
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                     <table class="w-full text-right">
-                        <thead class="bg-gray-50 text-gray-500 text-sm border-b border-gray-100">
+                        <thead class="bg-gray-50 text-gray-500 text-base border-b-2 border-gray-100">
                             <tr>
-                                <th class="p-4 font-bold w-12 text-center">م</th>
-                                <th class="p-4 font-bold text-base">اسم الطالبة</th>
-                                <th class="p-4 font-bold text-center text-base">الرصيد</th>
+                                <th class="p-5 font-bold w-16 text-center">م</th>
+                                <th class="p-5 font-bold text-lg">اسم الطالبة</th>
+                                <th class="p-5 font-bold text-center text-lg">الرصيد</th>
                             </tr>
                         </thead>
-                        <tbody id="leaderboardTableBody" class="divide-y divide-gray-50 text-base"></tbody>
+                        <tbody id="leaderboardTableBody" class="divide-y divide-gray-50 text-lg"></tbody>
                     </table>
                 </div>
             </div>
 
             <!-- 5. الإعدادات -->
-            <div id="view-settings" class="tab-content hide animate-fade-in space-y-4">
-                <div class="bg-gradient-to-r from-mosque-gold-light to-white p-5 rounded-2xl shadow-sm border border-mosque-gold/40">
-                    <h3 class="font-ruqaa font-bold text-mosque-green text-xl mb-2"><i class="fas fa-link text-mosque-gold ml-2"></i> رابط أولياء الأمور</h3>
-                    <button onclick="copyParentLink()" class="w-full bg-white hover:bg-gray-50 text-mosque-green font-black text-base p-3 rounded-xl transition border border-mosque-gold shadow-sm flex justify-center items-center gap-2 mt-3">
-                        <i class="fas fa-copy text-lg"></i> نسخ الرابط للأهالي
+            <div id="view-settings" class="tab-content hide animate-fade-in space-y-6">
+                <div class="bg-gradient-to-r from-mosque-gold-light to-white p-6 rounded-3xl shadow-sm border-2 border-mosque-gold/40">
+                    <h3 class="font-ruqaa font-bold text-mosque-green text-2xl mb-2"><i class="fas fa-link text-mosque-gold ml-2"></i> رابط أولياء الأمور</h3>
+                    <button onclick="copyParentLink()" class="w-full bg-white hover:bg-gray-50 text-mosque-green font-black text-lg p-4 rounded-xl transition border-2 border-mosque-gold shadow-sm flex justify-center items-center gap-3 mt-4">
+                        <i class="fas fa-copy text-2xl"></i> نسخ الرابط للأهالي
                     </button>
                 </div>
                 
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 grid grid-cols-2 gap-3">
-                    <button onclick="attemptSync()" class="w-full bg-blue-50 text-blue-700 hover:bg-blue-100 font-black text-sm p-4 rounded-xl transition border border-blue-200">مزامنة يدوية</button>
-                    <button onclick="openSetupScreenFromSettings()" class="w-full bg-gray-50 text-gray-700 hover:bg-gray-100 font-black text-sm p-4 rounded-xl transition border border-gray-200">طالبات الحلقة</button>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button onclick="attemptSync()" class="w-full bg-blue-50 text-blue-700 hover:bg-blue-100 font-black text-lg p-5 rounded-2xl transition border-2 border-blue-200">مزامنة يدوية</button>
+                    <button onclick="openSetupScreenFromSettings()" class="w-full bg-gray-50 text-gray-700 hover:bg-gray-100 font-black text-lg p-5 rounded-2xl transition border-2 border-gray-200">تعديل طالبات الحلقة</button>
                 </div>
 
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <h3 class="font-ruqaa font-bold text-mosque-green text-xl mb-3 border-b pb-2">إضافة طالبة للمسجد</h3>
-                    <input type="text" id="newStudentName" placeholder="الاسم الثلاثي..." class="w-full p-3 border border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-sm mb-3">
-                    <input type="number" id="newStudentAge" placeholder="العمر (اختياري)..." class="w-full p-3 border border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-sm mb-3">
-                    <button onclick="addNewStudent()" class="w-full bg-mosque-green text-mosque-gold-light font-black text-base p-3 rounded-xl transition shadow-md">إضافة وتسجيل</button>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <h3 class="font-ruqaa font-bold text-mosque-green text-2xl mb-4 border-b pb-3">إضافة طالبة للمسجد</h3>
+                    <input type="text" id="newStudentName" placeholder="الاسم الثلاثي..." class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-lg mb-4">
+                    <input type="number" id="newStudentAge" placeholder="العمر (اختياري)..." class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-mosque-green outline-none bg-gray-50 font-bold text-lg mb-4">
+                    <button onclick="addNewStudent()" class="w-full bg-mosque-green text-mosque-gold-light font-black text-lg p-4 rounded-xl transition shadow-md">إضافة وتسجيل</button>
                 </div>
                 
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <button onclick="resetAllPoints()" class="w-full bg-orange-50 text-orange-600 hover:bg-orange-100 font-black text-sm p-3 rounded-xl transition border border-orange-200 flex justify-center items-center gap-2">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 space-y-4">
+                    <button onclick="resetAllPoints()" class="w-full bg-orange-50 text-orange-600 hover:bg-orange-100 font-black text-lg p-4 rounded-xl transition border-2 border-orange-200 flex justify-center items-center gap-2">
                         <i class="fas fa-undo"></i> تصفير عداد النقاط للجميع
                     </button>
+                    <button onclick="clearLocalCache()" class="w-full bg-red-50 text-red-700 hover:bg-red-100 font-black text-lg p-4 rounded-xl transition border-2 border-red-200 flex justify-center items-center gap-2">
+                        <i class="fas fa-trash-restore"></i> مسح الذاكرة المؤقتة (الكاش)
+                    </button>
                 </div>
 
-                <button onclick="logout()" class="w-full bg-red-50 text-red-600 hover:bg-red-100 font-black text-base p-4 rounded-xl transition border border-red-200 flex justify-center items-center gap-2">
-                    <i class="fas fa-sign-out-alt text-xl"></i> تسجيل خروج
+                <button onclick="logout()" class="w-full bg-red-50 text-red-600 hover:bg-red-100 font-black text-lg p-4 rounded-2xl transition border-2 border-red-200 flex justify-center items-center gap-2 mb-8 mt-4">
+                    <i class="fas fa-sign-out-alt text-2xl"></i> تسجيل خروج من حسابي
                 </button>
             </div>
 
         </main>
 
         <!-- شريط التنقل السفلي -->
-        <nav class="fixed bottom-0 w-full bg-white shadow-[0_-5px_20px_rgba(0,0,0,0.06)] border-t border-gray-100 flex justify-around items-center h-[75px] pb-safe z-50 rounded-t-2xl">
+        <nav class="fixed bottom-0 w-full bg-white shadow-[0_-5px_20px_rgba(0,0,0,0.06)] border-t border-gray-100 flex justify-around items-center h-[85px] pb-safe z-50 rounded-t-3xl">
             <button onclick="switchMainTab('attendance')" id="nav-attendance" class="nav-btn active flex flex-col items-center justify-center w-full h-full text-gray-400 font-bold">
-                <i class="fas fa-clipboard-list text-2xl mb-1 block"></i><span class="text-[10px] font-black">الدوام</span>
+                <i class="fas fa-clipboard-list text-[26px] mb-1 block"></i><span class="text-[11px] font-black">الدوام</span>
             </button>
             <button onclick="switchMainTab('memo')" id="nav-memo" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 font-bold">
-                <i class="fas fa-book-open text-2xl mb-1 block"></i><span class="text-[10px] font-black">التسميع</span>
+                <i class="fas fa-book-open text-[26px] mb-1 block"></i><span class="text-[11px] font-black">التسميع</span>
             </button>
             <button onclick="switchMainTab('behavior')" id="nav-behavior" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 font-bold">
-                <i class="fas fa-star text-2xl mb-1 block"></i><span class="text-[10px] font-black">السلوك</span>
+                <i class="fas fa-star text-[26px] mb-1 block"></i><span class="text-[11px] font-black">السلوك</span>
             </button>
             <button onclick="switchMainTab('leaderboard')" id="nav-leaderboard" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 font-bold">
-                <i class="fas fa-trophy text-2xl mb-1 block"></i><span class="text-[10px] font-black">التميّز</span>
+                <i class="fas fa-trophy text-[26px] mb-1 block"></i><span class="text-[11px] font-black">التميّز</span>
             </button>
             <button onclick="switchMainTab('settings')" id="nav-settings" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 font-bold">
-                <i class="fas fa-cog text-2xl mb-1 block"></i><span class="text-[10px] font-black">الإعدادات</span>
+                <i class="fas fa-cog text-[26px] mb-1 block"></i><span class="text-[11px] font-black">الإعدادات</span>
             </button>
         </nav>
     </div>
@@ -445,7 +446,7 @@
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyYARy1YSXYwGKGFVD7cY7BNsmC7yb5BoIVxx6q1P94WTJKJEpBrb80F6SjL5s7vIoE/exec";
         
         const initialNames = [
-            "أرجوان فخر الدين", "ألمى صبحي", "أوركيد فخر الدين", "إيمان حويان", "تالة حناوي", "تاليا المزي", "تالين معمولي", "جنى سحلول", "جودي زرزور", "جودي سحلول", "جودي سامر سحلول", "جوري عزيزية", "حلا تركماني", "حلا زرزور", "حنين دباسوا", "زينة المقدمي", "سارة أبو لحية", "سارة كلول", "سدرة المقدس", "سدرة عبد الرحمن", "ليلاس السيد", "لمار السيد", "لمار خليفة", "لين صبحي", "ماريا المزي"
+            "أرجوان فخر الدين", "ألمى صبحي", "أوركيد فخر الدين", "إيمان حويان", "تالة حناوي", "تاليا المزي", "تالين معمولي", "جنى سحلول", "جودي زرزور", "جودي سحلول", "جودي سامر سحلول", "جوري عزيزية", "حلا تركماني", "حلا زرزور", "حنين دباسوا", "زينة المقدمي", "سارة أبو لحية", "سارة كلول", "سدرة المقدس", "سدرة عبد الرحمن", "ليلاس السيد", "لمار السيد", "ليمار خليفة", "لين حسحس", "ماريا المذي"
         ];
 
         let storedData = JSON.parse(localStorage.getItem('mosqueStudents'));
@@ -453,6 +454,17 @@
             id: index + 1001, name: name, age: "", points: 0, history: [] 
         }));
         
+        // إصلاح السجلات القديمة
+        students.forEach(s => {
+            s.history.forEach(h => {
+                if(!h.type) {
+                    if(h.details && h.details.includes('تسميع')) h.type = 'memo';
+                    else if(h.details && h.details.includes('حضور')) h.type = 'attendance';
+                    else h.type = 'behavior';
+                }
+            });
+        });
+
         const POINTS = { ATTENDANCE_ON_TIME: 5, LATE: 0, ABSENT: -5 };
         
         let currentTeacher = null;
@@ -479,60 +491,27 @@
             syncQueue.push(actionData);
             localStorage.setItem('mosqueSyncQueue', JSON.stringify(syncQueue));
             updateConnectionStatus();
-            attemptSync(); // المحاولة فوراً
+            attemptSync();
         }
 
-        // المزامنة الحقيقية ذات الاتجاهين
         async function attemptSync() {
-            if (!navigator.onLine || !GOOGLE_SCRIPT_URL || isSyncing) {
+            if (!navigator.onLine || syncQueue.length === 0 || isSyncing || !GOOGLE_SCRIPT_URL) {
                 updateConnectionStatus(); return;
             }
-            
             isSyncing = true; updateConnectionStatus();
-            
-            // 1. إرسال الطابور المحلي أولاً
-            if (syncQueue.length > 0) {
-                try {
-                    await fetch(GOOGLE_SCRIPT_URL, {
-                        method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: "sync_queue", queue: syncQueue })
-                    });
-                    syncQueue = []; localStorage.setItem('mosqueSyncQueue', JSON.stringify(syncQueue));
-                } catch(e) { console.log("Offline or sync error", e); }
-            }
-
-            // 2. جلب البيانات وتحديث الذاكرة (إحلال كامل)
-            if (syncQueue.length === 0) {
-                try {
-                    const response = await fetch(GOOGLE_SCRIPT_URL + "?action=get_data");
-                    const resData = await response.json();
-                    
-                    if (resData.students && resData.students.length > 0) {
-                        students = resData.students; 
-                        localStorage.setItem('mosqueStudents', JSON.stringify(students));
-                    }
-                    if (resData.notes) { 
-                        parentNotesList = resData.notes; 
-                        localStorage.setItem('mosqueParentNotes', JSON.stringify(parentNotesList)); 
-                        updateNotificationBadge(); 
-                    }
-                    if (resData.lessons) { 
-                        mosqueLessons = resData.lessons; 
-                        localStorage.setItem('mosqueLessons', JSON.stringify(mosqueLessons)); 
-                    }
-                    
-                    if(currentTeacher && !document.getElementById('teacherDashboard').classList.contains('hide')) refreshAllViews();
-                    if(currentParentViewStudent && !document.getElementById('parentDashboard').classList.contains('hide')) updateParentDashboardUI();
-                    
-                } catch (err) { console.log(err); }
-            }
-            
+            try {
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: "sync_queue", queue: syncQueue })
+                });
+                syncQueue = []; localStorage.setItem('mosqueSyncQueue', JSON.stringify(syncQueue));
+            } catch(e) { console.log("Offline or sync error", e); }
             isSyncing = false; updateConnectionStatus();
         }
 
         window.addEventListener('online', attemptSync);
         window.addEventListener('offline', updateConnectionStatus);
-        setInterval(attemptSync, 15000); 
+        setInterval(attemptSync, 15000); // محاولة كل 15 ثانية صامتة
 
         function updateConnectionStatus() {
             const dot = document.getElementById('connectionStatusDot');
@@ -555,7 +534,7 @@
             setTimeout(() => { ind.classList.add('opacity-0'); }, 2000);
         }
 
-        // --- تهيئة التطبيق ---
+        // --- STREAMING_CHUNK:App logic and UI flow... ---
         window.onload = function() {
             updateDateDisplay(); updateConnectionStatus();
             const urlParams = new URLSearchParams(window.location.search);
@@ -643,6 +622,30 @@
             if(dl) dl.innerHTML = Array.from(reasons).map(r => `<option value="${r}">`).join('');
         }
 
+        // --- جلب البيانات الكاملة من الخادم ---
+        async function syncWithDatabase() {
+            if (!GOOGLE_SCRIPT_URL) return;
+            document.getElementById('loadingOverlay').classList.remove('hide');
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL + "?action=get_data");
+                const resData = await response.json();
+                if (resData.students && resData.students.length > 0) {
+                    resData.students.forEach(dbStudent => {
+                        let local = students.find(s => s.id === dbStudent.id);
+                        if (local) { local.name = dbStudent.name; local.points = dbStudent.points; } 
+                        else { students.push({ id: dbStudent.id, name: dbStudent.name, points: dbStudent.points, history: [] }); }
+                    });
+                    localStorage.setItem('mosqueStudents', JSON.stringify(students));
+                }
+                if (resData.notes) { parentNotesList = resData.notes; localStorage.setItem('mosqueParentNotes', JSON.stringify(parentNotesList)); updateNotificationBadge(); }
+                if (resData.lessons) { mosqueLessons = resData.lessons; localStorage.setItem('mosqueLessons', JSON.stringify(mosqueLessons)); }
+                
+                if(currentTeacher) refreshAllViews();
+                showToast("تمت مزامنة البيانات بنجاح");
+            } catch (err) { console.log(err); }
+            document.getElementById('loadingOverlay').classList.add('hide');
+        }
+
         function updateNotificationBadge() {
             const badge = document.getElementById('notifBadge');
             if(!badge) return;
@@ -687,6 +690,7 @@
         }
 
         function openSetupScreenFromSettings() { setupPreviousScreen = 'settings'; document.getElementById('teacherDashboard').classList.add('hide'); document.getElementById('topDateBar').classList.add('hide'); openSetupScreen(); }
+        
         function goBackToLogin() { 
             document.getElementById('teacherSetupScreen').classList.add('hide'); 
             if(setupPreviousScreen === 'settings') { 
@@ -714,19 +718,14 @@
             const sortedStudents = [...students].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
             const myIds = teachersData[currentTeacher] ? teachersData[currentTeacher].studentIds : [];
 
-            // تجميع IDs الطالبات المسجلات عند معلمات أخريات
             let otherTeachersIds = [];
             for (const tName in teachersData) {
-                if (tName !== currentTeacher) {
-                    otherTeachersIds = otherTeachersIds.concat(teachersData[tName].studentIds);
-                }
+                if (tName !== currentTeacher) otherTeachersIds = otherTeachersIds.concat(teachersData[tName].studentIds);
             }
 
             let displayIdx = 1;
             sortedStudents.forEach((s) => {
-                // تخطي وإخفاء الطالبة إذا كانت مسجلة عند معلمة أخرى
-                if (otherTeachersIds.includes(s.id)) return;
-
+                if (otherTeachersIds.includes(s.id)) return; // إخفاء الطالبات المسجلات في حلقات أخرى
                 const isChecked = myIds.includes(s.id) ? 'checked' : '';
                 listDiv.innerHTML += `
                     <div class="setup-student-item flex items-center gap-4 p-3 bg-white border border-gray-200 rounded-2xl hover:border-mosque-green transition">
@@ -736,10 +735,7 @@
                     </div>`;
                 displayIdx++;
             });
-            
-            if (displayIdx === 1) {
-                listDiv.innerHTML = '<div class="text-center text-gray-500 font-bold p-8 border-2 border-dashed border-gray-200 rounded-xl">لا توجد طالبات غير مسجلات متاحين حالياً.</div>';
-            }
+            if(displayIdx === 1) listDiv.innerHTML = '<div class="text-center text-gray-500 font-bold p-8 border-2 border-dashed border-gray-200 rounded-xl">لا توجد طالبات غير مسجلات متاحين حالياً.</div>';
         }
 
         function saveTeacherSetup() {
@@ -760,8 +756,7 @@
             document.getElementById('headerGroupName').innerText = teachersData[currentTeacher].groupName;
             
             updateReasonsDatalist(); updateNotificationBadge();
-            refreshAllViews(); switchMainTab('attendance'); 
-            attemptSync(); // مزامنة فورية
+            syncWithDatabase().then(() => { refreshAllViews(); switchMainTab('attendance'); });
         }
 
         function refreshAllViews() {
@@ -821,7 +816,7 @@
             }
 
             list.forEach((s, idx) => {
-                if(!drafts[activeDateStr].attendance[s.id]) drafts[activeDateStr].attendance[s.id] = 'absent';
+                if(!drafts[activeDateStr].attendance[s.id]) drafts[activeDateStr].attendance[s.id] = 'absent'; // الغياب افتراضي
                 const state = drafts[activeDateStr].attendance[s.id];
                 const isSaved = s.history.some(h => h.date === activeDateStr && h.type === 'attendance');
                 const savedBadge = isSaved ? `<i class="fas fa-check-circle text-green-500 ml-2 text-sm" title="محفوظ"></i>` : '';
@@ -869,10 +864,9 @@
                 if (existingRecord) {
                     diff = newPts - existingRecord.pointsEarned; s.points += diff;
                     existingRecord.pointsEarned = newPts; existingRecord.status = status;
-                    existingRecord.details = `سجل حضور: ${statusAr}`;
                 } else {
                     diff = newPts; s.points += diff;
-                    s.history.unshift({ date: activeDateStr, type: 'attendance', status: status, pointsEarned: newPts, details: `سجل حضور: ${statusAr}`, teacher: currentTeacher });
+                    s.history.unshift({ date: activeDateStr, type: 'attendance', status: status, pointsEarned: newPts });
                 }
                 if(diff !== 0 || !existingRecord) {
                    records.push({ id: id, date: activeDateStr, diff: diff, recordType: 'attendance', row: [activeDateStr, id, s.name, currentTeacher, statusAr, newPts] });
@@ -912,7 +906,7 @@
                document.getElementById('prevMemoAmount').innerText = prevMemo.memo;
                document.getElementById('prevMemoNotes').innerText = prevMemo.notes || 'لا يوجد';
                document.getElementById('prevMemoNext').innerText = prevMemo.next || 'لا يوجد';
-               document.getElementById('prevMemoContent').classList.add('hide'); // مطوي افتراضياً
+               document.getElementById('prevMemoContent').classList.add('hide'); // مطوي 
                prevInfo.classList.remove('hide');
             } else { prevInfo.classList.add('hide'); }
 
@@ -970,17 +964,15 @@
             drafts[activeDateStr].memo[sId] = { amount, stars, notes, next }; saveDraftsToLocal();
 
             let pts = stars * 2; 
-            let details = `تسميع (${stars} نجوم) | أخطاء: ${notes||'لا يوجد'} | المطلوب: ${next||'لا يوجد'}`;
             let existingRecord = s.history.find(h => h.date === activeDateStr && h.type === 'memo');
             let diff = 0;
 
             if (existingRecord) {
                 diff = pts - existingRecord.pointsEarned; s.points += diff;
                 existingRecord.pointsEarned = pts; existingRecord.memo = amount; existingRecord.notes = notes; existingRecord.next = next; existingRecord.stars = stars;
-                existingRecord.details = details;
             } else {
                 diff = pts; s.points += diff;
-                s.history.unshift({ date: activeDateStr, type: 'memo', memo: amount, notes: notes, next: next, stars: stars, pointsEarned: pts, details: details, teacher: currentTeacher });
+                s.history.unshift({ date: activeDateStr, type: 'memo', memo: amount, notes: notes, next: next, stars: stars, pointsEarned: pts });
             }
 
             localStorage.setItem('mosqueStudents', JSON.stringify(students));
@@ -1060,10 +1052,9 @@
             if (existingRecord) {
                 diff = totalPts - existingRecord.pointsEarned; s.points += diff;
                 existingRecord.pointsEarned = totalPts; existingRecord.reason = reason; existingRecord.stars = data.stars; existingRecord.extraPoints = data.points;
-                existingRecord.details = "سلوك: " + reason;
             } else {
                 diff = totalPts; s.points += diff;
-                s.history.unshift({ date: activeDateStr, type: 'behavior', pointsEarned: totalPts, reason: reason, stars: data.stars, extraPoints: data.points, details: "سلوك: " + reason, teacher: currentTeacher });
+                s.history.unshift({ date: activeDateStr, type: 'behavior', pointsEarned: totalPts, reason: reason, stars: data.stars, extraPoints: data.points });
             }
 
             localStorage.setItem('mosqueStudents', JSON.stringify(students));
@@ -1167,6 +1158,14 @@
                 refreshAllViews();
             });
         }
+        
+        function clearLocalCache() {
+            showConfirmDialog("تفريغ الذاكرة المؤقتة؟", "تنبيه: هذا الإجراء سيقوم بحذف جميع البيانات المخزنة محلياً في جهازك وسيقوم بإعادة تشغيل التطبيق ليعود جديداً كما كان. تأكدي أنك متصلة بالإنترنت لكي لا تفقدي بيانات غير مزامنة.", () => {
+                localStorage.clear();
+                showToast("تم تفريغ الذاكرة بنجاح. جاري إعادة التشغيل...");
+                setTimeout(() => { window.location.reload(true); }, 1500);
+            });
+        }
 
         // --- أولياء الأمور ---
         function initParentFlow() {
@@ -1235,35 +1234,20 @@
             hList.innerHTML = '';
             
             let parentTeacher = null;
-            if(s.history && s.history.length > 0) {
-               for(let i=0; i<s.history.length; i++) {
-                 if(s.history[i].teacher) { parentTeacher = s.history[i].teacher; break; }
-               }
+            for (const tName in teachersData) {
+                if (teachersData[tName].studentIds.includes(currentParentViewStudent.id)) { parentTeacher = tName; break; }
             }
 
-            if (!s.history || s.history.length === 0) {
+            if (s.history.length === 0) {
                 hList.innerHTML = `<div class="p-10 bg-white/50 rounded-3xl border-2 border-white text-gray-500 font-bold text-center shadow-sm">لم يتم تسجيل أداء بعد.</div>`;
             } else {
                 const groupedHistory = {};
                 s.history.forEach(record => {
-                    if(!groupedHistory[record.date]) groupedHistory[record.date] = { points:0, acts:[], notes:[], teacher: record.teacher };
+                    if(!groupedHistory[record.date]) groupedHistory[record.date] = { points:0, att:null, memo:null, behavior:null };
                     groupedHistory[record.date].points += record.pointsEarned;
-                    
-                    if(record.type === 'attendance') {
-                        let statusAr = record.details.includes('حاضر') ? 'حاضرة' : (record.details.includes('تأخير') ? 'متأخرة' : 'غائبة');
-                        let bgClass = statusAr==='حاضرة'?'bg-green-100 text-green-800':(statusAr==='متأخرة'?'bg-yellow-100 text-yellow-800':'bg-red-100 text-red-800');
-                        groupedHistory[record.date].acts.push(`<span class="${bgClass} px-3 py-1 rounded-lg text-sm font-bold shadow-sm">الدوام: ${statusAr}</span>`);
-                    }
-                    if(record.type === 'memo') {
-                        let starsText = record.details.match(/\((.*?)\)/);
-                        let sText = starsText ? starsText[1] : '';
-                        groupedHistory[record.date].acts.push(`<span class="bg-mosque-gold-light text-yellow-800 border border-yellow-200 px-3 py-1 rounded-lg text-sm font-bold shadow-sm">تسميع: ${record.memo} <span class="text-xs">(${sText})</span></span>`);
-                        if(record.details.includes('أخطاء:')) groupedHistory[record.date].notes.push("ملاحظة التسميع: " + record.details.split('أخطاء:')[1].split('|')[0].trim());
-                        if(record.details.includes('المطلوب:')) groupedHistory[record.date].notes.push("المطلوب القادم: " + record.details.split('المطلوب:')[1].trim());
-                    }
-                    if(record.type === 'behavior') {
-                        groupedHistory[record.date].acts.push(`<span class="bg-blue-50 text-blue-800 border border-blue-100 px-3 py-1 rounded-lg text-sm font-bold shadow-sm">${record.details}</span>`);
-                    }
+                    if(record.type === 'attendance') groupedHistory[record.date].att = record;
+                    if(record.type === 'memo') groupedHistory[record.date].memo = record;
+                    if(record.type === 'behavior') groupedHistory[record.date].behavior = record;
                 });
 
                 Object.keys(groupedHistory).forEach(date => {
@@ -1272,8 +1256,8 @@
                     let ptsSign = day.points > 0 ? "+" : "";
                     
                     let lessonHtml = '';
-                    if (day.teacher && mosqueLessons[date] && mosqueLessons[date][day.teacher]) {
-                        const lesson = mosqueLessons[date][day.teacher];
+                    if (parentTeacher && mosqueLessons[date] && mosqueLessons[date][parentTeacher]) {
+                        const lesson = mosqueLessons[date][parentTeacher];
                         if(lesson.title || lesson.homework) {
                             lessonHtml = `
                             <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 mb-3">
@@ -1282,20 +1266,40 @@
                             </div>`;
                         }
                     }
-                    
-                    let notesHtml = day.notes.length > 0 ? `<div class="bg-gray-50 p-3 rounded-xl mt-3 text-sm font-bold text-gray-700 border border-gray-200"><ul class="list-disc list-inside pr-2 space-y-1">${day.notes.map(n=>`<li>${n}</li>`).join('')}</ul></div>` : '';
+
+                    let detailsHtml = '';
+                    if(day.att) {
+                        let statusAr = day.att.status === 'present' ? 'حاضرة' : (day.att.status === 'late' ? 'متأخرة' : 'غائبة');
+                        let attColor = day.att.status === 'present' ? 'text-green-600' : 'text-red-600';
+                        detailsHtml += `<div class="mb-2 font-bold text-gray-700 text-sm"><i class="far fa-clock text-gray-400 ml-1"></i> الدوام: <span class="${attColor}">${statusAr}</span></div>`;
+                    }
+                    if(day.memo) {
+                        let starsHtml = ''; for(let i=0; i<day.memo.stars; i++) starsHtml += '<i class="fas fa-star text-mosque-gold text-xs"></i>';
+                        detailsHtml += `
+                            <div class="font-bold text-mosque-green bg-green-50/50 p-2 rounded-lg border border-green-100 mb-2">
+                                <div class="text-xs text-green-700 mb-1">الحفظ المنجز:</div><span class="text-gray-800 text-base">${day.memo.memo}</span> ${starsHtml}
+                            </div>
+                            <div class="font-bold text-red-600 bg-red-50/50 p-2 rounded-lg border border-red-100 mb-2">
+                                <div class="text-xs text-red-700 mb-1">الأخطاء والملاحظات:</div><span class="text-gray-800 text-sm">${day.memo.notes || 'لا يوجد'}</span>
+                            </div>
+                            <div class="font-bold text-blue-700 bg-blue-50/50 p-2 rounded-lg border border-blue-100 mb-2">
+                                <div class="text-xs text-blue-700 mb-1">المطلوب للقاء القادم:</div><span class="text-gray-800 text-sm">${day.memo.next || 'لا يوجد'}</span>
+                            </div>`;
+                    }
+                    if(day.behavior) {
+                        detailsHtml += `<div class="font-bold text-gray-600 bg-gray-50 p-2 rounded-lg border border-gray-100 text-sm"><i class="far fa-star text-mosque-gold ml-1"></i> تقييم سلوك: ${day.behavior.reason || 'إضافي/خصم'}</div>`;
+                    }
 
                     hList.innerHTML += `
                         <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 mb-4 relative overflow-hidden group">
-                            <div class="absolute right-0 top-0 w-2 h-full bg-mosque-gold opacity-50"></div>
+                            <div class="absolute right-0 top-0 w-2 h-full bg-mosque-green opacity-50"></div>
                             <div class="flex justify-between items-center mb-3 pl-2 pr-4 border-b pb-3">
                                 <span class="text-sm font-bold text-gray-400"><i class="far fa-calendar-alt ml-1"></i> ${date}</span>
                                 <span class="${ptsClass} border px-3 py-1 rounded-xl text-xl font-black shadow-sm" dir="ltr">${ptsSign}${day.points}</span>
                             </div>
                             <div class="pr-3">
                                 ${lessonHtml}
-                                <div class="flex flex-wrap gap-2 mb-2">${day.acts.join('')}</div>
-                                ${notesHtml}
+                                ${detailsHtml}
                             </div>
                         </div>
                     `;
