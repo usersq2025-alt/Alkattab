@@ -194,6 +194,18 @@
                 <h1 id="parentStudentTitle" class="text-4xl font-ruqaa font-black text-white drop-shadow-md"></h1>
             </div>
 
+            <!-- بطاقة محصلة النقاط (تم إرجاعها) -->
+            <div class="bg-white rounded-[2rem] p-6 shadow-xl border-b-4 border-mosque-gold mb-8 text-center relative mt-10 animate-fade-in">
+                <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-mosque-gold rounded-full flex items-center justify-center text-white text-3xl shadow-lg border-4 border-white">
+                    <i class="fas fa-medal"></i>
+                </div>
+                <h3 class="text-gray-500 text-sm font-bold mt-4 mb-2">الرصيد التراكمي للنقاط</h3>
+                <div class="text-6xl font-black text-mosque-green flex items-center justify-center gap-2">
+                    <span id="parentStudentPoints">0</span>
+                    <i class="fas fa-star text-mosque-gold text-4xl"></i>
+                </div>
+            </div>
+
             <div class="bg-white rounded-3xl p-5 shadow-md border border-gray-100 mb-8 text-center">
                 <button onclick="document.getElementById('parentNoteArea').classList.toggle('hide')" class="text-mosque-green font-bold flex items-center justify-center w-full gap-2">
                     <i class="fas fa-envelope text-mosque-gold text-xl"></i> إرسال ملاحظة لمعلمة الحلقة
@@ -446,7 +458,7 @@
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyYARy1YSXYwGKGFVD7cY7BNsmC7yb5BoIVxx6q1P94WTJKJEpBrb80F6SjL5s7vIoE/exec";
         
         const initialNames = [
-            "أرجوان فخر الدين", "ألمى صبحي", "أوركيد فخر الدين", "إيمان حويان", "تالة حناوي", "تاليا المزي", "تالين معمولي", "جنى سحلول", "جودي زرزور", "جودي سحلول", "جودي سامر سحلول", "جوري عزيزية", "حلا تركماني", "حلا زرزور", "حنين دباسوا", "زينة المقدمي", "سارة أبو لحية", "سارة كلول", "سدرة المقدس", "سدرة عبد الرحمن", "ليلاس السيد", "لمار السيد", "ليمار خليفة", "لين حسحس", "ماريا المذي"
+            "أرجوان فخر الدين", "ألمى صبحي", "أوركيد فخر الدين", "إيمان حويان", "تالة حناوي", "تاليا المزي", "تالين معمولي", "جنى سحلول", "جودي زرزور", "جودي سحلول", "جودي سامر سحلول", "جوري عزيزية", "حلا تركماني", "حلا زرزور", "حنين دباسوا", "زينة المقدمي", "سارة أبو لحية", "سارة كلول", "سدرة المقدس", "سدرة عبد الرحمن", "ليلاس السيد", "لمار السيد", "لمار خليفة", "لين صبحي", "ماريا المزي"
         ];
 
         let storedData = JSON.parse(localStorage.getItem('mosqueStudents'));
@@ -1228,7 +1240,10 @@
         function updateParentDashboardUI() {
             const s = currentParentViewStudent;
             document.getElementById('parentStudentTitle').innerText = s.name;
-            document.getElementById('parentStudentPoints').innerText = s.points;
+            
+            // تحديث محصلة النقاط الكلية للطالبة
+            const pointsEl = document.getElementById('parentStudentPoints');
+            if (pointsEl) pointsEl.innerText = s.points;
 
             const hList = document.getElementById('parentHistoryList');
             hList.innerHTML = '';
@@ -1260,7 +1275,7 @@
                         const lesson = mosqueLessons[date][parentTeacher];
                         if(lesson.title || lesson.homework) {
                             lessonHtml = `
-                            <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 mb-3">
+                            <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 mb-3 shadow-sm">
                                 <div class="font-black text-blue-800 text-sm mb-1"><i class="fas fa-chalkboard text-blue-500 ml-1"></i> درس اليوم: <span class="font-bold text-gray-700">${lesson.title || '-'}</span></div>
                                 <div class="font-black text-blue-800 text-sm"><i class="fas fa-tasks text-blue-500 ml-1"></i> المطلوب الجماعي: <span class="font-bold text-gray-700">${lesson.homework || '-'}</span></div>
                             </div>`;
@@ -1268,26 +1283,42 @@
                     }
 
                     let detailsHtml = '';
+                    
+                    // 1. الدوام
                     if(day.att) {
                         let statusAr = day.att.status === 'present' ? 'حاضرة' : (day.att.status === 'late' ? 'متأخرة' : 'غائبة');
                         let attColor = day.att.status === 'present' ? 'text-green-600' : 'text-red-600';
-                        detailsHtml += `<div class="mb-2 font-bold text-gray-700 text-sm"><i class="far fa-clock text-gray-400 ml-1"></i> الدوام: <span class="${attColor}">${statusAr}</span></div>`;
+                        detailsHtml += `<div class="mb-2 font-bold text-gray-700 text-sm bg-gray-50 p-2 rounded-lg border border-gray-100"><i class="far fa-clock text-gray-400 ml-1"></i> الدوام: <span class="${attColor}">${statusAr}</span></div>`;
                     }
+                    
+                    // 2. التسميع
                     if(day.memo) {
                         let starsHtml = ''; for(let i=0; i<day.memo.stars; i++) starsHtml += '<i class="fas fa-star text-mosque-gold text-xs"></i>';
                         detailsHtml += `
-                            <div class="font-bold text-mosque-green bg-green-50/50 p-2 rounded-lg border border-green-100 mb-2">
-                                <div class="text-xs text-green-700 mb-1">الحفظ المنجز:</div><span class="text-gray-800 text-base">${day.memo.memo}</span> ${starsHtml}
+                            <div class="font-bold text-mosque-green bg-green-50 p-3 rounded-xl border border-green-100 mb-2 shadow-sm">
+                                <div class="text-xs text-green-700 mb-1"><i class="fas fa-book-open ml-1"></i> الحفظ المنجز:</div><span class="text-gray-800 text-base">${day.memo.memo}</span> <span class="mr-2">${starsHtml}</span>
                             </div>
-                            <div class="font-bold text-red-600 bg-red-50/50 p-2 rounded-lg border border-red-100 mb-2">
-                                <div class="text-xs text-red-700 mb-1">الأخطاء والملاحظات:</div><span class="text-gray-800 text-sm">${day.memo.notes || 'لا يوجد'}</span>
+                            <div class="font-bold text-red-600 bg-red-50 p-3 rounded-xl border border-red-100 mb-2 shadow-sm">
+                                <div class="text-xs text-red-700 mb-1"><i class="fas fa-exclamation-triangle ml-1"></i> الأخطاء والملاحظات:</div><span class="text-gray-800 text-sm">${day.memo.notes || 'لا يوجد'}</span>
                             </div>
-                            <div class="font-bold text-blue-700 bg-blue-50/50 p-2 rounded-lg border border-blue-100 mb-2">
-                                <div class="text-xs text-blue-700 mb-1">المطلوب للقاء القادم:</div><span class="text-gray-800 text-sm">${day.memo.next || 'لا يوجد'}</span>
+                            <div class="font-bold text-blue-700 bg-blue-50/50 p-3 rounded-xl border border-blue-100 mb-2 shadow-sm">
+                                <div class="text-xs text-blue-700 mb-1"><i class="fas fa-bullseye ml-1"></i> المطلوب للقاء القادم:</div><span class="text-gray-800 text-sm">${day.memo.next || 'لا يوجد'}</span>
                             </div>`;
                     }
+                    
+                    // 3. السلوك
                     if(day.behavior) {
-                        detailsHtml += `<div class="font-bold text-gray-600 bg-gray-50 p-2 rounded-lg border border-gray-100 text-sm"><i class="far fa-star text-mosque-gold ml-1"></i> تقييم سلوك: ${day.behavior.reason || 'إضافي/خصم'}</div>`;
+                        let bStarsHtml = ''; for(let i=0; i<day.behavior.stars; i++) bStarsHtml += '<i class="fas fa-star text-mosque-gold text-xs"></i>';
+                        let extraPts = day.behavior.extraPoints ? `<span class="bg-white px-2 py-0.5 rounded shadow-sm text-xs font-black mr-1" dir="ltr">${day.behavior.extraPoints > 0 ? '+' : ''}${day.behavior.extraPoints}</span>` : '';
+                        let reasonText = day.behavior.reason ? `<span class="text-sm text-gray-800 mr-1">${day.behavior.reason}</span>` : '<span class="text-sm text-gray-500 mr-1">تقييم عام</span>';
+                        
+                        detailsHtml += `
+                            <div class="font-bold text-gray-700 bg-yellow-50 p-3 rounded-xl border border-yellow-200 mb-2 shadow-sm">
+                                <div class="text-xs text-yellow-700 mb-1"><i class="far fa-star text-yellow-500 ml-1"></i> تقييم السلوك والنقاط الإضافية:</div>
+                                <div class="flex items-center flex-wrap gap-1 mt-1">
+                                    ${bStarsHtml} ${extraPts} ${reasonText}
+                                </div>
+                            </div>`;
                     }
 
                     hList.innerHTML += `
